@@ -8,6 +8,10 @@
 - [LeKiwi](https://hugging-face.cn/docs/lerobot/lekiwi#google_vignette)
 - [dual-so101-mobile-manipulator](https://github.com/leo-zhu-agibot/dual-so101-mobile-manipulator)
 
+## Agent Harness
+
+- [earendil-works/pi](https://github.com/earendil-works/pi)
+
 ## 语义地图
 
 - [concept-graphs](https://github.com/concept-graphs/concept-graphs)
