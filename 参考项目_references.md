@@ -11,6 +11,7 @@
 ## Agent Harness
 
 - [earendil-works/pi](https://github.com/earendil-works/pi)
+- [RoboHarness](https://github.com/BinceQu/RoboHarness)
 
 ## 语义地图
 
