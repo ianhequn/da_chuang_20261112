@@ -12,6 +12,16 @@
 
 - [earendil-works/pi](https://github.com/earendil-works/pi)
 - [RoboHarness](https://github.com/BinceQu/RoboHarness)
+- [MAESTRO: Orchestrating Robotics Modules with Coding Agents](https://arxiv.org/abs/2511.00917)
+- [VLAs-as-Tools](https://arxiv.org/abs/2605.13119)
+- [URAI: Frontier Agents Write, Call, and Evolve Robot Tools](https://arxiv.org/abs/2609.39018)
+- [OpenRUA: Robot-Use Agents Are Zero-Shot Visuomotor Policies](https://arxiv.org/abs/2610.02459)
+- [RAX: Scaling Online Exploration for Robot Agents](https://arxiv.org/abs/2610.22496)
+- [uni-robot-agent](https://arxiv.org/abs/2611.01560)
+
+## Robot Agent 评测
+
+- [RobotAgentBench: Towards Open-world Robot Autonomy](https://arxiv.org/abs/2610.34649)
 
 ## 语义地图
 
