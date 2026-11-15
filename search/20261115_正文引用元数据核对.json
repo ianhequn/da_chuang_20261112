@@ -1,0 +1,545 @@
+[
+  {
+    "id": "2306.11565",
+    "title": [
+      "HomeRobot: Open-Vocabulary Mobile Manipulation"
+    ],
+    "author": [
+      "Yenamandra, Sriram",
+      "Ramachandran, Arun",
+      "Yadav, Karmesh",
+      "Wang, Austin",
+      "Khanna, Mukul",
+      "Gervet, Theophile",
+      "Yang, Tsung-Yen",
+      "Jain, Vidhi",
+      "Clegg, Alexander William",
+      "Turner, John",
+      "Kira, Zsolt",
+      "Savva, Manolis",
+      "Chang, Angel",
+      "Chaplot, Devendra Singh",
+      "Batra, Dhruv",
+      "Mottaghi, Roozbeh",
+      "Bisk, Yonatan",
+      "Paxton, Chris"
+    ],
+    "date": [
+      "2023/06/20"
+    ],
+    "abstract": "Abstract: HomeRobot (noun): An affordable compliant robot that navigates homes and manipulates a wide range of objects in order to complete everyday tasks. Open-Vocabulary Mobile Manipulation (OVMM) is the problem of picking any object in any unseen environment, and placing it in a commanded location. This is a foundational challenge for robots to be useful assistants in human environments, because it involves tackling sub-problems from across robotics: perception, language understanding, navigation, and manipulation are all essential to OVMM. In addition, integration of the solutions to these sub-problems poses its own substantial challenges. To drive research in this area, we introduce the HomeRobot OVMM benchmark, where an agent navigates household environments to grasp novel objects and place them on target receptacles. HomeRobot has two components: a simulation component, which uses a large and diverse curated object set in new, high-quality multi-room home environments; and a real-world component, providing a software stack for the low-cost Hello Robot Stretch to encourage replication of real-world experiments across labs. We implement both reinforcement learning and heuristic (model-based) baselines and show evidence of sim-to-real transfer. Our baselines achieve a 20% success rate in the real world; our experiments identify ways future research work improve performance. See videos on our website:  this https URL ."
+  },
+  {
+    "id": "2401.12202",
+    "title": [
+      "OK-Robot: What Really Matters in Integrating Open-Knowledge Models for Robotics"
+    ],
+    "author": [
+      "Liu, Peiqi",
+      "Orru, Yaswanth",
+      "Vakil, Jay",
+      "Paxton, Chris",
+      "Shafiullah, Nur Muhammad Mahi",
+      "Pinto, Lerrel"
+    ],
+    "date": [
+      "2024/01/22"
+    ],
+    "abstract": "Abstract: Remarkable progress has been made in recent years in the fields of vision, language, and robotics. We now have vision models capable of recognizing objects based on language queries, navigation systems that can effectively control mobile systems, and grasping models that can handle a wide range of objects. Despite these advancements, general-purpose applications of robotics still lag behind, even though they rely on these fundamental capabilities of recognition, navigation, and grasping. In this paper, we adopt a systems-first approach to develop a new Open Knowledge-based robotics framework called OK-Robot. By combining Vision-Language Models (VLMs) for object detection, navigation primitives for movement, and grasping primitives for object manipulation, OK-Robot offers a integrated solution for pick-and-drop operations without requiring any training. To evaluate its performance, we run OK-Robot in 10 real-world home environments. The results demonstrate that OK-Robot achieves a 58.5% success rate in open-ended pick-and-drop tasks, representing a new state-of-the-art in Open Vocabulary Mobile Manipulation (OVMM) with nearly 1.8x the performance of prior work. On cleaner, uncluttered environments, OK-Robot&#39;s performance increases to 82%. However, the most important insight gained from OK-Robot is the critical role of nuanced details when combining Open Knowledge systems like VLMs with robotic modules. Videos of our experiments and code are available on our website:  this https URL"
+  },
+  {
+    "id": "2305.05658",
+    "title": [
+      "TidyBot: Personalized Robot Assistance with Large Language Models"
+    ],
+    "author": [
+      "Wu, Jimmy",
+      "Antonova, Rika",
+      "Kan, Adam",
+      "Lepert, Marion",
+      "Zeng, Andy",
+      "Song, Shuran",
+      "Bohg, Jeannette",
+      "Rusinkiewicz, Szymon",
+      "Funkhouser, Thomas"
+    ],
+    "date": [
+      "2023/05/09"
+    ],
+    "abstract": "Abstract: For a robot to personalize physical assistance effectively, it must learn user preferences that can be generally reapplied to future scenarios. In this work, we investigate personalization of household cleanup with robots that can tidy up rooms by picking up objects and putting them away. A key challenge is determining the proper place to put each object, as people&#39;s preferences can vary greatly depending on personal taste or cultural background. For instance, one person may prefer storing shirts in the drawer, while another may prefer them on the shelf. We aim to build systems that can learn such preferences from just a handful of examples via prior interactions with a particular person. We show that robots can combine language-based planning and perception with the few-shot summarization capabilities of large language models (LLMs) to infer generalized user preferences that are broadly applicable to future interactions. This approach enables fast adaptation and achieves 91.2% accuracy on unseen objects in our benchmark dataset. We also demonstrate our approach on a real-world mobile manipulator called TidyBot, which successfully puts away 85.0% of objects in real-world test scenarios."
+  },
+  {
+    "id": "2401.02117",
+    "title": [
+      "Mobile ALOHA: Learning Bimanual Mobile Manipulation with Low-Cost Whole-Body Teleoperation"
+    ],
+    "author": [
+      "Fu, Zipeng",
+      "Zhao, Tony Z.",
+      "Finn, Chelsea"
+    ],
+    "date": [
+      "2024/01/04"
+    ],
+    "abstract": "Abstract: Imitation learning from human demonstrations has shown impressive performance in robotics. However, most results focus on table-top manipulation, lacking the mobility and dexterity necessary for generally useful tasks. In this work, we develop a system for imitating mobile manipulation tasks that are bimanual and require whole-body control. We first present Mobile ALOHA, a low-cost and whole-body teleoperation system for data collection. It augments the ALOHA system with a mobile base, and a whole-body teleoperation interface. Using data collected with Mobile ALOHA, we then perform supervised behavior cloning and find that co-training with existing static ALOHA datasets boosts performance on mobile manipulation tasks. With 50 demonstrations for each task, co-training can increase success rates by up to 90%, allowing Mobile ALOHA to autonomously complete complex mobile manipulation tasks such as sauteing and serving a piece of shrimp, opening a two-door wall cabinet to store heavy cooking pots, calling and entering an elevator, and lightly rinsing a used pan using a kitchen faucet. Project website:  this https URL"
+  },
+  {
+    "id": "2204.01691",
+    "title": [
+      "Do As I Can, Not As I Say: Grounding Language in Robotic Affordances"
+    ],
+    "author": [
+      "Ahn, Michael",
+      "Brohan, Anthony",
+      "Brown, Noah",
+      "Chebotar, Yevgen",
+      "Cortes, Omar",
+      "David, Byron",
+      "Finn, Chelsea",
+      "Fu, Chuyuan",
+      "Gopalakrishnan, Keerthana",
+      "Hausman, Karol",
+      "Herzog, Alex",
+      "Ho, Daniel",
+      "Hsu, Jasmine",
+      "Ibarz, Julian",
+      "Ichter, Brian",
+      "Irpan, Alex",
+      "Jang, Eric",
+      "Ruano, Rosario Jauregui",
+      "Jeffrey, Kyle",
+      "Jesmonth, Sally",
+      "Joshi, Nikhil J",
+      "Julian, Ryan",
+      "Kalashnikov, Dmitry",
+      "Kuang, Yuheng",
+      "Lee, Kuang-Huei",
+      "Levine, Sergey",
+      "Lu, Yao",
+      "Luu, Linda",
+      "Parada, Carolina",
+      "Pastor, Peter",
+      "Quiambao, Jornell",
+      "Rao, Kanishka",
+      "Rettinghouse, Jarek",
+      "Reyes, Diego",
+      "Sermanet, Pierre",
+      "Sievers, Nicolas",
+      "Tan, Clayton",
+      "Toshev, Alexander",
+      "Vanhoucke, Vincent",
+      "Xia, Fei",
+      "Xiao, Ted",
+      "Xu, Peng",
+      "Xu, Sichun",
+      "Yan, Mengyuan",
+      "Zeng, Andy"
+    ],
+    "date": [
+      "2022/04/04"
+    ],
+    "abstract": "Abstract: Large language models can encode a wealth of semantic knowledge about the world. Such knowledge could be extremely useful to robots aiming to act upon high-level, temporally extended instructions expressed in natural language. However, a significant weakness of language models is that they lack real-world experience, which makes it difficult to leverage them for decision making within a given embodiment. For example, asking a language model to describe how to clean a spill might result in a reasonable narrative, but it may not be applicable to a particular agent, such as a robot, that needs to perform this task in a particular environment. We propose to provide real-world grounding by means of pretrained skills, which are used to constrain the model to propose natural language actions that are both feasible and contextually appropriate. The robot can act as the language model&#39;s &#34;hands and eyes,&#34; while the language model supplies high-level semantic knowledge about the task. We show how low-level skills can be combined with large language models so that the language model provides high-level knowledge about the procedures for performing complex and temporally-extended instructions, while value functions associated with these skills provide the grounding necessary to connect this knowledge to a particular physical environment. We evaluate our method on a number of real-world robotic tasks, where we show the need for real-world grounding and that this approach is capable of completing long-horizon, abstract, natural language instructions on a mobile manipulator. The project&#39;s website and the video can be found at  this https URL ."
+  },
+  {
+    "id": "2207.05608",
+    "title": [
+      "Inner Monologue: Embodied Reasoning through Planning with Language Models"
+    ],
+    "author": [
+      "Huang, Wenlong",
+      "Xia, Fei",
+      "Xiao, Ted",
+      "Chan, Harris",
+      "Liang, Jacky",
+      "Florence, Pete",
+      "Zeng, Andy",
+      "Tompson, Jonathan",
+      "Mordatch, Igor",
+      "Chebotar, Yevgen",
+      "Sermanet, Pierre",
+      "Brown, Noah",
+      "Jackson, Tomas",
+      "Luu, Linda",
+      "Levine, Sergey",
+      "Hausman, Karol",
+      "Ichter, Brian"
+    ],
+    "date": [
+      "2022/07/12"
+    ],
+    "abstract": "Abstract: Recent works have shown how the reasoning capabilities of Large Language Models (LLMs) can be applied to domains beyond natural language processing, such as planning and interaction for robots. These embodied problems require an agent to understand many semantic aspects of the world: the repertoire of skills available, how these skills influence the world, and how changes to the world map back to the language. LLMs planning in embodied environments need to consider not just what skills to do, but also how and when to do them - answers that change over time in response to the agent&#39;s own choices. In this work, we investigate to what extent LLMs used in such embodied contexts can reason over sources of feedback provided through natural language, without any additional training. We propose that by leveraging environment feedback, LLMs are able to form an inner monologue that allows them to more richly process and plan in robotic control scenarios. We investigate a variety of sources of feedback, such as success detection, scene description, and human interaction. We find that closed-loop language feedback significantly improves high-level instruction completion on three domains, including simulated and real table top rearrangement tasks and long-horizon mobile manipulation tasks in a kitchen environment in the real world."
+  },
+  {
+    "id": "2502.19417",
+    "title": [
+      "Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models"
+    ],
+    "author": [
+      "Shi, Lucy Xiaoyang",
+      "Ichter, Brian",
+      "Equi, Michael",
+      "Ke, Liyiming",
+      "Pertsch, Karl",
+      "Vuong, Quan",
+      "Tanner, James",
+      "Walling, Anna",
+      "Wang, Haohuan",
+      "Fusai, Niccolo",
+      "Li-Bell, Adrian",
+      "Driess, Danny",
+      "Groom, Lachy",
+      "Levine, Sergey",
+      "Finn, Chelsea"
+    ],
+    "date": [
+      "2025/02/26"
+    ],
+    "abstract": "Abstract: Generalist robots that can perform a range of different tasks in open-world settings must be able to not only reason about the steps needed to accomplish their goals, but also process complex instructions, prompts, and even feedback during task execution. Intricate instructions (e.g., &#34;Could you make me a vegetarian sandwich?&#34; or &#34;I don&#39;t like that one&#34;) require not just the ability to physically perform the individual steps, but the ability to situate complex commands and feedback in the physical world. In this work, we describe a system that uses vision-language models in a hierarchical structure, first reasoning over complex prompts and user feedback to deduce the most appropriate next step to fulfill the task, and then performing that step with low-level actions. In contrast to direct instruction following methods that can fulfill simple commands (&#34;pick up the cup&#34;), our system can reason through complex prompts and incorporate situated feedback during task execution (&#34;that&#39;s not trash&#34;). We evaluate our system across three robotic platforms, including single-arm, dual-arm, and dual-arm mobile robots, demonstrating its ability to handle tasks such as cleaning messy tables, making sandwiches, and grocery shopping. Videos are available at  this https URL"
+  },
+  {
+    "id": "2505.03673",
+    "title": [
+      "RoboOS: A Hierarchical Embodied Framework for Cross-Embodiment and Multi-Agent Collaboration"
+    ],
+    "author": [
+      "Tan, Huajie",
+      "Hao, Xiaoshuai",
+      "Chi, Cheng",
+      "Lin, Minglan",
+      "Lyu, Yaoxu",
+      "Cao, Mingyu",
+      "Liang, Dong",
+      "Chen, Zhuo",
+      "Lyu, Mengsi",
+      "Peng, Cheng",
+      "He, Chenrui",
+      "Ao, Yulong",
+      "Lin, Yonghua",
+      "Wang, Pengwei",
+      "Wang, Zhongyuan",
+      "Zhang, Shanghang"
+    ],
+    "date": [
+      "2025/05/06"
+    ],
+    "abstract": "Abstract: The dawn of embodied intelligence has ushered in an unprecedented imperative for resilient, cognition-enabled multi-agent collaboration across next-generation ecosystems, revolutionizing paradigms in autonomous manufacturing, adaptive service robotics, and cyber-physical production architectures. However, current robotic systems face significant limitations, such as limited cross-embodiment adaptability, inefficient task scheduling, and insufficient dynamic error correction. While End-to-end VLA models demonstrate inadequate long-horizon planning and task generalization, hierarchical VLA models suffer from a lack of cross-embodiment and multi-agent coordination capabilities. To address these challenges, we introduce RoboOS, the first open-source embodied system built on a Brain-Cerebellum hierarchical architecture, enabling a paradigm shift from single-agent to multi-agent intelligence. Specifically, RoboOS consists of three key components: (1) Embodied Brain Model (RoboBrain), a MLLM designed for global perception and high-level decision-making; (2) Cerebellum Skill Library, a modular, plug-and-play toolkit that facilitates seamless execution of multiple skills; and (3) Real-Time Shared Memory, a spatiotemporal synchronization mechanism for coordinating multi-agent states. By integrating hierarchical information flow, RoboOS bridges Embodied Brain and Cerebellum Skill Library, facilitating robust planning, scheduling, and error correction for long-horizon tasks, while ensuring efficient multi-agent collaboration through Real-Time Shared Memory. Furthermore, we enhance edge-cloud communication and cloud-based distributed inference to facilitate high-frequency interactions and enable scalable deployment. Extensive real-world experiments across various scenarios, demonstrate RoboOS&#39;s versatility in supporting heterogeneous embodiments. Project website:  this https URL"
+  },
+  {
+    "id": "2607.13653v2",
+    "title": [
+      "Exploratory, Communicative, and Deployable: Vision-Driven Embodied Agents for Open-World Mobile Manipulation"
+    ],
+    "author": [
+      "Mi, Boyu",
+      "Ma, Mengchen",
+      "Yao, Yifei",
+      "Gao, Xing",
+      "Chen, Junting",
+      "Li, Yangzi",
+      "Zhu, Zihou",
+      "Li, Guohao",
+      "Yin, Zhenfei",
+      "Wang, Tai",
+      "Mu, Yao",
+      "Pang, Jiangmiao",
+      "Wang, Hanqing"
+    ],
+    "date": [
+      "2026/07/15"
+    ],
+    "abstract": "Abstract: Real-world deployment of embodied agents requires active exploration, visual grounding, and interactive intent disambiguation. However, existing frameworks often rely on privileged simulator states or assume complete instructions, bypassing realistic deployment challenges. To bridge this gap, we present REAL, an agentic framework for open-world mobile manipulation. REAL establishes sim-to-real-consistent environment APIs without oracle perception and integrates a simulated user to enable human-in-the-loop interaction. Within this environment, we design diverse task compositions to drive data collection, supervised fine-tuning, and online reinforcement learning, systematically optimizing agent performance. To comprehensively evaluate this approach, we introduce REAL-Bench, a benchmark spanning 241 tasks across active exploration, visual distraction, articulated manipulation, and interactive disambiguation.\n Experimental results demonstrate that our trained agent outperforms leading commercial closed-source VLMs on interactive tasks with a 56.9% success rate. Further empirical analysis reveals that our hierarchical training pipeline successfully aligns the model&#39;s tool-use capabilities while maintaining robust open-vocabulary reasoning under extended exploration horizons. Finally, we deploy and evaluate our framework on a physical dual-arm mobile robot, where it achieves a 78.3% end-to-end success rate over 60 real-world episodes. These physical trials demonstrate robust zero-shot transferability to unseen household scenarios, validating that our sim-to-real-consistent design successfully bridges the reality gap for long-horizon mobile manipulation. Code is available at  this https URL ."
+  },
+  {
+    "id": "2607.18060v3",
+    "title": [
+      "RoboHarness: Memory-Driven Orchestration of Heterogeneous Robot Policies for Long-Horizon Planning"
+    ],
+    "author": [
+      "Huang, Jinbang",
+      "Li, Zhiyuan",
+      "Hu, Yuanzhao",
+      "Qi, Ran",
+      "Xiao, Yixin",
+      "Coates, Mark",
+      "Cao, Tongtong",
+      "Zhang, Zhanguang",
+      "Zhang, Yingxue"
+    ],
+    "date": [
+      "2026/07/20"
+    ],
+    "abstract": "Abstract: Long-horizon robotic tasks require a breadth of capabilities beyond what any single existing robot control policy can reliably provide. Combining heterogeneous policies with complementary strengths offers a promising solution, but introduces two key challenges: uncertain capability boundaries and distribution mismatches during policy handoffs. These challenges remain largely unaddressed by existing planning methods, which typically assume homogeneous, predefined skills with fixed applicability. We propose RoboHarness, a unified framework that encapsulates independently developed heterogeneous policies, including vision-language-action models (VLAs), world-action models (WAMs), reinforcement learning (RL) policies, and task and motion planners (TAMP), as reusable agentic skills. RoboHarness integrates understanding, memory, and evolution skills to reason about policy capabilities and support capability-aware task decomposition and policy routing. To mitigate distribution mismatches during policy handoffs, we introduce Memory Bridge, a plug-in policy-chaining mechanism that enables reliable transitions between heterogeneous policies without joint retraining. Extensive experiments across five public benchmarks, 500 customized tasks across 10 classes, and 135 real-robot trials demonstrate substantial gains in long-horizon and memory-dependent tasks, as well as robustness to out-of-distribution conditions."
+  },
+  {
+    "id": "2511.00917v3",
+    "title": [
+      "MAESTRO: Orchestrating Robotics Modules with Coding Agents for Zero-Shot Generalist Robots"
+    ],
+    "author": [
+      "Shi, Junyao",
+      "Yang, Rujia",
+      "Chao, Kaitian",
+      "Wan, Selina Bingqing",
+      "Shao, Yifei",
+      "Lei, Jiahui",
+      "Qian, Jianing",
+      "Le, Long",
+      "Chaudhari, Pratik",
+      "Daniilidis, Kostas",
+      "Wen, Chuan",
+      "Jayaraman, Dinesh"
+    ],
+    "date": [
+      "2025/11/02"
+    ],
+    "abstract": "Abstract: Today&#39;s dominant route to generalist robots scales robotics data to train end-to-end policies. We instead use a vision-language model (VLM) as a coding agent that writes robot programs using a curated library of perception, planning, and control tools. MAESTRO&#39;s orchestration harness packages multi-step perception and action procedures into callable tools and guides their use through a plan-act-replan loop, using visual and execution feedback to verify outcomes and recover from failures. With this tool library and harness, MAESTRO matches or surpasses state-of-the-art vision-language-action (VLA) models zero-shot in our tabletop comparison and performs diverse mobile manipulation tasks, without collecting new teleoperation data or invoking a VLA tool. Ablations show that expanding the tool library improves average task progress with the full harness, while adding tools without it does not reliably improve progress. Case studies illustrate MAESTRO&#39;s potential for autonomous code improvement across trials, faster execution with VLA tools, and automatic robot data generation. We show that expanding robotics tool libraries together with their orchestration harnesses offers a complementary route to general-purpose robots alongside scaling end-to-end robot training data. Project site:  this https URL . Code:  this https URL ."
+  },
+  {
+    "id": "2605.13119v2",
+    "title": [
+      "Towards Long-horizon Embodied Agents with Tool-Aligned Vision-Language-Action Models"
+    ],
+    "author": [
+      "Lei, Zixing",
+      "Liu, Changxing",
+      "Xiong, Yichen",
+      "Xiong, Minhao",
+      "Ding, Yuanzhuo",
+      "Zhang, Zhipeng",
+      "Li, Weixin",
+      "Chen, Siheng"
+    ],
+    "date": [
+      "2026/05/13"
+    ],
+    "abstract": "Abstract: Vision-language-action (VLA) models are effective robot action executors, but they remain limited on long-horizon tasks due to the dual burden of extended closed-loop planning and diverse physical operations. We therefore propose VLAs-as-Tools, a strategy that distributes this burden across a high-level vision language model (VLM) agent for temporal reasoning and a family of specialized VLA tools for diverse local physical operations. The VLM handles scene analysis, global planning, and recovery, while each VLA tool executes a bounded subtask. To tightly couple agent planning with VLA tool execution in long-horizon tasks, we introduce a VLA tool-family interface that exposes explicit tool selection and in-execution progress feedback, enabling efficient event-triggered agent replanning without continuous agent polling. To obtain diverse specialized VLA tools that faithfully follow agent invocations, we further propose Tool-Aligned Post-Training (TAPT), which constructs invocation-aligned training units for instruction following and adopts tool-family residual adapters for efficient tool specialization. Across five simulated benchmarks, VLAs-as-Tools improves the success rate of pi05 by 8.9 percentage points on average and enhances invocation fidelity by 15.0 points in Non-biased Rate. On three real-world Franka tasks, it improves success rate from 16.7% to 58.3% under matched data and compute. Code will be released."
+  },
+  {
+    "id": "2309.16650",
+    "title": [
+      "ConceptGraphs: Open-Vocabulary 3D Scene Graphs for Perception and Planning"
+    ],
+    "author": [
+      "Gu, Qiao",
+      "Kuwajerwala, Alihusein",
+      "Morin, Sacha",
+      "Jatavallabhula, Krishna Murthy",
+      "Sen, Bipasha",
+      "Agarwal, Aditya",
+      "Rivera, Corban",
+      "Paul, William",
+      "Ellis, Kirsty",
+      "Chellappa, Rama",
+      "Gan, Chuang",
+      "de Melo, Celso Miguel",
+      "Tenenbaum, Joshua B.",
+      "Torralba, Antonio",
+      "Shkurti, Florian",
+      "Paull, Liam"
+    ],
+    "date": [
+      "2023/09/28"
+    ],
+    "abstract": "Abstract: For robots to perform a wide variety of tasks, they require a 3D representation of the world that is semantically rich, yet compact and efficient for task-driven perception and planning. Recent approaches have attempted to leverage features from large vision-language models to encode semantics in 3D representations. However, these approaches tend to produce maps with per-point feature vectors, which do not scale well in larger environments, nor do they contain semantic spatial relationships between entities in the environment, which are useful for downstream planning. In this work, we propose ConceptGraphs, an open-vocabulary graph-structured representation for 3D scenes. ConceptGraphs is built by leveraging 2D foundation models and fusing their output to 3D by multi-view association. The resulting representations generalize to novel semantic classes, without the need to collect large 3D datasets or finetune models. We demonstrate the utility of this representation through a number of downstream planning tasks that are specified through abstract (language) prompts and require complex reasoning over spatial and semantic concepts. (Project page:  this https URL  Explainer video:  this https URL  )"
+  },
+  {
+    "id": "2411.04999",
+    "title": [
+      "DynaMem: Online Dynamic Spatio-Semantic Memory for Open World Mobile Manipulation"
+    ],
+    "author": [
+      "Liu, Peiqi",
+      "Guo, Zhanqiu",
+      "Warke, Mohit",
+      "Chintala, Soumith",
+      "Paxton, Chris",
+      "Shafiullah, Nur Muhammad Mahi",
+      "Pinto, Lerrel"
+    ],
+    "date": [
+      "2024/11/07"
+    ],
+    "abstract": "Abstract: Significant progress has been made in open-vocabulary mobile manipulation, where the goal is for a robot to perform tasks in any environment given a natural language description. However, most current systems assume a static environment, which limits the system&#39;s applicability in real-world scenarios where environments frequently change due to human intervention or the robot&#39;s own actions. In this work, we present DynaMem, a new approach to open-world mobile manipulation that uses a dynamic spatio-semantic memory to represent a robot&#39;s environment. DynaMem constructs a 3D data structure to maintain a dynamic memory of point clouds, and answers open-vocabulary object localization queries using multimodal LLMs or open-vocabulary features generated by state-of-the-art vision-language models. Powered by DynaMem, our robots can explore novel environments, search for objects not found in memory, and continuously update the memory as objects move, appear, or disappear in the scene. We run extensive experiments on the Stretch SE3 robots in three real and nine offline scenes, and achieve an average pick-and-drop success rate of 70% on non-stationary objects, which is more than a 2x improvement over state-of-the-art static systems. Our code as well as our experiment and deployment videos are open sourced and can be found on our project website:  this https URL"
+  },
+  {
+    "id": "2501.04279",
+    "title": [
+      "OpenIN: Open-Vocabulary Instance-Oriented Navigation in Dynamic Domestic Environments"
+    ],
+    "author": [
+      "Tang, Yujie",
+      "Wang, Meiling",
+      "Deng, Yinan",
+      "Zheng, Zibo",
+      "Deng, Jingchuan",
+      "Yue, Yufeng"
+    ],
+    "date": [
+      "2025/01/08"
+    ],
+    "abstract": "Abstract: In daily domestic settings, frequently used objects like cups often have unfixed positions and multiple instances within the same category, and their carriers frequently change as well. As a result, it becomes challenging for a robot to efficiently navigate to a specific instance. To tackle this challenge, the robot must capture and update scene changes and plans continuously. However, current object navigation approaches primarily focus on the semantic level and lack the ability to dynamically update scene representation. In contrast, this paper captures the relationships between frequently used objects and their static carriers. It constructs an open-vocabulary Carrier-Relationship Scene Graph (CRSG) and updates the carrying status during robot navigation to reflect the dynamic changes of the scene. Based on the CRSG, we further propose an instance navigation strategy that models the navigation process as a Markov Decision Process. At each step, decisions are informed by the Large Language Model&#39;s commonsense knowledge and visual-language feature similarity. We designed a series of long-sequence navigation tasks for frequently used everyday items in the Habitat simulator. The results demonstrate that by updating the CRSG, the robot can efficiently navigate to moved targets. Additionally, we deployed our algorithm on a real robot and validated its practical effectiveness. The project page can be found here:  this https URL ."
+  },
+  {
+    "id": "2606.15476v3",
+    "title": [
+      "FARM: Find Anything using Relational Spatial Memory"
+    ],
+    "author": [
+      "He, Siming",
+      "Huang, Leo",
+      "Lilja, Adam",
+      "Huebel, Fabio",
+      "Frey, Jonas",
+      "Pavone, Marco",
+      "Sastry, S. Shankar",
+      "Malik, Jitendra",
+      "Tomlin, Claire"
+    ],
+    "date": [
+      "2026/06/13"
+    ],
+    "abstract": "Abstract: Robots operating in homes, warehouses, and other object-rich environments need memory systems that can find specific object instances on demand. Object-level memory alone is often insufficient: scenes contain many plausibly matching objects, and users refer to the target through relations to landmarks and surrounding objects (e.g. ``the tall lamp below the dartboard and to the left of the poster&#39;&#39;), demanding a relational spatial memory that supports retrieval through semantic, appearance, and spatial predicates over objects. To achieve this, we present FARM (Find Anything using Relational Spatial Memory), which builds, in real time at 5-10 Hz, a compact, open-vocabulary, object-level memory with geometry, visual-language descriptors, and viewpoint evidence. At query time, FARM uses VLMs to parse the query and score visual evidence, while grounding spatial constraints explicitly through object symbols and relational predicates. This structured use of VLMs enables more accurate and robust retrieval than end-to-end reasoning over frame histories or scene-graph context. In experiments on 44k language queries spanning 67 indoor and outdoor scenes, ranging from 15 to 15,000 m^2, FARM improves Recall@5 and Recall@10 over prior methods by 164% and 224%, and a final VLM reranking stage improves Accuracy@1 by 35%, while running in real time. We further demonstrate closed-loop deployment on a quadrupedal robot using onboard sensors and compute."
+  },
+  {
+    "id": "2610.00330v2",
+    "title": [
+      "Retrospective Open-Vocabulary Memory for Long-Term Object Search"
+    ],
+    "author": [
+      "Wang, Jiaming",
+      "Xue, Zhiwei",
+      "Jizhuo, Chen",
+      "Shiqi, Peng",
+      "Soh, Harold"
+    ],
+    "date": [
+      "2026/09/29"
+    ],
+    "abstract": "Abstract: Long-term object search requires learning where objects usually appear from repeated but uneven observations of a changing environment. We formulate retrospective open-vocabulary memory as probabilistic inference from censored observations, where the key idea is to reason with evidence per opportunity: a detection or non-detection should influence belief only in proportion to the robot&#39;s opportunity to observe the corresponding location. We introduce ECROM, which uses this principle to estimate long-term prevalence for concepts specified only at query time and converts the resulting belief directly into an active-search prior. To evaluate this problem, we introduce a controlled long-term benchmark in ten HM3D homes that independently varies object placement and observation opportunity across repeated traversals. ECROM improves support-level AP on held-out queries by 4.5 points and search SPL by 4.2 points over the strongest competing memory in each metric. The benchmark, dataset, and code will be open-sourced. Project page:  this https URL"
+  },
+  {
+    "id": "2506.01844",
+    "title": [
+      "SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics"
+    ],
+    "author": [
+      "Shukor, Mustafa",
+      "Aubakirova, Dana",
+      "Capuano, Francesco",
+      "Kooijmans, Pepijn",
+      "Palma, Steven",
+      "Zouitine, Adil",
+      "Aractingi, Michel",
+      "Pascal, Caroline",
+      "Russi, Martino",
+      "Marafioti, Andres",
+      "Alibert, Simon",
+      "Cord, Matthieu",
+      "Wolf, Thomas",
+      "Cadene, Remi"
+    ],
+    "date": [
+      "2025/06/02"
+    ],
+    "abstract": "Abstract: Vision-language models (VLMs) pretrained on large-scale multimodal datasets encode rich visual and linguistic knowledge, making them a strong foundation for robotics. Rather than training robotic policies from scratch, recent approaches adapt VLMs into vision-language-action (VLA) models that enable natural language-driven perception and control. However, existing VLAs are typically massive--often with billions of parameters--leading to high training costs and limited real-world deployability. Moreover, they rely on academic and industrial datasets, overlooking the growing availability of community-collected data from affordable robotic platforms. In this work, we present SmolVLA, a small, efficient, and community-driven VLA that drastically reduces both training and inference costs, while retaining competitive performance. SmolVLA is designed to be trained on a single GPU and deployed on consumer-grade GPUs or even CPUs. To further improve responsiveness, we introduce an asynchronous inference stack decoupling perception and action prediction from action execution, allowing higher control rates with chunked action generation. Despite its compact size, SmolVLA achieves performance comparable to VLAs that are 10x larger. We evaluate SmolVLA on a range of both simulated as well as real-world robotic benchmarks and release all code, pretrained models, and training data."
+  },
+  {
+    "id": "2609.07398",
+    "title": [
+      "OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining"
+    ],
+    "author": [
+      "Wang, Yuran",
+      "Huang, Siqiao",
+      "Li, Mingleyang",
+      "Zhang, Chenhao",
+      "Liang, Jiaqi",
+      "Jin, Weiyang",
+      "Chen, Yue",
+      "Chi, Xuemin",
+      "Zhou, Donghao",
+      "Yu, Qize",
+      "Wang, Yu-Kai",
+      "Rui, Yuhan",
+      "Yao, Shenzhe",
+      "Yuan, Zhen",
+      "Shen, Zhenhao",
+      "Zhu, Kefei",
+      "Zhu, Zijie",
+      "Gao, Ning",
+      "Chi, Xiaowei",
+      "He, Guanqi",
+      "Zhang, Shanghang",
+      "Dong, Hao",
+      "Shao, Lin",
+      "Zhao, Hang"
+    ],
+    "date": [
+      "2026/09/07"
+    ],
+    "abstract": "Abstract: World-Action Models inherit world knowledge from video-generative priors, and channel it into executable control signals through embodied experience. Existing systems, however, are monolithic: the generative backbone, visual representation, architecture, information flow, inference procedure, and training data are tightly coupled, obscuring which design choices matter and why. We introduce OpenWAM, an open research stack that turns world-action pretraining into a controlled experimental program. OpenWAM-Infra factorizes the WAM design space into composable modules with unified training, inference, deployment, and evaluation. On this substrate, OpenWAM-Study examines three questions through controlled experiments: what to inherit, how world and action learning interact, and how their synergy scales; and distills three principles: upstream knowledge transfers through a sufficiently capable generative backbone and a compact, information-rich latent space; world-action synergy requires dedicated action capacity, explicit world-to-action information flow, and synchronized joint denoising; and embodied pretraining principally improves out-of-domain generalization, with one-stage co-training over egocentric and robot data integrating world coverage and action grounding. Composing these principles, we build OpenWAM-{\\alpha}, an open WAM pretrained on roughly 6,400 hours of egocentric human and robot data and evaluated across simulation and real-world benchmarks. Across the eight simulation benchmarks and the real-robot experiments, which together span embodiments from single-arm and bimanual manipulation to dexterous hands, OpenWAM-{\\alpha} delivers consistently excellent performance, sustaining its top-tier standing from simulation to the physical world. We release the full stack, including infrastructure, evaluation protocols, pretrained models, and data recipes, to facilitate future research."
+  },
+  {
+    "id": "2403.09227",
+    "title": [
+      "BEHAVIOR-1K: A Human-Centered, Embodied AI Benchmark with 1,000 Everyday Activities and Realistic Simulation"
+    ],
+    "author": [
+      "Li, Chengshu",
+      "Zhang, Ruohan",
+      "Wong, Josiah",
+      "Gokmen, Cem",
+      "Srivastava, Sanjana",
+      "Martín-Martín, Roberto",
+      "Wang, Chen",
+      "Levine, Gabrael",
+      "Ai, Wensi",
+      "Martinez, Benjamin",
+      "Yin, Hang",
+      "Lingelbach, Michael",
+      "Hwang, Minjune",
+      "Hiranaka, Ayano",
+      "Garlanka, Sujay",
+      "Aydin, Arman",
+      "Lee, Sharon",
+      "Sun, Jiankai",
+      "Anvari, Mona",
+      "Sharma, Manasi",
+      "Bansal, Dhruva",
+      "Hunter, Samuel",
+      "Kim, Kyu-Young",
+      "Lou, Alan",
+      "Matthews, Caleb R",
+      "Villa-Renteria, Ivan",
+      "Tang, Jerry Huayang",
+      "Tang, Claire",
+      "Xia, Fei",
+      "Li, Yunzhu",
+      "Savarese, Silvio",
+      "Gweon, Hyowon",
+      "Liu, C. Karen",
+      "Wu, Jiajun",
+      "Fei-Fei, Li"
+    ],
+    "date": [
+      "2024/03/14"
+    ],
+    "abstract": "Abstract: We present BEHAVIOR-1K, a comprehensive simulation benchmark for human-centered robotics. BEHAVIOR-1K includes two components, guided and motivated by the results of an extensive survey on &#34;what do you want robots to do for you?&#34;. The first is the definition of 1,000 everyday activities, grounded in 50 scenes (houses, gardens, restaurants, offices, etc.) with more than 9,000 objects annotated with rich physical and semantic properties. The second is OMNIGIBSON, a novel simulation environment that supports these activities via realistic physics simulation and rendering of rigid bodies, deformable bodies, and liquids. Our experiments indicate that the activities in BEHAVIOR-1K are long-horizon and dependent on complex manipulation skills, both of which remain a challenge for even state-of-the-art robot learning solutions. To calibrate the simulation-to-reality gap of BEHAVIOR-1K, we provide an initial study on transferring solutions learned with a mobile manipulator in a simulated apartment to its real-world counterpart. We hope that BEHAVIOR-1K&#39;s human-grounded nature, diversity, and realism make it valuable for embodied AI and robot learning research. Project website:  this https URL ."
+  },
+  {
+    "id": "2603.04356",
+    "title": [
+      "RoboCasa365: A Large-Scale Simulation Framework for Training and Benchmarking Generalist Robots"
+    ],
+    "author": [
+      "Nasiriany, Soroush",
+      "Nasiriany, Sepehr",
+      "Maddukuri, Abhiram",
+      "Zhu, Yuke"
+    ],
+    "date": [
+      "2026/03/04"
+    ],
+    "abstract": "Abstract: Recent advances in robot learning have accelerated progress toward generalist robots that can perform everyday tasks in human environments. Yet it remains difficult to gauge how close we are to this vision. The field lacks a reproducible, large-scale benchmark for systematic evaluation. To fill this gap, we present RoboCasa365, a comprehensive simulation benchmark for household mobile manipulation. Built on the RoboCasa platform, RoboCasa365 introduces 365 everyday tasks across 2,500 diverse kitchen environments, with over 600 hours of human demonstration data and over 1600 hours of synthetically generated demonstration data -- making it one of the most diverse and large-scale resources for studying generalist policies. RoboCasa365 is designed to support systematic evaluations for different problem settings, including multi-task learning, robot foundation model training, and lifelong learning. We conduct extensive experiments on this benchmark with state-of-the-art methods and analyze the impacts of task diversity, dataset scale, and environment variation on generalization. Our results provide new insights into what factors most strongly affect the performance of generalist robots and inform strategies for future progress in the field."
+  }
+]
