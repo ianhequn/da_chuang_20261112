@@ -541,5 +541,118 @@
       "2026/03/04"
     ],
     "abstract": "Abstract: Recent advances in robot learning have accelerated progress toward generalist robots that can perform everyday tasks in human environments. Yet it remains difficult to gauge how close we are to this vision. The field lacks a reproducible, large-scale benchmark for systematic evaluation. To fill this gap, we present RoboCasa365, a comprehensive simulation benchmark for household mobile manipulation. Built on the RoboCasa platform, RoboCasa365 introduces 365 everyday tasks across 2,500 diverse kitchen environments, with over 600 hours of human demonstration data and over 1600 hours of synthetically generated demonstration data -- making it one of the most diverse and large-scale resources for studying generalist policies. RoboCasa365 is designed to support systematic evaluations for different problem settings, including multi-task learning, robot foundation model training, and lifelong learning. We conduct extensive experiments on this benchmark with state-of-the-art methods and analyze the impacts of task diversity, dataset scale, and environment variation on generalization. Our results provide new insights into what factors most strongly affect the performance of generalist robots and inform strategies for future progress in the field."
+  },
+  {
+    "id": "2510.26536v1",
+    "title": [
+      "RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration"
+    ],
+    "author": [
+      "Tan, Huajie",
+      "Chi, Cheng",
+      "Chen, Xiansheng",
+      "Ji, Yuheng",
+      "Zhao, Zhongxia",
+      "Hao, Xiaoshuai",
+      "Lyu, Yaoxu",
+      "Cao, Mingyu",
+      "Zhao, Junkai",
+      "Lyu, Huaihai",
+      "Zhou, Enshen",
+      "Chen, Ning",
+      "Fu, Yankai",
+      "Peng, Cheng",
+      "Guo, Wei",
+      "Liang, Dong",
+      "Chen, Zhuo",
+      "Lyu, Mengsi",
+      "He, Chenrui",
+      "Ao, Yulong",
+      "Lin, Yonghua",
+      "Wang, Pengwei",
+      "Wang, Zhongyuan",
+      "Zhang, Shanghang"
+    ],
+    "date": [
+      "2025/10/30"
+    ]
+  },
+  {
+    "id": "2506.04217v2",
+    "title": [
+      "OWMM-Agent: Open World Mobile Manipulation With Multi-modal Agentic Data Synthesis"
+    ],
+    "author": [
+      "Chen, Junting",
+      "Liang, Haotian",
+      "Du, Lingxiao",
+      "Wang, Weiyun",
+      "Hu, Mengkang",
+      "Mu, Yao",
+      "Wang, Wenhai",
+      "Dai, Jifeng",
+      "Luo, Ping",
+      "Shao, Wenqi",
+      "Shao, Lin"
+    ],
+    "date": [
+      "2025/06/04"
+    ]
+  },
+  {
+    "id": "2611.06908v1",
+    "title": [
+      "Perceptive Humanoid Motion from Simulation"
+    ],
+    "author": [
+      "Hu, Siyuan",
+      "Abuduweili, Abulikemu",
+      "Meng, Yue",
+      "Liu, Shipeng",
+      "Leboutet, Quentin",
+      "Chen, Chen",
+      "Müller, Matthias",
+      "Koltun, Vladlen"
+    ],
+    "date": [
+      "2026/11/04"
+    ]
+  },
+  {
+    "id": "2609.23578v2",
+    "title": [
+      "AR-WAM: A Visual-Conditioned Agent-Ready World Action Model for Robotic Manipulation"
+    ],
+    "author": [
+      "Jiang, Yicheng",
+      "Gan, Zesen",
+      "Wang, Xiaobo",
+      "He, Tianlun",
+      "Zhao, Chenxu",
+      "Wu, Minghui",
+      "Wang, Xinyue",
+      "Wang, Jiaxu",
+      "He, Junhao",
+      "Wang, Jianan",
+      "Shao, Qiming"
+    ],
+    "date": [
+      "2026/09/20"
+    ]
+  },
+  {
+    "id": "2511.03165v1",
+    "title": [
+      "SENT Map -- Semantically Enhanced Topological Maps with Foundation Models"
+    ],
+    "author": [
+      "Kathirvel, Raj Surya Rajendran",
+      "Chavis, Zach A",
+      "Guy, Stephen J.",
+      "Desingh, Karthik"
+    ],
+    "date": [
+      "2025/11/05"
+    ]
   }
 ]
