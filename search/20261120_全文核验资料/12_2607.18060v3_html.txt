@@ -1,0 +1,1198 @@
+ 
+ RoboHarness: Memory-Driven Orchestration of Heterogeneous Robot Policies for Long-Horizon Planning 
+ Report GitHub Issue 
+ × 
+ Title: 
+ Content selection saved. Describe the issue below: 
+ Description: 
+ Submit without GitHub 
+ Submit in GitHub 
+ arXiv is now an independent nonprofit! 
+ Learn more 
+ × 
+ Back to arXiv 
+ Why HTML? 
+ Report Issue 
+ Back to Abstract 
+ Download PDF 
+ Abstract 
+ 1 Introduction 
+ 2 Related Work 
+ 3 Problem Definition 
+ 4 Methodology 
+ 4.1 Understanding Skills 
+ 4.2 Memory Skills and Memory Bridge 
+ 4.2.1 Memory Management 
+ 4.2.2 Memory Bridge 
+ 4.3 Heterogeneous Policies as Agentic Skills 
+ 4.4 Evolution Skills 
+ 5 Experimental Setup and Baselines 
+ 6 Results 
+ 7 Real Robot Experiments 
+ 8 Limitations and Future Work 
+ 9 Conclusion 
+ References 
+ A LIBERO-Complex Customized Tasks 
+ A.1 Simulated tasks 
+ B Real robot Experiment 
+ Five different target structures: 
+ Execution-Time Disturbances: 
+ Implementation Details. 
+ C Details of Auxiliary Skill Modules 
+ C.1 Understanding Skills 
+ C.2 Memory Skill Implementation Details 
+ Memory Data Structure. 
+ Progress Estimator. 
+ Memory Bridge Example. 
+ C.3 Evolution Skill Implementation Details 
+ C.3.1 Underlying Heterogeneous Policies 
+ D Evaluation Details on Benchmarks 
+ D.1 Heterogeneous Policy Configurations across Benchmarks 
+ D.2 RMBench 
+ D.3 BEHAVIOR-1K 
+ D.4 LIBERO-LoHo 
+ License: CC BY-NC-SA 4.0
+arXiv:2607.18060v3 [cs.RO] 29 Sep 2026 
+ RoboHarness: Memory-Driven Orchestration of Heterogeneous Robot Policies for Long-Horizon Planning 
+ Jinbang Huang
+ Affiliation:  Huawei Noah’s Ark Lab
+ Zhiyuan Li
+ Affiliation:  University of British Columbia
+ Yuanzhao Hu
+ Affiliation:  University of Toronto
+ Ran Qi
+ Affiliation:  University of British Columbia
+ Yixin Xiao
+ Affiliation:  Huawei Noah’s Ark Lab
+ Mark Coates
+ Affiliation:  McGill University
+ Tongtong Cao
+ Affiliation:  Department of Foundation Model, 2012 Labs
+ Zhanguang Zhang
+ Affiliation:  Huawei Noah’s Ark Lab
+ Yingxue Zhang
+ Affiliation:  Huawei Noah’s Ark Lab
+ Abstract 
+ Long-horizon robotic tasks require a breadth of capabilities beyond what any single existing robot control policy can reliably provide. Combining heterogeneous policies with complementary strengths offers a promising solution, but introduces two key challenges: uncertain capability boundaries and distribution mismatches during policy handoffs. These challenges remain largely unaddressed by existing planning methods, which typically assume homogeneous, predefined skills with fixed applicability. We propose RoboHarness, a unified framework that encapsulates independently developed heterogeneous policies, including vision-language-action models (VLAs), world-action models (WAMs), reinforcement learning (RL) policies, and task and motion planners (TAMP), as reusable agentic skills. RoboHarness integrates understanding, memory, and evolution skills to reason about policy capabilities and support capability-aware task decomposition and policy routing. To mitigate distribution mismatches during policy handoffs, we introduce Memory Bridge, a plug-in policy-chaining mechanism that enables reliable transitions between heterogeneous policies without joint retraining. Extensive experiments across five public benchmarks, 500 customized tasks across 10 classes, and 135 real-robot trials demonstrate substantial gains in long-horizon and memory-dependent tasks, as well as robustness to out-of-distribution conditions. 
+ † † footnotetext: † Equal contribution.
+ ∗ Work done during an internship at Huawei Noah’s Ark Lab.
+ 1 Introduction 
+ Long-horizon robotic tasks require instruction alignment, generalization across environmental variations, logical consistency, and noise robustness  ( Garrett et al., 2020 ; Yang et al., 2025 ) . Despite substantial progress  ( Huang et al., 2026b ; Black et al., 2025b ; Silver et al., 2024 ; Ye et al., 2025 ) , no single policy reliably meets all these requirements. Vision-language-action models (VLAs) provide semantic grounding but struggle with long-horizon consistency  ( Black et al., 2025b ; Kim et al., 2025 ; Zheng et al., 2025 ) . World-action models (WAMs) support predictive control but face prediction errors and inference latency  ( Zhang et al., 2026b ) . Reinforcement learning (RL) post-training improves closed-loop control but depends on reward design and training coverage  ( Zang et al., 2026 ; Physical Intelligence et al., 2025 ) . Task and motion planning (TAMP) offers logical and geometric reasoning but relies on predefined abstractions and skills  ( Silver et al., 2023 ; Kumar et al., 2023 ; Liu et al., 2025 ; Huang et al., 2026c ) . These complementary strengths motivate coordinating heterogeneous policies for long-horizon execution. 
+ Such coordination presents two challenges. First, task decomposition and policy selection must account for uncertain, context-dependent capability boundaries. Conventional planners typically assume predefined skills with fixed applicability  ( Liang et al., 2025 ; Han et al., 2024 ; Kaelbling and Lozano-Pérez, 2011 ) , whereas independently developed policies differ in architecture, interfaces, and assumptions  ( Zhang et al., 2026b ; Garrett et al., 2021 ) . Their applicability may overlap, and relative performance varies with object configurations, observations, instructions, and execution history. Planners must therefore jointly determine task decomposition and policy assignment under current conditions. Second, successful policy selection does not ensure compatible handoffs: one policy’s terminal state may fall outside the next policy’s feasible execution region or input distribution  ( Lee et al., 2022 ; Lee et al., 2019 ) , causing failures and cascading errors. Effective orchestration thus requires both capability-aware planning and reliable policy handoffs. 
+ We propose RoboHarness, a unified framework that exposes independently trained or hand-designed policies as reusable agentic skills through a common interface accommodating policy-specific inputs and outputs. It uses contextual and historical execution evidence to guide policy assignment, and the incoming policy’s retrieved experience to construct compatible handoffs. Our main contributions are:
+ (1) We introduce RoboHarness, a unified framework that orchestrates heterogeneous robot policies as reusable agentic skills for long-horizon tasks.
+ (2) We integrate understanding, memory, and self-evolution skills to characterize and adapt context-dependent policy capabilities, supporting capability-aware task decomposition and routing.
+ (3) We introduce Memory Bridge, a policy-chaining algorithm that learns a local progress ranking from retrieved trajectories and selects reachable, memory-supported handoff configurations without joint policy retraining.
+ (4) We evaluate RoboHarness across five public benchmarks, 500 customized tasks, and 135 real-robot trials, demonstrating substantial improvements in long-horizon and memory-dependent task success and out-of-distribution robustness. 
+ 2 Related Work 
+ Harness Systems for Agentic and Robotic Execution. 
+Harness systems embed language models in execution loops with tools, memory, and feedback for state tracking and iterative refinement  ( Yao et al., 2023 ; Schick et al., 2023 ; Shinn et al., 2023 ) . Extensions include executable skill libraries, multi-agent collaboration, and software-engineering agents  ( Wang et al., 2024a ; Wu et al., 2024 ; Hong et al., 2024 ; Wang et al., 2024b ; Yang et al., 2024 ; Wang et al., 2025 ; Xia et al., 2025 ) . Concurrent robotic harnesses support VLA data collection, execution, and self-improvement  ( Li et al., 2026b ; Zhang et al., 2026a ) , incorporating physical execution constraints  ( Xiao et al., 2026 ) . Heterogeneous policies additionally differ in capabilities, assumptions, and representations  ( Zhang et al., 2026b ; Dalal et al., 2023 ; Huang et al., 2026a ; Huang et al., 2023b ) , complicating selection and handoffs. Existing robotic harnesses orchestrate learned primitives  ( Li et al., 2026b ) or combine a VLA with analytic primitives  ( Zhang et al., 2026a ) , but do not explicitly address handoffs among independently developed policy families. RoboHarness combines capability-aware task decomposition and routing with explicit bridging between heterogeneous policies. 
+ Long-Horizon Planning and Policy Chaining. 
+Long-horizon robot planning includes hierarchical, task and motion (TAMP), skill-based, and language-model-based approaches  ( Silver et al., 2024 ; Liang et al., 2025 ; Athalye et al., 2026 ; Garrett et al., 2020 ; Liu et al., 2025 ; Oswald et al., 2024 ; Huang et al., 2026c ) . TAMP combines symbolic reasoning with geometric feasibility checks over predefined skills  ( Garrett et al., 2021 ; Kaelbling and Lozano-Pérez, 2011 ) , while language-model-based planners generate and adapt plans from natural-language goals  ( Zhao et al., 2023 ; Yang et al., 2025 ; Guan et al., 2023 ; Chen et al., 2024 ; Hu et al., 2024 ) . At the planning level, these approaches typically operate over low-level skills with specified applicability conditions, while compatibility between successive skills is assumed. Such abstractions do not by themselves resolve uncertain capability boundaries or context-dependent routing among independently developed policies. Beyond high-level planning, policy chaining poses a further challenge for hierarchical execution. Skill chaining aligns one policy’s terminal states with the next policy’s executable region through learned initiation sets  ( Konidaris and Barto, 2009 ; Huang et al., 2023a ) , transition mechanisms  ( Lee et al., 2019 ; Sahni et al., 2017 ; Mishra et al., 2023 ) , or terminal-state regularization  ( Lee et al., 2022 ) , typically requiring dedicated training or policy regularization for a given skill set. RoboHarness jointly addresses task decomposition, policy assignment, and handoff adaptation across independently developed policy families through capability-aware planning and memory-guided bridging without joint retraining. 
+ 3 Problem Definition 
+ We consider long-horizon planning with heterogeneous robot policies Π = { π 1 , … , π N } \Pi=\{\pi_{1},\ldots,\pi_{N}\} , without task-specific pretraining of the orchestration framework or joint retraining of constituent policies, while allowing online adaptation and experience accumulation during evaluation. Let 𝒳 \mathcal{X} , 𝒪 \mathcal{O} , and 𝒢 \mathcal{G} denote the system state, global observation, and subtask instruction spaces, respectively. Each policy π i \pi_{i} has an achievable subtask space 𝒢 i ⊆ 𝒢 \mathcal{G}_{i}\subseteq\mathcal{G} and a context-dependent applicability region 𝒜 i ⊆ 𝒪 × 𝒢 i \mathcal{A}_{i}\subseteq\mathcal{O}\times\mathcal{G}_{i} , containing observation–subtask pairs under which it can reliably execute. These regions are not explicitly known; policy metadata and execution evidence inform applicability judgments rather than provide an exact representation of 𝒜 i \mathcal{A}_{i} . RoboHarness wraps each policy as an executable skill and maintains policy-specific episodic memory banks ℳ = { ℳ 1 , … , ℳ N } \mathcal{M}=\{\mathcal{M}_{1},\ldots,\mathcal{M}_{N}\} , where ℳ i \mathcal{M}_{i} stores successful trajectories of π i \pi_{i} . It additionally maintains an execution log ℋ \mathcal{H} that records the complete agent-level interaction trace for both successful and failed executions. 
+ Given a high-level instruction I I , an initial state 𝐱 0 ∈ 𝒳 \mathbf{x}_{0}\in\mathcal{X} , the policy library Π \Pi , episodic memory ℳ \mathcal{M} , and execution log ℋ \mathcal{H} , RoboHarness seeks subtasks τ = ( g 1 , … , g T ) \tau=(g_{1},\ldots,g_{T}) , policy assignments ρ = ( π k 1 , … , π k T ) \rho=(\pi_{k_{1}},\ldots,\pi_{k_{T}}) , and bridge trajectories B = ( b 1 , … , b T − 1 ) B=(b_{1},\ldots,b_{T-1}) whose joint execution completes I I . Here, g t ∈ 𝒢 g_{t}\in\mathcal{G} , k t ∈ { 1 , … , N } k_{t}\in\{1,\ldots,N\} , and t t indexes subtask stages. Let o t ∈ 𝒪 o_{t}\in\mathcal{O} denote the observation at the start of stage t t , from which the selected policy’s native inputs are constructed. A reliable assignment requires ( o t , g t ) ∈ 𝒜 k t (o_{t},g_{t})\in\mathcal{A}_{k_{t}} . Let o ¯ t \bar{o}_{t} denote the terminal observation of π k t \pi_{k_{t}} . When needed, b t b_{t} starts from the corresponding post-execution state and produces o t + 1 o_{t+1} , aiming to establish ( o t + 1 , g t + 1 ) ∈ 𝒜 k t + 1 (o_{t+1},g_{t+1})\in\mathcal{A}_{k_{t+1}} . The problem thus jointly addresses task decomposition, capability-aware policy assignment, and inter-policy bridging to complete I I with achievable subtasks and compatible execution conditions. 
+ 4 Methodology 
+ RoboHarness uses a coding agent to decompose long-horizon tasks and orchestrate heterogeneous robot policies ( Figure   1 ). Three auxiliary skill libraries support orchestration: understanding guides policy selection; memory retrieves experience and constructs Memory Bridge for policy handoffs; evolution refines policies and orchestration using execution feedback. Policies retain their native interfaces, requiring neither joint retraining nor a shared action representation. Implementation and policy details appear in Appendices   C and  C.3.1 . 
+ Figure 1: Overall Framework. RoboHarness integrates heterogeneous robot policies with three auxiliary skill libraries: Understanding Skills, Memory Skills, and Evolution Skills. Understanding Skills transform multimodal observations into task-relevant information for planning and policy selection. Memory Skills retrieve execution evidence for routing and construct Memory Bridge for policy transitions. Evolution Skills use online execution evidence to update individual policies and the harness, forming a closed information loop for capability-aware planning and adaptive orchestration.
+ 4.1 Understanding Skills 
+ Understanding skills extract decision-relevant information from raw inputs to assess policy applicability in the current context. These inputs include task instructions, visual observations, estimated object poses, robot states, and intermediate execution results. RoboHarness currently includes five types of understanding skills and supports extensions as needed.
+ Uncertainty assessment computes the mean and variance of estimated object poses within a sliding time window to measure temporal stability.
+ Visual-context assessment compares visual embeddings of the current observation with those stored in policy-specific memory.
+ Semantic-context assessment compares text embeddings of task instructions and candidate subtasks with those stored in policy-specific memory.
+ Input-quality assessment evaluates exposure, sharpness, contrast, and image entropy to assess observation quality.
+ State-policy compatibility assessment uses the memory-supported region and local progress estimator constructed by Memory Bridge ( Section   4.2.2 ) to assess robot-configuration compatibility.
+The coding agent invokes these skills on demand and interprets their structured outputs alongside policy cards and the execution log to propose and revise task decompositions and policy assignments. The outputs provide complementary evidence about applicability, rather than a calibrated estimate of policy success. Encoders and assessment procedures are detailed in Section   C.1 . 
+ 4.2 Memory Skills and Memory Bridge 
+ Memory skills serve two roles. First, policy-specific episodic memory supports history-dependent decisions and supplies successful execution experience for Memory Bridge construction. Second, the execution log maintains a complete chronological record of agent and skill interactions and execution feedback across both successful and failed executions. These records provide evidence for capability assessment, failure diagnosis, and evolution. 
+ 4.2.1 Memory Management 
+ Each policy-specific episodic memory bank ℳ i \mathcal{M}_{i} stores successful trajectories ξ = ( n 1 , … , n L ) \xi=(n_{1},\ldots,n_{L}) of temporally linked nodes. Each node n n records a subtask instruction g ⁡ ( n ) ∈ 𝒢 g(n)\in\mathcal{G} , observation o ⁡ ( n ) ∈ 𝒪 o(n)\in\mathcal{O} , robot state 𝐬 ⁡ ( n ) ∈ ℝ d s \mathbf{s}(n)\in\mathbb{R}^{d_{s}} , gripper state z ⁡ ( n ) z(n) , and text and visual embeddings from frozen encoders. The d s d_{s} -dimensional robot state comprises the end-effector pose and joint configuration, extracted from the full system state via 𝐬 = r ⁡ ( 𝐱 ) \mathbf{s}=r(\mathbf{x}) . 
+ Given a subtask g g and observation o o , RoboHarness retrieves nodes hierarchically, first by text similarity and then by visual similarity: 
+ 𝒩 ~ = TopK K text ξ ∈ ℳ i , n ∈ ξ ​ sim text ⁡ ( g , g ⁡ ( n ) ) , 𝒩 = TopK K vis n ∈ 𝒩 ~ ​ sim vis ⁡ ( o , o ⁡ ( n ) ) , \widetilde{\mathcal{N}}=\underset{\xi\in\mathcal{M}_{i},\;n\in\xi}{\operatorname{TopK}_{K_{\mathrm{text}}}}\operatorname{sim}_{\mathrm{text}}\!\left(g,g(n)\right),\qquad\mathcal{N}=\underset{n\in\widetilde{\mathcal{N}}}{\operatorname{TopK}_{K_{\mathrm{vis}}}}\operatorname{sim}_{\mathrm{vis}}\!\left(o,o(n)\right), 
+ where TopK K \operatorname{TopK}_{K} selects the K K highest-scoring nodes, and both similarity functions use cosine similarity between encoded representations ( Section   C.1 ). We denote this operation by Retrieve ℳ i ⁡ ( g , o ) = 𝒩 \operatorname{Retrieve}_{\mathcal{M}_{i}}(g,o)=\mathcal{N} . Retrieval may span multiple banks or be restricted to one, such as ℳ k t + 1 \mathcal{M}_{k_{t+1}} . During execution, the task and scene context, agent and skill interactions, and execution feedback from both successful and failed executions are recorded chronologically in ℋ \mathcal{H} . These complete traces provide evidence for capability assessment, failure diagnosis, and subsequent evolution. Successful policy executions additionally update the corresponding episodic memory bank ℳ i \mathcal{M}_{i} with linked-node trajectories, whereas Memory Bridge retrieves only successful trajectories from ℳ \mathcal{M} . Node contents and update procedures are detailed in Section   C.2 . 
+ 4.2.2 Memory Bridge 
+ Figure 2: Memory Bridge. (1) Retrieve top- K K anchors from the next policy’s memory using the current observation and upcoming subtask instruction.
+(2) Fit a local progress estimator and construct a memory-supported neighborhood from robot states around these anchors.
+(3) Generate a bridge trajectory by balancing predicted progress score against motion cost. 
+ Memory Bridge handles transitions where the terminal robot configuration of π k t \pi_{k_{t}} is poorly aligned with states supported by π k t + 1 \pi_{k_{t+1}} . Its role is to select a handoff configuration using the incoming policy’s experience; a motion planner then determines how to reach it. Given the upcoming subtask g t + 1 g_{t+1} and terminal observation o ¯ t \bar{o}_{t} , RoboHarness retrieves anchors
+ 𝒩 t = Retrieve ℳ k t + 1 ⁡ ( g t + 1 , o ¯ t ) \mathcal{N}_{t}=\operatorname{Retrieve}_{\mathcal{M}_{k_{t+1}}}(g_{t+1},\bar{o}_{t}) 
+and generates a bridge trajectory b t b_{t} through three stages. 
+ Local progress estimation. 
+For each anchor in 𝒩 t = { n 1 , 0 , … , n K , 0 } \mathcal{N}_{t}=\{n_{1,0},\ldots,n_{K,0}\} , RoboHarness collects neighboring nodes n i , j n_{i,j} by expanding its trajectory bidirectionally while preserving the same subtask. This produces training pairs
+ ( 𝐬 i , j , y i , j ) = ( 𝐬 ⁡ ( n i , j ) , Δ ​ t i , j ) , (\mathbf{s}_{i,j},y_{i,j})=\bigl(\mathbf{s}(n_{i,j}),\Delta t_{i,j}\bigr), 
+where Δ ​ t i , j \Delta t_{i,j} is the signed temporal offset from the anchor: zero at the anchor, positive for subsequent nodes, and negative for preceding nodes. We train a lightweight progress estimator f score , t f_{\mathrm{score},t} to favor local forward progress, with details of its pairwise ranking SVM implementation provided in Section   C.2 . 
+ Spatial state scoring. 
+Candidate handoff states are scored by f score , t f_{\mathrm{score},t} within the supported region 
+ ℛ conf , t = { 𝐬 ∈ ℝ d s | min 𝐬 ¯ ∈ 𝒮 ret , t ⁡ ‖ 𝐬 − 𝐬 ¯ ‖ 2 ≤ ϵ } , \mathcal{R}_{\mathrm{conf},t}=\left\{\mathbf{s}\in\mathbb{R}^{d_{s}}\;\middle|\;\min_{\bar{\mathbf{s}}\in\mathcal{S}_{\mathrm{ret},t}}\|\mathbf{s}-\bar{\mathbf{s}}\|_{2}\leq\epsilon\right\}, 
+ where 𝒮 ret , t = { 𝐬 i , j } \mathcal{S}_{\mathrm{ret},t}=\{\mathbf{s}_{i,j}\} contains the collected robot states and ϵ > 0 \epsilon>0 bounds the distance to the nearest sample. We constrain handoff targets to this locally supported region to limit unsupported score extrapolation and guide transitions to the next policy. 
+ Bridge trajectory generation. 
+Let 𝐬 t \mathbf{s}_{t} be the robot state after executing π k t \pi_{k_{t}} , and 𝒮 plan , t \mathcal{S}_{\mathrm{plan},t} the states reachable from it through feasible motion plans. RoboHarness selects a target by balancing predicted progress against motion cost: 
+ 𝐬 t ∗ = \displaystyle\mathbf{s}^{*}_{t}={} 
+ arg ⁡ max 𝐬 ​ [ f score , t ​ ( 𝐬 ) − λ motion ​ C motion ​ ( 𝐬 t , 𝐬 ) ] , \displaystyle\arg\max_{\mathbf{s}}\left[f_{\mathrm{score},t}(\mathbf{s})-\lambda_{\mathrm{motion}}C_{\mathrm{motion}}(\mathbf{s}_{t},\mathbf{s})\right], 
+ subject to \displaystyle\text{subject to} 
+ 𝐬 ∈ ℛ conf , t ∩ 𝒮 plan , t , f score , t ( 𝐬 ) ≥ θ score , t . \displaystyle\mathbf{s}\in\mathcal{R}_{\mathrm{conf},t}\cap\mathcal{S}_{\mathrm{plan},t},\quad f_{\mathrm{score},t}(\mathbf{s})\geq\theta_{\mathrm{score},t}. 
+ where C motion C_{\mathrm{motion}} measures the control steps required to reach a candidate, λ motion ≥ 0 \lambda_{\mathrm{motion}}\geq 0 weights this cost, and θ score , t \theta_{\mathrm{score},t} is the minimum acceptable score. In practice, candidates are sampled, filtered by these constraints, and ranked by the objective.
+An off-the-shelf motion controller generates b t b_{t} from 𝐬 t \mathbf{s}_{t} to 𝐬 t ∗ \mathbf{s}^{*}_{t} . Because robot-configuration support alone does not establish task and scene compatibility, the coding agent reassesses the observation and task context after execution before invoking the next policy or revising the routing decision. If the subsequent policy execution succeeds, its linked-node trajectory is additionally written to the incoming policy’s episodic memory bank. We initialize θ score , t \theta_{\mathrm{score},t} to a preset value and iteratively lower it when no candidate is found, as detailed in Section   C.2 . 
+ 4.3 Heterogeneous Policies as Agentic Skills 
+ RoboHarness wraps each robot policy as a callable agentic skill comprising the policy and an associated policy card. Each policy retains its native implementation, inputs, and outputs without requiring a shared action representation. The policy card records its capabilities, interface requirements, constraints, assumptions, training tasks, and execution statistics. The coding agent uses this metadata and can inspect the implementation code to assess policy applicability and compatibility. As execution evidence accumulates, policy cards are updated to support subsequent planning and assignment. This interface accommodates independently developed policies and supports extension to additional policy families. Our current implementation includes VLAs, WAMs, RL policies, and a TAMP planner. Implementation details and available checkpoint identifiers are provided in Section   C.3.1 . 
+ 4.4 Evolution Skills 
+ Evolution skills read evidence from the execution log ℋ \mathcal{H} to update policies, orchestration, and capability descriptions through three mechanisms.
+ Policy Adaptation adjusts the task models and execution parameters of underlying policies. Our TAMP implementation uses SIMPACT  ( Liu et al., 2026a ) to refine grasp poses and PDDLLM  ( Huang et al., 2026c ) to learn new logical representations from observed interactions.
+ Harness Refinement uses the coding agent to revise policy interfaces, routing, and inter-skill coordination based on execution traces and runtime errors. It also adjusts orchestration parameters, including retrieval counts and Memory Bridge thresholds, to improve policy selection and handoffs.
+ Metadata Update revises policy cards using observed successes and failures, recording the objects, tasks, and execution conditions associated with reliable or unsuccessful execution. These updated capability descriptions inform subsequent task decomposition and policy assignment.
+Persistent execution failures prompt the coding agent to retrieve relevant log traces and select appropriate updates. The resulting adaptation actions, validation outcomes, and retained changes are written back to ℋ \mathcal{H} . Validated changes persist across evaluation episodes, allowing accumulated experience to guide subsequent execution without task-specific pretraining of the orchestration framework. Implementation details, including parameter-tuning procedures, are provided in Section   C.3 . 
+ Table 1: LIBERO task following and LIBERO-Plus perturbation robustness. The Original column reports performance on the original LIBERO benchmark. Each entry reports the success rate (%). The Overall column aggregates the seven perturbation categories, weighted by their official evaluation instance counts. The best and second-best results are shown in bold and underlined , respectively. 
+ Method 
+ Original 
+ Robot State 
+ Language 
+ Layout 
+ Background 
+ Sensor 
+ Camera 
+ Light 
+ Overall 
+ π 0.5 \pi_{0.5} 
+ 96.9 
+ 77.5 
+ 85.6 
+ 85.7 
+ 94.6 
+ 89.7 
+ 75.4 
+ 96.9 
+ 85.7 
+ π 0 \pi_{0} 
+ 91.3 
+ 40.8 
+ 63.5 
+ 76.4 
+ 84.1 
+ 80.1 
+ 61.0 
+ 89.3 
+ 69.4 
+ UniVLA 
+ 95.2 
+ 46.2 
+ 69.6 
+ 31.9 
+ 81.0 
+ 21.2 
+ 1.8 
+ 69.0 
+ 42.9 
+ OpenVLA-OFT m 
+ 97.6 
+ 21.7 
+ 81.0 
+ 68.7 
+ 91.0 
+ 78.6 
+ 55.6 
+ 92.7 
+ 67.9 
+ X-VLA 
+ 98.1 
+ 89.7 
+ 75.7 
+ 71.8 
+ 96.0 
+ 62.7 
+ 23.4 
+ 88.2 
+ 71.4 
+ Cosmos-Policy 
+ 98.5 
+ 63.3 
+ 81.7 
+ 82.2 
+ 88.9 
+ 92.7 
+ 75.8 
+ 96.5 
+ 82.2 
+ FAST-WAM 
+ 97.6 
+ 44.5 
+ 68.9 
+ 60.7 
+ 53.7 
+ 37.7 
+ 16.4 
+ 78.2 
+ 51.5 
+ LingBot-VA 
+ 98.5 
+ 83.0 
+ 86.4 
+ 76.2 
+ 53.1 
+ 64.4 
+ 40.9 
+ 82.3 
+ 69.5 
+ RoboHarness (ours) 
+ 98.7 
+ 90.4 
+ 97.0 
+ 86.8 
+ 97.1 
+ 90.3 
+ 87.6 
+ 97.4 
+ 91.9 
+ 5 Experimental Setup and Baselines 
+ We evaluate RoboHarness against diverse baselines on five public benchmarks and in 135 real-robot trials. The coding agent uses Codex powered by GPT-5.5. Policy checkpoints and skill implementations are detailed in Appendix   C . 
+ Heterogeneous Policies Implementations. 
+RoboHarness incorporates four independently developed policies: (1) the VLA π 0.5 \pi_{0.5}   ( Black et al., 2025a ) ; (2) Faster-WAM  ( Ma et al., 2026 ) ; (3) an open-source OpenVLA-OFT checkpoint  ( Kim et al., 2025 ) , post-trained with Group Relative Policy Optimization (GRPO)  ( Shao et al., 2024 ) using RLinf  ( Zang et al., 2026 ) ; and (4) a TAMP planner designed primarily for geometrically constrained pick-and-place tasks involving predefined objects, with support for multiple motion planners. Implementation details are provided in Section   C.3.1 . We inject 5 ​ – ​ 10 % 5\text{--}10\% noise into simulator-provided object poses to approximate real-world estimation errors. Learned policies use either publicly released checkpoints or checkpoints trained or fine-tuned by us for the corresponding benchmarks. Policy inclusion depends on the availability of compatible checkpoints and the requirements of each benchmark. Each policy’s episodic memory bank is initialized with successful trajectories from its corresponding dataset. Benchmark-specific policy configurations are detailed in Section   D.1 . 
+ Evaluation on Benchmarks. 
+The five public benchmarks probe task following, routing behavior and robustness, extended execution horizons, dependence on past observations, and mobile manipulation.
+ LIBERO measures task-following performance  ( Liu et al., 2023 ) .
+ LIBERO-Plus assesses out-of-distribution robustness and routing behavior under perturbations  ( Fei et al., 2025 ) .
+ LIBERO-LoHo assesses extended-horizon execution on tasks averaging approximately four times the original LIBERO horizon  ( Huang et al., 2026a ) .
+ RMBench evaluates memory-dependent long-horizon manipulation at different memory complexity levels  ( Chen et al., 2026 ) . BEHAVIOR-1K evaluates long-horizon mobile manipulation, for which we conduct a partial evaluation on 6 selected tasks  ( Li et al., 2024 ) . Selected tasks are detailed in Section   D.3 .
+Existing benchmarks do not explicitly require heterogeneous policy switching or evaluate policy handoffs. We introduce LIBERO-Complex , a LIBERO-based benchmark with 500 randomized instances across 10 long-horizon task classes requiring heterogeneous policy coordination, for ablation study ( Appendix   A ). During evaluation, execution logs are continuously updated, successful executions update episodic memory banks, and experience is only retained across trials of the same task. 
+ Real Robot Experiments. 
+We conduct 135 real-robot trials across five assembly task classes. Each task involves 20–30 subtasks, with a 10-minute execution limit per trial. Given language instructions, RoboHarness combines TAMP-based assembly planning with π 0.5 \pi_{0.5} for contact-rich cabinet opening and exploration. Tasks include constructing short and tall bridges, a Chinese character, and a boat, with some required blocks hidden inside the cabinet to necessitate exploration and retrieval. We test four execution-time disturbances: re-hiding required blocks, partially dismantling structures, perturbing estimated object poses, and introducing distractors. 
+ Figure 3: (a) Relationship between the VLA invocation ratio and its standalone performance across perturbation categories. (b) LIBERO-LoHo long-horizon evaluation results. 
+ Baselines We compare RoboHarness with two families of baselines: end-to-end policies and hierarchical methods . End-to-end policies include six VLAs, π 0.5 \pi_{0.5}   ( Black et al., 2025a ) , π 0 \pi_{0}   ( Black et al., 2025b ) , UniVLA  ( Bu et al., 2025 ) , X-VLA  ( Zheng et al., 2025 ) , OpenVLA-OFT  ( Kim et al., 2025 ) , and GR00T-N1.5  ( NVIDIA Research, 2025 ) ; four world-action models, LingBot-VA  ( Li et al., 2026a ) , Fast-WAM  ( Yuan et al., 2026 ) , Faster-WAM  ( Ma et al., 2026 ) , and Cosmos Policy  ( Kim et al., 2026 ) ; and Mem-0  ( Chen et al., 2026 ) , RLC  ( Larchenko et al., 2025 ) , and G0.5  ( Liu et al., 2026b ) . Hierarchical methods include H-WM  ( Huang et al., 2026a ) , LLM-guided VLA  ( Shi et al., 2025 ) , and logic-guided VLA  ( Huang et al., 2026c ) , which provide intermediate guidance for long-horizon execution. Baseline results are taken from published evaluations  ( Huang et al., 2026a ; Zhang et al., 2026b ; Chen et al., 2026 ; Liu et al., 2026b ) or obtained by evaluating publicly available checkpoints. 
+ 6 Results 
+ In this section, we present evaluation results addressing the following six research questions:
+ RQ1: Does policy usage adapt to context-dependent changes in execution reliability?
+ RQ2: Can RoboHarness improve robustness to out-of-distribution perturbations?
+ RQ3: Can RoboHarness coordinate heterogeneous policies for long-horizon tasks without task-specific orchestration co-training?
+ RQ4: Can RoboHarness solve memory-dependent tasks requiring information beyond the current observation?
+ RQ5: Can RoboHarness be extended to long-horizon mobile manipulation tasks?
+ RQ6: How does each design component contribute to overall performance? 
+ RQ1: Capability-aware policy routing. 
+To evaluate whether RoboHarness can adapt policy routing to context-dependent capability changes, we use π 0.5 \pi_{0.5} as the default base policy and pair it with a TAMP policy that provides complementary structured execution. On LIBERO-Plus, we compare the VLA invocation ratio with its standalone success rate across perturbation categories ( Figure   3 .(a)). VLA usage generally increases in categories with stronger standalone performance, providing behavioral evidence that routing responds to context-dependent reliability. The VLA is used more frequently under lighting, background, and layout changes than under robot-state perturbations. Sensor noise is an exception as it blurs observations, impairing the understanding skill’s assessment. 
+ RQ2: Robustness to perturbations. 
+RoboHarness achieves the highest average success rate of 91.9 % 91.9\% , ranking first in six of seven perturbation categories and outperforming every underlying policy overall ( Table   1 ). These results show that RoboHarness effectively routes tasks according to the relative strengths of different policies, substantially improving robustness. Sensor noise remains the main bottleneck: degraded observations impair the understanding skill’s assessment of policy suitability, leaving RoboHarness at 90.3 % 90.3\% . 
+ RQ3: Coordination of heterogeneous policies for long-horizon tasks. 
+On LIBERO-LoHo, RoboHarness achieves the highest progress score and success rate on every task, averaging 98.2 % 98.2\% and 96.0 % 96.0\% , respectively ( Figure   3 .(b)). Individual policies often make partial progress but rarely complete the full task, while hierarchical guidance alone remains substantially below RoboHarness. This gap shows that long-horizon execution requires more than task decomposition: policy capabilities must be matched to individual subtasks, and intermediate states must remain compatible at policy transitions. RoboHarness addresses both requirements via capability-aware routing and Memory Bridge. 
+ RQ4: Memory-dependent task execution. 
+RMBench distinguishes between M ⁡ ( 1 ) M(1) tasks requiring a single key historical observation and M ⁡ ( n ) M(n) tasks requiring information accumulated across multiple past observations. RoboHarness achieves success rates of 77.0 % 77.0\% and 77.5 % 77.5\% , respectively, outperforming Mem-0 at both levels, with a larger advantage on M ⁡ ( n ) M(n) tasks ( Table   2(a) ). Across all nine tasks, it succeeds in 139 of 180 episodes, yielding an overall success rate of 77.2 % 77.2\% . Its comparable performance across the two levels suggests that it can retain and use multiple historical observations without the degradation observed in the baselines. Task decomposition confines execution to tractable subproblems, while skill-relevant histories provide observations needed for later decisions. Together, these mechanisms support memory-dependent execution beyond immediate visual feedback. Complete task-level results are provided in Table   4 . 
+ RQ5: Long-horizon mobile manipulation. 
+We evaluate RoboHarness on six selected BEHAVIOR-1K tasks involving long-horizon mobile manipulation ( Table   2(b) ). RoboHarness achieves a success rate of 0.433 0.433 and a progress score of 0.658 0.658 , exceeding RLC  ( Larchenko et al., 2025 ) in success and G0.5  ( Liu et al., 2026b ) in progress. These tasks require coordinating navigation, grasping, placement, and precise interactions such as button pressing across spatially distributed locations. The results support the value of combining complementary capabilities within a single execution framework, while the remaining failures highlight the challenge of reliable coordination over long task horizons. 
+ Table 2: RMBench and BEHAVIOR-1K evaluations. RMBench reports success rates (%) under different memory complexity levels, M ⁡ ( 1 ) M(1) and M ⁡ ( n ) M(n) . BEHAVIOR-1K reports the average success rate (SR) and progress score (PS); a dash indicates unavailable SR. The best and second-best results for each metric are shown in bold and underlined , respectively. 
+ (a) RMBench results. 
+ Method 
+ M ⁡ ( 1 ) M(1) 
+ M ⁡ ( n ) M(n) 
+ Diffusion Policy  ( Chi et al., 2025 ) 
+ 6.4 
+ 5.0 
+ π 0.5 \pi_{0.5}   ( Black et al., 2025a ) 
+ 14.4 
+ 5.5 
+ X-VLA  ( Zheng et al., 2025 ) 
+ 11.8 
+ 7.3 
+ Mem-0  ( Chen et al., 2026 ) 
+ 52.8 
+ 28.5 
+ RoboHarness (ours) 
+ 77.0 \mathbf{77.0} 
+ 77.5 \mathbf{77.5} 
+ (b) BEHAVIOR-1K results. 
+ Method 
+ SR 
+ PS 
+ π 0.5 \pi_{0.5}   ( Black et al., 2025a ) 
+ 0.05 
+ 0.26 
+ RLC  ( Larchenko et al., 2025 ) 
+ 0.23 
+ 0.42 
+ X-VLA  ( Zheng et al., 2025 ) 
+ 0.05 
+ 0.15 
+ G0.5  ( Liu et al., 2026b ) 
+ – 
+ 0.54 
+ RoboHarness (ours) 
+ 0.43 \mathbf{0.43} 
+ 0.66 \mathbf{0.66} 
+ Figure 4: Ablation study of RoboHarness on LIBERO-Complex. We compare average success rates and progress scores for the full system and variants with individual components removed. 
+ RQ6: Ablation Study. RoboHarness outperforms each constituent policy on 500 randomized instances across 10 long-horizon task classes designed for heterogeneous policy coordination ( Figure   4 ). Among the three component ablations, removing understanding skills causes the largest performance drop, highlighting the value of contextual assessment for task decomposition and policy routing. Removing evolution skills also reduces performance, supporting the contribution of online refinement as experience accumulates. Without Memory Bridge, the system retains substantial partial progress but completes fewer tasks. This pattern is consistent with Memory Bridge helping successful subtasks carry through to full-task completion by improving policy handoffs. Together, these results support the complementary roles of contextual assessment, online adaptation, and memory-guided handoffs. 
+ 7 Real Robot Experiments 
+ We conducted 135 real-robot trials: 15 for each of five structures and four disturbance settings. In each construction trial, one to three required blocks were randomly hidden in a cabinet, requiring VLA-based identification and retrieval before TAMP assembly. As shown in Figure   5 , performance was consistent across structures, with lower success on the Taller Bridge due to its complexity and physical instability. RoboHarness tolerated partial dismantling, pose estimation errors, and distractors, while re-hiding blocks caused the largest degradation by requiring repeated exploration and replanning. Timeouts were the primary failure mode. Under our setting, reasoning and planning API calls incurred an average latency of 4.6 4.6 seconds each, contributing 67.4 67.4 seconds of additional latency per trial on average across all 135 trials. This cumulative overhead reflects the multiple reasoning calls required for tasks comprising 20 ​ – ​ 30 20\text{--}30 subtasks. 
+ Figure 5: (a) Real robot experiment examples. (b) Overall success Rate of various target structure. (c) Overall success rate under different disturbances 
+ 8 Limitations and Future Work 
+ Although RoboHarness effectively coordinates heterogeneous policies, it remains bounded by their capabilities and cannot perform tasks requiring capabilities absent from the entire policy library. Its reasoning and planning stages also add to overall execution time. Future work will broaden the policy library and use RoboHarness to collect execution trajectories for further training of robot policies. Incorporating additional modalities, such as tactile feedback, may improve contextual assessment. 
+ 9 Conclusion 
+ We presented RoboHarness, a unified framework that couples capability-aware policy assignment with memory-guided handoffs for long-horizon manipulation. Contextual assessments, policy metadata, and the execution log support decomposition and routing, while Memory Bridge uses the incoming policy’s retrieved experience to select reachable, memory-supported handoff configurations. The framework requires no task-specific orchestration pretraining or joint policy retraining, while permitting online adaptation and experience accumulation during evaluation. Results across five public benchmarks, including selected BEHAVIOR-1K tasks, 500 randomized instances across 10 task templates, and 135 real-robot trials demonstrate the effectiveness of the complete system. Component ablations further support the complementary value of contextual assessment, online refinement, and bridging for heterogeneous policy orchestration. 
+ References 
+ Athalye et al. (2026) 
+ A. Athalye, N. Kumar, T. Silver, Y. Liang, J. Wang, T. Lozano-Pérez, and L. P. Kaelbling 
+ From pixels to predicates: learning symbolic world models via pretrained VLMs .
+ IEEE Robotics and Automation Letters 11 ( 4 ), pp. 4002–4009 .
+ External Links: Document 
+ Cited by: §2 .
+ Black et al. (2025a) 
+ K. Black, N. Brown, J. Darpinian, K. Dhabalia, D. Driess, A. Esmail, M. R. Equi, C. Finn, N. Fusai, M. Y. Galliker, et al. 
+ π 0.5 \pi_{0.5} : A vision-language-action model with open-world generalization .
+ In 9th Annual Conference on Robot Learning ,
+ Cited by: 1st item ,
+ §D.3 ,
+ §5 ,
+ §5 ,
+ 2(a) ,
+ 2(b) .
+ Black et al. (2025b) 
+ K. Black, N. Brown, D. Driess, A. Esmail, M. Equi, C. Finn, N. Fusai, L. Groom, K. Hausman, B. Ichter, et al. 
+ π 0 \pi_{0} : A vision-language-action flow model for general robot control .
+ In Robotics: Science and Systems XXI ,
+ External Links: Document 
+ Cited by: §1 ,
+ §5 .
+ Bu et al. (2025) 
+ Q. Bu, Y. Yang, J. Cai, S. Gao, G. Ren, M. Yao, P. Luo, and H. Li 
+ Learning to act anywhere with task-centric latent actions .
+ In Robotics: Science and Systems XXI ,
+ External Links: Document 
+ Cited by: §5 .
+ Chen et al. (2026) 
+ T. Chen, Y. Wang, M. Li, Y. Qin, H. Shi, Z. Li, Y. Hu, Y. Zhang, K. Wang, Y. Chen, H. Wang, J. Wang, T. Yang, R. Xu, R. Wu, Y. Mu, Y. Yang, H. Dong, and P. Luo 
+ RMBench: memory-dependent robotic manipulation benchmark with insights into policy design .
+ arXiv preprint arXiv:2603.01229 .
+ Cited by: §D.2 ,
+ Table 4 ,
+ §5 ,
+ §5 ,
+ 2(a) .
+ Chen et al. (2024) 
+ Y. Chen, J. Arkin, Y. Hao, Y. Zhang, N. Roy, and C. Fan 
+ PRompt optimization in multi-step tasks (PROMST): integrating human feedback and heuristic-based sampling .
+ In Proc. Conf. Empirical Methods in Natural Language Processing ,
+ Cited by: §2 .
+ Chi et al. (2025) 
+ C. Chi, Z. Xu, S. Feng, E. Cousineau, Y. Du, B. Burchfiel, R. Tedrake, and S. Song 
+ Diffusion policy: visuomotor policy learning via action diffusion .
+ The International Journal of Robotics Research 44 ( 10-11 ), pp. 1684–1704 .
+ Cited by: 2(a) .
+ Dalal et al. (2023) 
+ M. Dalal, A. Mandlekar, C. R. Garrett, A. Handa, R. Salakhutdinov, and D. Fox 
+ Imitating task and motion planning with visuomotor transformers .
+ In Proceedings of The 7th Conference on Robot Learning ,
+ pp. 2565–2593 .
+ Cited by: §2 .
+ Fei et al. (2025) 
+ S. Fei, S. Wang, J. Shi, Z. Dai, J. Cai, P. Qian, L. Ji, X. He, S. Zhang, Z. Fei, et al. 
+ Libero-plus: in-depth robustness analysis of vision-language-action models .
+ arXiv preprint arXiv:2510.13626 .
+ Cited by: §5 .
+ Garrett et al. (2021) 
+ C. R. Garrett, R. Chitnis, R. Holladay, B. Kim, T. Silver, L. P. Kaelbling, and T. Lozano-Pérez 
+ Integrated task and motion planning .
+ Annual review of control, robotics, and autonomous systems 4 ( 1 ), pp. 265–293 .
+ External Links: Document 
+ Cited by: §1 ,
+ §2 .
+ Garrett et al. (2020) 
+ C. R. Garrett, T. Lozano-Pérez, and L. P. Kaelbling 
+ PDDLStream: integrating symbolic planners and blackbox samplers via optimistic adaptive planning .
+ Proceedings of the International Conference on Automated Planning and Scheduling 30 , pp. 440–448 .
+ External Links: Document 
+ Cited by: Appendix B ,
+ 4th item ,
+ §1 ,
+ §2 .
+ Guan et al. (2023) 
+ L. Guan, K. Valmeekam, S. Sreedharan, and S. Kambhampati 
+ Leveraging pre-trained large language models to construct and utilize world models for model-based task planning .
+ In Proc. Adv. Neural Inf. Proc. Systems ,
+ Cited by: §2 .
+ Guo et al. (2026) 
+ W. Guo, T. Tyrovouzis, E. Flores, C. W. Ramsey, Z. K. Kingston, I. A. Şucan, M. Moll, and L. E. Kavraki 
+ The open motion planning library 2.0 .
+ arXiv preprint arXiv:2605.29301 .
+ Cited by: 4th item .
+ Han et al. (2024) 
+ M. Han, Y. Zhu, S. Zhu, Y. N. Wu, and Y. Zhu 
+ InterPreT: interactive predicate learning from language feedback for generalizable task planning .
+ In Robotics: Science and Systems (RSS) ,
+ Cited by: §1 .
+ Hoffmann and Nebel (2001) 
+ J. Hoffmann and B. Nebel 
+ The FF planning system: fast plan generation through heuristic search .
+ Journal of Artificial Intelligence Research 14 , pp. 253–302 .
+ External Links: Document 
+ Cited by: 4th item .
+ Hong et al. (2024) 
+ S. Hong, M. Zhuge, J. Chen, X. Zheng, Y. Cheng, J. Wang, C. Zhang, Z. Wang, S. K. S. Yau, Z. Lin, L. Zhou, C. Ran, L. Xiao, C. Wu, and J. Schmidhuber 
+ MetaGPT: meta programming for a multi-agent collaborative framework .
+ In International Conference on Learning Representations ,
+ Cited by: §2 .
+ Hu et al. (2024) 
+ M. Hu, Y. Mu, X. Yu, M. Ding, S. Wu, W. Shao, Q. Chen, B. Wang, Y. Qiao, and P. Luo 
+ Tree-planner: efficient close-loop task planning with large language models .
+ In International Conference on Learning Representations ,
+ External Links: Link 
+ Cited by: §2 .
+ Huang et al. (2026a) 
+ J. Huang, W. Chen, Z. Li, O. Pang, X. Hu, L. Zhang, Y. Hu, Z. Zhang, M. Coates, T. Cao, et al. 
+ H-wm: robotic task and motion planning guided by hierarchical world model .
+ arXiv preprint arXiv:2602.11291 .
+ Cited by: §2 ,
+ §5 ,
+ §5 .
+ Huang et al. (2026b) 
+ J. Huang, Z. Li, Y. Hu, Z. Zhang, M. Coates, X. Quan, and Y. Zhang 
+ Self-criteach: llm self-teaching and self-critiquing for improving robotic planning via automated domain generation .
+ In International Conference on Machine Learning ,
+ External Links: Link 
+ Cited by: §1 .
+ Huang et al. (2026c) 
+ J. Huang, Y. Xiao, Z. Zhang, M. Coates, J. Hao, and Y. Zhang 
+ One demo is all it takes: planning domain derivation with LLMs from a single demonstration .
+ In International Conference on Learning Representations ,
+ Cited by: 1st item ,
+ §1 ,
+ §2 ,
+ §4.4 ,
+ §5 .
+ Huang et al. (2023a) 
+ T. Huang, K. Chen, W. Wei, J. Li, Y. Long, and Q. Dou 
+ Value-informed skill chaining for policy learning of long-horizon tasks with surgical robot .
+ In 2023 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) ,
+ pp. 8495–8501 .
+ Cited by: §2 .
+ Huang et al. (2023b) 
+ W. Huang, F. Xia, T. Xiao, H. Chan, J. Liang, P. Florence, A. Zeng, J. Tompson, I. Mordatch, Y. Chebotar, P. Sermanet, T. Jackson, N. Brown, L. Luu, S. Levine, K. Hausman, and B. Ichter 
+ Inner monologue: embodied reasoning through planning with language models .
+ In Proceedings of the 6th Conference on Robot Learning ,
+ Proceedings of Machine Learning Research , Vol. 205 , pp. 1769–1782 .
+ Cited by: §2 .
+ Kaelbling and Lozano-Pérez (2011) 
+ L. P. Kaelbling and T. Lozano-Pérez 
+ Hierarchical task and motion planning in the now .
+ In 2011 IEEE international conference on robotics and automation ,
+ Cited by: §1 ,
+ §2 .
+ Kim et al. (2025) 
+ M. J. Kim, C. Finn, and P. Liang 
+ Fine-tuning vision-language-action models: optimizing speed and success .
+ In Robotics: Science and Systems XXI ,
+ External Links: Document 
+ Cited by: §1 ,
+ §5 ,
+ §5 .
+ Kim et al. (2026) 
+ M. J. Kim, Y. Gao, T. Lin, Y. Lin, Y. Ge, G. Lam, P. Liang, S. Song, M. Liu, C. Finn, et al. 
+ Cosmos policy: fine-tuning video models for visuomotor control and planning .
+ arXiv preprint arXiv:2601.16163 .
+ Cited by: §5 .
+ Konidaris and Barto (2009) 
+ G. Konidaris and A. Barto 
+ Skill discovery in continuous reinforcement learning domains using skill chaining .
+ Advances in neural information processing systems 22 .
+ Cited by: §2 .
+ Kumar et al. (2023) 
+ N. Kumar, W. McClinton, R. Chitnis, T. Silver, T. Lozano-Pérez, and L. P. Kaelbling 
+ Learning efficient abstract planning models that choose what to predict .
+ In Proc. Conf. on Robot Learning ,
+ Cited by: §1 .
+ Larchenko et al. (2025) 
+ I. Larchenko, G. Zarin, and A. Karnatak 
+ Task adaptation of vision-language-action model: 1st place solution for the 2025 BEHAVIOR challenge .
+ External Links: 2512.06951 ,
+ Document ,
+ Link 
+ Cited by: §D.3 ,
+ §5 ,
+ 2(b) ,
+ §6 .
+ Lee et al. (2022) 
+ Y. Lee, J. J. Lim, A. Anandkumar, and Y. Zhu 
+ Adversarial skill chaining for long-horizon robot manipulation via terminal state regularization .
+ In Proceedings of the 5th Conference on Robot Learning ,
+ Proceedings of Machine Learning Research , Vol. 164 , pp. 406–416 .
+ Cited by: §1 ,
+ §2 .
+ Lee et al. (2019) 
+ Y. Lee, S. Sun, S. Somasundaram, E. S. Hu, and J. J. Lim 
+ Composing complex skills by learning transition policies .
+ In International conference on learning representations ,
+ Cited by: §1 ,
+ §2 .
+ Li et al. (2024) 
+ C. Li, R. Zhang, J. Wong, C. Gokmen, S. Srivastava, R. Martín-Martín, C. Wang, G. Levine, W. Ai, B. Martinez, H. Yin, M. Lingelbach, M. Hwang, A. Hiranaka, S. Garlanka, A. Aydin, S. Lee, J. Sun, M. Anvari, M. Sharma, D. Bansal, S. Hunter, K. Kim, A. Lou, C. R. Matthews, I. Villa-Renteria, J. H. Tang, C. Tang, F. Xia, Y. Li, S. Savarese, H. Gweon, C. K. Liu, J. Wu, and L. Fei-Fei 
+ BEHAVIOR-1k: a human-centered, embodied ai benchmark with 1,000 everyday activities and realistic simulation .
+ arXiv preprint arXiv:2403.09227 .
+ Cited by: §D.3 ,
+ §5 .
+ Li et al. (2026a) 
+ L. Li, Q. Zhang, Y. Luo, S. Yang, R. Wang, L. Zhang, M. Yu, Z. Gao, N. Xue, B. Zhou, X. Zhu, M. Ding, Y. Shen, and Y. Xu 
+ Causal world modeling for robot control .
+ In Robotics: Science and Systems XXII ,
+ External Links: Document 
+ Cited by: §5 .
+ Li et al. (2026b) 
+ R. Li, Y. Zhou, Y. Zhu, K. Chen, J. Wang, S. Wang, K. Hu, M. Yu, B. Jiang, Z. Su, et al. 
+ Roboclaw: an agentic framework for scalable long-horizon robotic tasks .
+ arXiv preprint arXiv:2603.11558 .
+ Cited by: §2 .
+ Liang et al. (2025) 
+ Y. Liang, N. Kumar, H. Tang, A. Weller, J. B. Tenenbaum, T. Silver, J. F. Henriques, and K. Ellis 
+ VisualPredicator: learning abstract world models with neuro-symbolic predicates for robot planning .
+ In International Conference on Learning Representations ,
+ External Links: Link 
+ Cited by: §1 ,
+ §2 .
+ Liu et al. (2023) 
+ B. Liu, Y. Zhu, C. Gao, Y. Feng, Q. Liu, Y. Zhu, and P. Stone 
+ Libero: benchmarking knowledge transfer for lifelong robot learning .
+ Advances in Neural Information Processing Systems .
+ Cited by: §5 .
+ Liu et al. (2026a) 
+ H. Liu, S. Yao, H. Chen, J. Gao, J. Mao, J. Huang, and Y. Du 
+ SIMPACT: simulation-enabled action planning using vision-language models .
+ In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,
+ Cited by: 1st item ,
+ §4.4 .
+ Liu et al. (2025) 
+ W. Liu, N. Nie, R. Zhang, J. Mao, and J. Wu 
+ Learning compositional behaviors from demonstration and language .
+ In Proceedings of the 8th Conference on Robot Learning ,
+ Proceedings of Machine Learning Research , Vol. 270 , pp. 1992–2028 .
+ Cited by: §1 ,
+ §2 .
+ Liu et al. (2026b) 
+ Y. Liu, Z. Dong, B. Ye, T. Yuan, T. Jiang, A. Yang, S. Cao, H. Liu, Y. Sun, Z. Guo, X. Liu, D. Ke, C. Pan, C. Wu, T. Cheng, X. Ren, X. Zhang, J. Cui, Z. Zhao, H. Zhang, K. Xu, H. Yang, B. Zhang, J. Niu, S. Zhu, S. Zhang, and H. Zhao 
+ G0.5: one autoregressive stream for robot reasoning and action .
+ External Links: 2608.11739 ,
+ Document ,
+ Link 
+ Cited by: §D.3 ,
+ §5 ,
+ 2(b) ,
+ §6 .
+ Ma et al. (2026) 
+ L. Ma, R. H. Yang, Z. Zhang, M. Clemente, Z. Hu, T. Cao, and Y. Zhang 
+ Faster-wam: do world action models need deep action modules? .
+ arXiv preprint arXiv:2608.02365 .
+ Cited by: 2nd item ,
+ §5 ,
+ §5 .
+ Mishra et al. (2023) 
+ U. A. Mishra, S. Xue, Y. Chen, and D. Xu 
+ Generative skill chaining: long-horizon skill planning with diffusion models .
+ In Conference on Robot Learning ,
+ pp. 2905–2925 .
+ Cited by: §2 .
+ NVIDIA Research (2025) 
+ NVIDIA Research 
+ GR00T N1.5: an improved open foundation model for generalist humanoid robots .
+ Note: NVIDIA Research 
+ External Links: Link 
+ Cited by: §5 .
+ Oswald et al. (2024) 
+ J. Oswald, K. Srinivas, H. Kokel, J. Lee, M. Katz, and S. Sohrabi 
+ Large language models as planning domain generators .
+ In Proc. Int. Conf. on Automated Planning and Scheduling ,
+ Cited by: §2 .
+ Physical Intelligence et al. (2025) 
+ Physical Intelligence, A. Amin, R. Aniceto, A. Balakrishna, K. Black, K. Conley, G. Connors, J. Darpinian, K. Dhabalia, J. DiCarlo, et al. 
+ π 0.6 ∗ \pi^{*}_{0.6} : A vla that learns from experience .
+ arXiv preprint arXiv:2511.14759 .
+ Cited by: §1 .
+ Sahni et al. (2017) 
+ H. Sahni, S. Kumar, F. Tejani, and C. Isbell 
+ Learning to compose skills .
+ arXiv preprint arXiv:1711.11289 .
+ Cited by: §2 .
+ Schick et al. (2023) 
+ T. Schick, J. Dwivedi-Yu, R. Dessì, R. Raileanu, M. Lomeli, E. Hambro, L. Zettlemoyer, N. Cancedda, and T. Scialom 
+ Toolformer: language models can teach themselves to use tools .
+ Advances in neural information processing systems 36 , pp. 68539–68551 .
+ Cited by: §2 .
+ Shao et al. (2024) 
+ Z. Shao, P. Wang, Q. Zhu, R. Xu, J. Song, X. Bi, H. Zhang, M. Zhang, Y. Li, Y. Wu, et al. 
+ Deepseekmath: pushing the limits of mathematical reasoning in open language models .
+ arXiv preprint arXiv:2402.03300 .
+ Cited by: §5 .
+ Shi et al. (2025) 
+ L. X. Shi, B. Ichter, M. R. Equi, L. Ke, K. Pertsch, Q. Vuong, J. Tanner, A. Walling, H. Wang, N. Fusai, A. Li-Bell, D. Driess, L. Groom, S. Levine, and C. Finn 
+ Hi Robot: open-ended instruction following with hierarchical vision-language-action models .
+ In Proceedings of the 42nd International Conference on Machine Learning ,
+ Proceedings of Machine Learning Research , Vol. 267 , pp. 54919–54933 .
+ External Links: Link 
+ Cited by: §5 .
+ Shinn et al. (2023) 
+ N. Shinn, F. Cassano, A. Gopinath, K. Narasimhan, and S. Yao 
+ Reflexion: language agents with verbal reinforcement learning .
+ Advances in neural information processing systems 36 , pp. 8634–8652 .
+ Cited by: §2 .
+ Silver et al. (2023) 
+ T. Silver, R. Chitnis, N. Kumar, W. McClinton, T. Lozano-Pérez, L. Kaelbling, and J. B. Tenenbaum 
+ Predicate invention for bilevel planning .
+ In Proc. AAAI Conf. on Artificial Intelligence ,
+ Cited by: §1 .
+ Silver et al. (2024) 
+ T. Silver, S. Dan, K. Srinivas, J. B. Tenenbaum, L. Kaelbling, and M. Katz 
+ Generalized planning in pddl domains with pretrained large language models .
+ In Proc. AAAI Conf. on Artificial Intelligence ,
+ Cited by: §1 ,
+ §2 .
+ Wang et al. (2024a) 
+ G. Wang, Y. Xie, Y. Jiang, A. Mandlekar, C. Xiao, Y. Zhu, L. Fan, and A. Anandkumar 
+ Voyager: an open-ended embodied agent with large language models .
+ Transactions on Machine Learning Research .
+ External Links: Link 
+ Cited by: §2 .
+ Wang et al. (2024b) 
+ X. Wang, Y. Chen, L. Yuan, Y. Zhang, Y. Li, H. Peng, and H. Ji 
+ Executable code actions elicit better llm agents .
+ In Forty-first International Conference on Machine Learning ,
+ Cited by: §2 .
+ Wang et al. (2025) 
+ X. Wang, B. Li, Y. Song, F. F. Xu, X. Tang, M. Zhuge, J. Pan, Y. Song, B. Li, J. Singh, et al. 
+ Openhands: an open platform for ai software developers as generalist agents .
+ In International Conference on Learning Representations ,
+ Vol. 2025 , pp. 65882–65919 .
+ Cited by: §2 .
+ Wu et al. (2024) 
+ Q. Wu, G. Bansal, J. Zhang, Y. Wu, B. Li, E. Zhu, L. Jiang, X. Zhang, S. Zhang, J. Liu, A. H. Awadallah, R. W. White, D. Burger, and C. Wang 
+ AutoGen: enabling next-gen LLM applications via multi-agent conversations .
+ In Proceedings of the First Conference on Language Modeling ,
+ External Links: Link 
+ Cited by: §2 .
+ Xia et al. (2025) 
+ C. S. Xia, Y. Deng, S. Dunn, and L. Zhang 
+ Demystifying LLM-based software engineering agents .
+ Proceedings of the ACM on Software Engineering 2 ( FSE ), pp. 801–824 .
+ External Links: Document 
+ Cited by: §2 .
+ Xiao et al. (2026) 
+ W. Xiao, J. Xie, T. Zhang, H. Lin, L. Fu, H. Xue, J. Lu, Y. Yang, C. Dai, Z. Wang, et al. 
+ ENPIRE: agentic robot policy self-improvement in the real world .
+ arXiv preprint arXiv:2606.19980 .
+ Cited by: §2 .
+ Yang et al. (2024) 
+ J. Yang, C. Jimenez, A. Wettig, K. Lieret, S. Yao, K. Narasimhan, and O. Press 
+ Swe-agent: agent-computer interfaces enable automated software engineering .
+ Advances in Neural Information Processing Systems 37 , pp. 50528–50652 .
+ Cited by: §2 .
+ Yang et al. (2025) 
+ Z. Yang, C. Garrett, D. Fox, T. Lozano-Pérez, and L. P. Kaelbling 
+ Guiding long-horizon task and motion planning with vision language models .
+ In 2025 IEEE International Conference on Robotics and Automation (ICRA) ,
+ pp. 16847–16853 .
+ External Links: Document 
+ Cited by: §1 ,
+ §2 .
+ Yao et al. (2023) 
+ S. Yao, J. Zhao, D. Yu, N. Du, I. Shafran, K. Narasimhan, and Y. Cao 
+ React: synergizing reasoning and acting in language models .
+ In International Conference on Learning Representations ,
+ External Links: Link 
+ Cited by: §2 .
+ Ye et al. (2025) 
+ H. Ye, Y. Xiao, C. Lu, and P. Cai 
+ UniDomain: pretraining a unified pddl domain from real-world demonstrations for generalizable robot task planning .
+ In Advances in Neural Information Processing Systems , D. Belgrave, C. Zhang, H. Lin, R. Pascanu, P. Koniusz, M. Ghassemi, and N. Chen (Eds.) ,
+ Cited by: §1 .
+ Yuan et al. (2026) 
+ T. Yuan, Z. Dong, Y. Liu, and H. Zhao 
+ Fast-wam: do world action models need test-time future imagination? .
+ arXiv preprint arXiv:2603.16666 .
+ Cited by: §5 .
+ Zang et al. (2026) 
+ H. Zang, M. Wei, S. Xu, Y. Wu, Z. Guo, Y. Wang, H. Lin, P. Wang, H. Yuan, Y. Zhang, L. Shi, Y. Xie, Z. Xu, Z. Liu, K. Chen, W. Tang, Q. Zhang, W. Zhang, C. Yu, and Y. Wang 
+ RLux-VLA: a unified and efficient framework for reinforcement learning of vision-language-action models .
+ In Robotics: Science and Systems XXII ,
+ External Links: Document 
+ Cited by: 3rd item ,
+ §1 ,
+ §5 .
+ Zhang et al. (2026a) 
+ Y. Zhang, H. Zhang, F. Gao, X. Li, Z. Liu, Y. Nie, C. Zhu, J. Qiu, Y. Yan, J. Liu, W. Tang, J. Rao, Z. Fang, C. Wei, Y. Wang, W. Ding, and C. Yu 
+ Harness vla: steering frozen vlas into reliable manipulation primitives via memory-guided agents .
+ arXiv preprint arXiv:2607.08448 .
+ Cited by: §2 .
+ Zhang et al. (2026b) 
+ Z. Zhang, Z. Li, B. Rahmati, R. H. Yang, Y. Ma, A. Rasouli, S. Pakdamansavoji, Y. Wu, L. Zhang, T. Cao, et al. 
+ Do world action models generalize better than vlas? a robustness study .
+ arXiv preprint arXiv:2603.22078 .
+ Cited by: §1 ,
+ §1 ,
+ §2 ,
+ §5 .
+ Zhao et al. (2023) 
+ Z. Zhao, W. S. Lee, and D. Hsu 
+ Large language models as commonsense knowledge for large-scale task planning .
+ In Thirty-seventh Conference on Neural Information Processing Systems ,
+ Cited by: §2 .
+ Zheng et al. (2025) 
+ J. Zheng, J. Li, Z. Wang, D. Liu, X. Kang, Y. Feng, Y. Zheng, J. Zou, Y. Chen, J. Zeng, et al. 
+ X-vla: soft-prompted transformer as scalable cross-embodiment vision-language-action model .
+ arXiv preprint arXiv:2510.10274 .
+ Cited by: §D.3 ,
+ §1 ,
+ §5 ,
+ 2(a) ,
+ 2(b) .
+ Appendix A LIBERO-Complex Customized Tasks 
+ In this section, we provide full details of the LIBERO-Complex benchmark used in this paper, including both simulated and real-robot tasks. 
+ A.1 Simulated tasks 
+ We construct 500 simulated instances from 10 long-horizon task templates, each evaluated under 50 randomly initialized tabletop configurations. The templates combine ambiguous or state-dependent instructions with object rearrangement, articulated-object manipulation, spatial reasoning, multi-object handling, and state-changing interactions. Approximately 20% of the ground-truth subtasks can be completed by only one of the four policy types—TAMP, VLA, WAM, or RL—given their respective capabilities. The remaining subtasks have overlapping policy coverage, but the policies differ in their success rates on them. The templates therefore test both whether RoboHarness selects a policy with the required capability and whether it selects an effective policy when multiple options are available. Results are reported in Figure   4 . The ten templates are listed below: 
+ 1. 
+ Open the top drawer of the cabinet, place the middle bowl inside it, and place the remaining bowls on the plate. 
+ 2. 
+ Place the butter and chocolate pudding in the pan, turn on the stove, and finally place the pan on the stove. 
+ 3. 
+ Stack the bowl on the cabinet onto the ramekin, place the bowl on the stove onto the plate, and place the cookies on the cabinet. 
+ 4. 
+ Place both bowls on the microwave and close the microwave. 
+ 5. 
+ Place the bowl in the top drawer, close the drawer, and place the ketchup on the plate. 
+ 6. 
+ Place the ramekin on the stove, retrieve the Akita black bowl from the open top drawer of the wooden cabinet and place it on the plate, and place the cookies in the open drawer. 
+ 7. 
+ Place the bowl on the stove, turn on the stove, place the cream cheese on the bowl, and place the wine on the rack. 
+ 8. 
+ Collect the cookies, alphabet soup, cream cheese, and butter, and place them in the tray. 
+ 9. 
+ Place the side bowl on the cabinet, the center bowl on the plate, and the ramekin on the stove. 
+ 10. 
+ Switch the position of the left bowl and popcorn, and collect the other bowl on the cabinet. 
+ These tasks test several challenges beyond standard single-stage manipulation. First, expressions such as “the middle bowl,” “the remaining bowls,” “the side bowl,” and “the already-open top drawer” require grounding objects through their spatial relations and current scene state rather than fixed object identities. Second, the mixed and long-horizon requirement require the system to coordinate different underlying heterogeneous policies to accomplish the full task. Third, many instructions contain ordering dependencies: containers must be opened before objects are inserted, appliances must be activated at the appropriate stage, and intermediate placements alter the scene for subsequent subtasks. Finally, the combination of semantic interaction, geometric placement, and multi-step task reasoning requires RoboHarness to alternate between policies with complementary capabilities and maintain execution consistency across their handoffs. 
+ Appendix B Real robot Experiment 
+ Figure 6: Full process of the real-robot experiment 
+ Five different target structures: 
+ Using UR5e, We conducted 135 real-robot trials across five structure-construction tasks and four execution-time disturbance settings, with 15 trials for each setting. The full process of the experiment is shown in Figure   6 . The five task classes are Bridge , Taller Bridge , Tower , Chinese Character , and Boat ( Figure   7 ). The Bridge uses short blocks as lower piers, long blocks as vertical supports, and flat blocks as the bridge deck. The Taller Bridge increases the structural complexity by stacking two layers of long blocks to support an elevated deck. The Tower is a three-level structure constructed by arranging short and long blocks in a staggered configuration. For the Chinese Character task, one of four characters， is randomly selected as the target structure for each trial. The Boat is constructed by stacking blocks from short to long to form the hull and cabin, with a long block placed vertically on top as the mast. 
+ Figure 7: Five different target structure 
+ In each trial, RoboHarness receives a language instruction describing the target structure and observes the blocks available in the workspace. It must infer the required block configuration, identify missing components, and generate a long-horizon assembly plan. Some required blocks are initially hidden inside a storage cabinet, requiring the robot to open the cabinet, actively explore its contents, and retrieve the missing blocks before completing the structure. 
+ Our real-robot system integrates a TAMP planner with a VLA policy, π 0.5 \pi_{0.5} , fine-tuned on 50 human-demonstrated trajectories each for opening and closing cabinet drawers. The TAMP planner performs structural reasoning and generates the geometrically precise sequence of pick-and-place operations required for assembly. When RoboHarness determines that a required block is hidden, it transfers control to π 0.5 \pi_{0.5} through the Memory Bridge. The VLA handles contact-rich interactions that are difficult to model explicitly within TAMP, including opening, closing the cabinet, and exploring its contents. Control is then transferred back to TAMP, which updates the object state and resumes the remaining assembly sequence. This workflow requires repeated capability-aware routing and stable handoffs between semantic, contact-rich exploration and precise long-horizon construction. 
+ Execution-Time Disturbances: 
+ We further evaluate robustness by introducing four disturbances during execution: (1) re-hiding required blocks after the initially hidden blocks have been retrieved, forcing RoboHarness to detect the newly missing components and repeat the exploration procedure; (2) dismantling a partially completed structure, requiring the system to reassess task progress and replan the assembly; (3) injecting 5%-10% relative percentage noise into object-pose estimates to test robustness to perception errors; and (4) introducing distracting objects into the workspace to evaluate task-relevant reasoning and object selection. These disturbances test whether RoboHarness can recognize unexpected state changes, update its plan, reroute subtasks to appropriate policies, and recover without restarting the entire task. 
+ Implementation Details. 
+ Our real-robot system is implemented on a UR5e manipulator and integrates a TAMP policy with a π 0.5 \pi_{0.5} VLA policy. Two RealSense D435 cameras provide visual observations: one captures the agent view, and the other is mounted on the robot wrist. The TAMP policy uses the UR5e low-level control API for robot motion, PDDLStream  ( Garrett et al., 2020 ) for symbolic task reasoning and continuous motion-parameter sampling, and an ArUco-marker-based perception pipeline for object-pose estimation. It reasons about the required blocks and executes geometrically constrained pick-and-place operations during structure construction. The VLA policy is initialized from the official pi05_libero checkpoint and fine-tuned using 50 human-demonstrated trajectories for each of drawer opening and drawer closing. It handles the contact-rich cabinet interactions required to explore the drawer. 
+ Appendix C Details of Auxiliary Skill Modules 
+ This section provides implementation details corresponding to the understanding skills in Section   4.1 , memory management and Memory Bridge in Section   4.2 , self-evolution skills in Section   4.4 , and heterogeneous policy interfaces in Section   4.3 . 
+ C.1 Understanding Skills 
+ • 
+ Uncertainty Assessment. 
+Perception outputs are aggregated over a temporal window to estimate the mean and variance of object poses. These statistics characterize temporal stability and are provided to the coding agent to support uncertainty-aware planning and policy selection. 
+ • 
+ Visual-Context Assessment. 
+We use two frozen visual encoders from Hugging Face:
+ google/siglip2-base-patch16-224 and
+ facebook/dinov2-base .
+Let e sig e_{\mathrm{sig}} and e dino e_{\mathrm{dino}} denote their embedding functions. The visual similarity used in Section   4.2.1 is 
+ sim vis ⁡ ( o , o ′ ) = \displaystyle\operatorname{sim}_{\mathrm{vis}}(o,o^{\prime})={} 
+ α ​ cos ⁡ ( e sig ​ ( o ) , e sig ​ ( o ′ ) ) \displaystyle\alpha\operatorname{cos}\!\left(e_{\mathrm{sig}}(o),e_{\mathrm{sig}}(o^{\prime})\right) 
+ + ( 1 − α ) ​ cos ⁡ ( e dino ​ ( o ) , e dino ​ ( o ′ ) ) , \displaystyle+(1-\alpha)\operatorname{cos}\!\left(e_{\mathrm{dino}}(o),e_{\mathrm{dino}}(o^{\prime})\right), 
+ where α ∈ [ 0 , 1 ] \alpha\in[0,1] controls the relative contribution of the encoders. This score is used for visual retrieval and provides evidence about the similarity between the current observation and policy-specific execution contexts. 
+ • 
+ Semantic-Context Assessment. 
+We use the frozen Hugging Face language encoder
+ BAAI/bge-large-en-v1.5 as e text e_{\mathrm{text}} .
+Task instructions and candidate subtasks are embedded and compared with stored descriptions using cosine similarity. The resulting scores support semantic retrieval and assessment of a policy’s task relevance. 
+ • 
+ Input-Quality Assessment. 
+Observation quality is evaluated using conventional image-processing algorithms. Exposure is measured from the mean grayscale intensity and the proportions of pixels below and above predefined intensity thresholds. Sharpness is quantified by the variance of the Laplacian response, while contrast is measured by the standard deviation of grayscale intensities. Image entropy is computed from the intensity histogram to characterize intensity variation. The normalized metrics are combined into an overall quality score and provided to the coding agent for observation selection and reliability-aware decision-making. 
+ • 
+ State-Policy Compatibility Assessment. 
+For a candidate policy and subtask, RoboHarness retrieves relevant policy-specific memory and constructs the local support region and progress estimator described in Section   4.2.2 . The current robot state is assessed using its distance to retrieved states and its local progress score. These outputs provide evidence about robot-configuration compatibility and possible bridging requirements; they are interpreted jointly with visual, semantic, and task-state information by the coding agent. 
+ C.2 Memory Skill Implementation Details 
+ The memory skill library supports memory retrieval, memory update, and Memory Bridge construction. The retrieval and target-selection mechanisms are defined in Section   4.2 . Here, we describe the stored data, the progress estimator used in our experiments, and a representative bridge execution. 
+ Figure 8: Memory Data Structure. Successful policy executions are stored in policy-specific episodic memory banks as temporally linked nodes containing observations, active subtask instructions, robot states, gripper states, and visual and semantic embeddings. Links support retrieval of execution context before and after an anchor node. 
+ Memory Data Structure. 
+ As illustrated in Figure   8 , each linked-node trajectory records a successful policy execution from its initial observation to its terminal state. Nodes are connected in temporal order, allowing the system to recover preceding and subsequent execution context from a retrieved anchor. Each node stores the current visual observation o ⁡ ( n ) o(n) , active subtask instruction g ⁡ ( n ) g(n) , raw robot state 𝐬 ~ ​ ( n ) \widetilde{\mathbf{s}}(n) , gripper state z ⁡ ( n ) z(n) , and corresponding visual and semantic embeddings. 
+ The raw robot state extracted from the full system state 𝐱 \mathbf{x} is 
+ 𝐬 ~ ​ ( 𝐱 ) = [ 𝐩 ⊤ 𝐪 ⊤ 𝜽 ⊤ ] ⊤ , \widetilde{\mathbf{s}}(\mathbf{x})=\begin{bmatrix}\mathbf{p}^{\top}&\mathbf{q}^{\top}&\bm{\theta}^{\top}\end{bmatrix}^{\top}, 
+ where 𝐩 ∈ ℝ 3 \mathbf{p}\in\mathbb{R}^{3} is the end-effector position in meters, 𝐪 ∈ ℝ 4 \mathbf{q}\in\mathbb{R}^{4} is its unit-quaternion orientation, and 𝜽 \bm{\theta} contains the joint angles in radians. At bridge-construction time t t , we normalize the raw state using the element-wise ranges of the corresponding policy-specific memory bank: 
+ 𝐬 t ​ ( 𝐱 ) = 𝐬 ~ ​ ( 𝐱 ) − ℓ t max ⁡ ( 𝐮 t − ℓ t , ϵ ) , \mathbf{s}_{t}(\mathbf{x})=\frac{\widetilde{\mathbf{s}}(\mathbf{x})-\bm{\ell}_{t}}{\max\!\left(\mathbf{u}_{t}-\bm{\ell}_{t},\epsilon\right)}, 
+ where ℓ t \bm{\ell}_{t} and 𝐮 t \mathbf{u}_{t} are the element-wise minimum and maximum of the raw states stored in that bank at time t t , ϵ > 0 \epsilon>0 prevents division by zero, and the division and maximum are applied element-wise. We use these same ranges to normalize the current state and all retrieved memory states for a given bridge construction. We write 𝐬 ⁡ ( n ) \mathbf{s}(n) as shorthand for 𝐬 t ​ ( 𝐱 ​ ( n ) ) \mathbf{s}_{t}(\mathbf{x}(n)) when t t is fixed. A current state outside the memory-bank range may have normalized components outside [ 0 , 1 ] [0,1] . Euclidean distances are computed between states normalized using the same ranges. 
+ Visual embeddings from the frozen SigLIP2 and DINOv2 encoders and semantic embeddings from the frozen language encoder are stored alongside the node data to support efficient retrieval. 
+ The execution log ℋ \mathcal{H} maintains a complete chronological trace of the orchestration process. Each entry records the task and scene context, agent or skill invocation, exchanged messages and outputs, observations, actions, runtime feedback and errors, bridge executions, and intermediate or final outcomes. It also records evolution actions and their results, including parameter changes, metadata revisions, interface or routing updates, validation outcomes, and whether each change is retained. Evolution skills retrieve relevant log segments as evidence for capability assessment, failure diagnosis, and subsequent adaptation. If a policy execution succeeds, its recorded nodes are additionally linked chronologically and inserted as an episodic trajectory into the corresponding policy-specific bank ℳ i \mathcal{M}_{i} . Contextual trajectory retrieval and Memory Bridge construction operate only on successful episodic trajectories in these banks. 
+ Progress Estimator. 
+ We implement f score , t f_{\mathrm{score},t} using a linear pairwise ranking support vector machine (SVM). For each bridge construction, the retrieved anchor nodes are expanded into local trajectory segments as described in Section   4.2.2 , preserving the same subtask and gripper state. Each sample consists of a normalized robot-state feature vector 𝐬 i , j = 𝐬 ⁡ ( n i , j ) \mathbf{s}_{i,j}=\mathbf{s}(n_{i,j}) and a signed temporal offset y i , j = Δ ​ t i , j y_{i,j}=\Delta t_{i,j} . Before training, the temporal offsets are normalized to [ − 1 , 1 ] [-1,1] : 
+ y ^ i , j = y i , j Δ ​ t t max , Δ ​ t t max = max i , j ⁡ | y i , j | , 𝒟 t = { ( 𝐬 i , j , y ^ i , j ) } . \hat{y}_{i,j}=\frac{y_{i,j}}{\Delta t_{t}^{\max}},\qquad\Delta t_{t}^{\max}=\max_{i,j}\left|y_{i,j}\right|,\qquad\mathcal{D}_{t}=\left\{\left(\mathbf{s}_{i,j},\hat{y}_{i,j}\right)\right\}. 
+ The anchor has y i , 0 = 0 y_{i,0}=0 , subsequent nodes have positive offsets, and preceding nodes have negative offsets. 
+ The normalized temporal labels define relative preferences rather than regression targets. Because the anchors are retrieved using visual and semantic similarity, we treat them as approximately aligned points of task progress and use their relative temporal offsets to construct preferences across the retrieved segments. For two samples a a and b b in 𝒟 t \mathcal{D}_{t} , y ^ a > y ^ b \hat{y}_{a}>\hat{y}_{b} indicates that 𝐬 a \mathbf{s}_{a} should receive a higher progress score than 𝐬 b \mathbf{s}_{b} . We construct the pair set 
+ 𝒫 t = { ( a , b ) ∣ y ^ a > y ^ b } \mathcal{P}_{t}=\left\{(a,b)\mid\hat{y}_{a}>\hat{y}_{b}\right\} 
+ and fit the ranking SVM by solving 
+ min 𝐰 t , { ξ a ​ b } \displaystyle\min_{\mathbf{w}_{t},\,\{\xi_{ab}\}} 
+ 1 2 ​ ‖ 𝐰 t ‖ 2 2 + C svm ​ ∑ ( a , b ) ∈ 𝒫 t ξ a ​ b , \displaystyle\frac{1}{2}\|\mathbf{w}_{t}\|_{2}^{2}+C_{\mathrm{svm}}\sum_{(a,b)\in\mathcal{P}_{t}}\xi_{ab}, 
+ subject to \displaystyle\text{subject to} 
+ 𝐰 t ⊤ ​ ( 𝐬 a − 𝐬 b ) ≥ 1 − ξ a ​ b , \displaystyle\mathbf{w}_{t}^{\top}\left(\mathbf{s}_{a}-\mathbf{s}_{b}\right)\geq 1-\xi_{ab}, 
+ ξ a ​ b ≥ 0 , ∀ ( a , b ) ∈ 𝒫 t , \displaystyle\xi_{ab}\geq 0,\qquad\forall(a,b)\in\mathcal{P}_{t}, 
+ where C svm C_{\mathrm{svm}} controls the trade-off between regularization and ranking violations. The resulting progress estimator is 
+ f score , t ​ ( 𝐬 ) = 𝐰 t ⊤ ​ 𝐬 . f_{\mathrm{score},t}(\mathbf{s})=\mathbf{w}_{t}^{\top}\mathbf{s}. 
+ Thus, the output represents an ordering of local progress rather than elapsed time, a probability density, or a probability of successful execution. Although the temporal labels are normalized to [ − 1 , 1 ] [-1,1] before training, they impose only relative ordering constraints; consequently, the learned SVM score is not itself restricted to this range. In particular, the zero label assigned to an anchor does not force its learned score to be zero. 
+ Candidate targets are evaluated using the learned score together with the memory-support constraint, motion-planning feasibility, and motion cost defined in Section   4.2.2 . We initialize the acceptance threshold as θ score , t = 0.9 \theta_{\mathrm{score},t}=0.9 . If candidate sampling produces no memory-supported, motion-feasible state whose score exceeds the current threshold, we reduce θ score , t \theta_{\mathrm{score},t} by 0.02 0.02 and repeat the sampling and filtering procedure until an acceptable candidate is found or the 10-second time limit is reached. Fitting this auxiliary ranking model uses retrieved experience and does not jointly retrain the underlying control policies. 
+ Figure 9: A Memory Bridge handoff. Left: an out-of-distribution (OOD) robot configuration and sampled candidate states, colored by their relative state scores (red: lower; green: higher). Right: the robot configuration goes back to distribution after executing the memory bridge trajectory. 
+ Memory Bridge Example. 
+ Figure   9 shows a representative policy handoff. The preceding policy leaves the robot in a configuration poorly aligned with the incoming policy’s execution experience.
+Candidate states are filtered by memory support, progress score, and motion feasibility. RoboHarness selects a handoff target by balancing progress against motion cost, with λ motion = 0.2 \lambda_{\mathrm{motion}}=0.2 , and plans a bridge to that target. After execution, the coding agent reassesses the observation and task context before invoking the next policy or revising the routing decision. This handoff requires no joint retraining of the constituent policies. 
+ C.3 Evolution Skill Implementation Details 
+ The self-evolution skill library contains three components: policy adaptation, harness refinement, and metadata update. These components use execution outcomes and retrieved experience to improve individual policies and their orchestration. 
+ • 
+ Policy Adaptation. 
+We implement SIMPACT  ( Liu et al., 2026a ) and PDDLLM  ( Huang et al., 2026c ) as adaptation methods for the TAMP system. SIMPACT adjusts motion-level parameters, such as object grasp poses, using execution feedback. PDDLLM extends the symbolic task model by learning new logical representations from observed interactions. These methods support adaptation to previously unsupported objects, relations, and task conditions. Policy adaptation also includes tuning exposed policy hyperparameters using the parameter-update procedure described below. 
+ • 
+ Harness Refinement. 
+RoboHarness uses Codex with GPT-5.5 to refine orchestration code online. Based on execution traces, runtime errors, and discrepancies between expected and observed outcomes, the coding agent identifies implementation bugs, repairs policy interfaces, and revises policy-routing and coordination logic. Modified implementations are evaluated through subsequent execution before being retained. Harness refinement also adjusts orchestration parameters, including retrieval counts, Memory Bridge support and score thresholds, and bridge-trajectory acceptance criteria. 
+ • 
+ Metadata Update. 
+Policy capability metadata is revised using execution evidence in ℋ \mathcal{H} . It records contexts in which a policy performs reliably or fails, including relevant objects, scenes, task types, and environmental conditions. Updated metadata is reflected in the policy cards and recorded in ℋ \mathcal{H} for subsequent planning, routing, and evolution. 
+ Parameter updates within Policy Adaptation and Harness Refinement share a directional tuning procedure. Each tunable parameter is assigned a discrete grid of candidate values. The coding agent selects whether to increase, decrease, or retain the current setting, and a separate tuning module maps this decision to the corresponding grid value and applies the update. This implements directional search over discretized parameters rather than exhaustive grid search. 
+ All three components are enabled in the simulated experiments. Persistent failures trigger the retrieval of relevant execution evidence from ℋ \mathcal{H} , after which the coding agent selects the appropriate updates. The selected adaptations, their validation outcomes, and retained changes are appended to the log. Validated changes are retained across evaluation episodes, allowing continual adaptation. Thus, the setting does not require task-specific pretraining of the orchestration framework but permits the use of experience accumulated during evaluation. 
+ C.3.1 Underlying Heterogeneous Policies 
+ We incorporate four independently developed policies with complementary capabilities. Each is exposed through a callable skill interface and a policy card, as described in Section   4.3 , while retaining its native inputs, outputs, and execution procedure. 
+ • 
+ 𝝅 0.5 \bm{\pi_{0.5}} . 
+For LIBERO, LIBERO-Plus, and LIBERO-LoHo, we use the official pi05_libero checkpoint released by Physical Intelligence through the openpi repository. This checkpoint was fine-tuned on LIBERO-Spatial, LIBERO-Goal, LIBERO-Long, and LIBERO-Object, providing broad language-conditioned manipulation capabilities  ( Black et al., 2025a ) . For RMBench and BEHAVIOR-1K, we use checkpoints trained by us for the respective benchmarks. For our π 0.5 \pi_{0.5} fine-tuning, we adapt the official openpi training configuration 1 1 
+ 1 
+ https://github.com/Physical-Intelligence/openpi/blob/main/src/openpi/training/config.py to the task-specific data. We use an action horizon of 50, a global batch size of 256, and the learning rate warms up for 10,000 steps to 5 × 10 − 5 5\times 10^{-5} and then decays over the next 20,000 steps. We use the checkpoint at step 30,000. 
+ • 
+ Faster-WAM. 
+We incorporate Faster-WAM  ( Ma et al., 2026 ) as a world-action-model policy and train it on LIBERO using the authors’ released training pipeline. Its Dock of Transformer architecture connects a lightweight action head to a video Transformer backbone, allowing action prediction to use representations from the video model. RoboHarness invokes Faster-WAM through its native inference interface, adding video-model-based control to the heterogeneous policy library without requiring a shared action representation or joint retraining with the other policies. 
+ • 
+ RL-Post-Trained OpenVLA-OFT. 
+We use the RLinf/RLinf-OpenVLAOFT-GRPO-LIBERO-90 checkpoint released on Hugging Face. This policy was post-trained with GRPO on the 90 short-horizon tasks in LIBERO-90 using the RLinf framework  Zang et al. (2026) . It represents the RL-post-trained policy family within RoboHarness. 
+ • 
+ TAMP Planner. 
+We implement a TAMP system for geometrically constrained manipulation over a predefined object set. PDDL represents object types, predicates, and manipulation actions with their preconditions and effects, while each problem instance specifies the available objects, initial state, and task goal. We use the Fast-Forward (FF) planner  ( Hoffmann and Nebel, 2001 ) through PDDLStream  ( Garrett et al., 2020 ) , which connects symbolic planning with Python sampling procedures for continuous quantities such as grasp poses, placement poses, and robot configurations. 
+ High-level actions, including picking, placing, stacking, and aligning, are executed using three motion generation and control mechanisms: (1) pose-based motion planning, which estimates object poses and generates robot trajectories using RRT through OMPL  Guo et al. (2026) ; (2) VLM-based visual control, which guides robot motion from visual observations by outputting grid-based adjustments in eight translational and six rotational directions; and (3) memory-based trajectory augmentation, which incorporates retrieved demonstration segments into execution. In the memory-based configuration, memory skills retrieve successful episodic trajectories from ℳ \mathcal{M} to disambiguate visually identical states, and each policy invocation is preceded by replaying the leading fraction ( β = 0.4 \beta=0.4 ) of a retrieved demonstration segment. These mechanisms provide alternative ways to ground symbolic actions, while the TAMP system remains constrained by its predefined task domain and available execution capabilities. 
+ Together, these policies provide complementary language-conditioned, video-model-based, reinforcement-learned, and symbolic-geometric capabilities for evaluating heterogeneous policy orchestration. Policy cards record their interface requirements, supported tasks, assumptions, constraints, and execution statistics, and are updated as new evidence accumulates. 
+ Appendix D Evaluation Details on Benchmarks 
+ D.1 Heterogeneous Policy Configurations across Benchmarks 
+ Table   3 summarizes the heterogeneous policies available to RoboHarness across benchmarks and ablation studies. Policy configurations are determined by the availability of compatible checkpoints and the requirements of each benchmark. For LIBERO, LIBERO-Plus, RMBench, and BEHAVIOR-1K, RoboHarness orchestrates π 0.5 \pi_{0.5} and TAMP, combining learned visuomotor control with explicit task and motion planning. For LIBERO-LoHo and the ablation study, the policy library additionally includes Faster-WAM and RLinf-OpenVLA, enabling evaluation with all four policy families. A checkmark denotes that a policy is available to the orchestrator, rather than necessarily invoked in every task; the policies used during execution depend on capability-aware task decomposition and routing. 
+ Table 3: Heterogeneous policy configurations used by RoboHarness across benchmarks and ablation studies. A checkmark indicates that the policy is available for orchestration. 
+ Benchmark / Study 
+ π 0.5 \pi_{0.5} 
+ Faster-WAM 
+ RLinf-OpenVLA 
+ TAMP 
+ LIBERO 
+ ✓ \checkmark 
+ – 
+ – 
+ ✓ \checkmark 
+ LIBERO-Plus 
+ ✓ \checkmark 
+ – 
+ – 
+ ✓ \checkmark 
+ LIBERO-LoHo 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ RMBench 
+ ✓ \checkmark 
+ – 
+ – 
+ ✓ \checkmark 
+ BEHAVIOR-1K 
+ ✓ \checkmark 
+ – 
+ – 
+ ✓ \checkmark 
+ Ablation Study 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ D.2 RMBench 
+ RMBench  ( Chen et al., 2026 ) is a memory-dependent robotic manipulation benchmark built on RoboTwin 2.0, comprising nine dual-arm manipulation tasks across two levels of task memory complexity: five M ⁡ ( 1 ) M(1) tasks and four M ⁡ ( n ) M(n) tasks. The M ⁡ ( 1 ) M(1) tasks require retaining information from a single key observation or a fixed, limited set of historical frames, such as an object’s original position. The M ⁡ ( n ) M(n) tasks require accumulating and reasoning over multiple past observations, such as tracking previous attempts and their outcomes during trial-and-error interactions. These tasks evaluate memory retention and utilization when the current observation alone is insufficient for decision-making. We evaluate RoboHarness on 20 episodes per task, with each episode recorded as a binary success or failure. 
+ Table 4: Per-task success rates (%) on RMBench. Diffusion Policy, π 0.5 \pi_{0.5} , X-VLA, and Mem-0 results are from the RMBench paper  ( Chen et al., 2026 ) ; RoboHarness results use our full nine-task evaluation. 
+ Task 
+ TMC 
+ Diffusion Policy 
+ π 0.5 \pi_{0.5} 
+ X-VLA 
+ Mem-0 
+ RoboHarness 
+ Observe and Pick Up 
+ M ⁡ ( 1 ) M(1) 
+ 1 
+ 9 
+ 9 
+ 4 
+ 90 
+ Rearrange Blocks 
+ M ⁡ ( 1 ) M(1) 
+ 0 
+ 13 
+ 13 
+ 89 
+ 85 
+ Put Back Block 
+ M ⁡ ( 1 ) M(1) 
+ 0 
+ 11 
+ 18 
+ 90 
+ 100 
+ Swap Blocks 
+ M ⁡ ( 1 ) M(1) 
+ 11 
+ 24 
+ 16 
+ 67 
+ 95 
+ Swap T 
+ M ⁡ ( 1 ) M(1) 
+ 20 
+ 15 
+ 3 
+ 14 
+ 15 
+ Battery Try 
+ M ⁡ ( n ) M(n) 
+ 10 
+ 16 
+ 26 
+ 28 
+ 50 
+ Blocks Ranking Try 
+ M ⁡ ( n ) M(n) 
+ 10 
+ 6 
+ 1 
+ 18 
+ 80 
+ Cover Blocks 
+ M ⁡ ( n ) M(n) 
+ 0 
+ 0 
+ 2 
+ 68 
+ 80 
+ Press Button 
+ M ⁡ ( n ) M(n) 
+ 0 
+ 0 
+ 0 
+ 0 
+ 100 
+ Overall average 
+ – 
+ 5.8 
+ 10.4 
+ 9.8 
+ 42.0 
+ 77.2 
+ D.3 BEHAVIOR-1K 
+ BEHAVIOR-1K  ( Li et al., 2024 ) is a large-scale benchmark for evaluating embodied agents on diverse, realistic household activities in interactive environments. We select six mobile-manipulation tasks with varying horizons and interaction requirements: Turning On Radio (Task 0), Picking Up Trash (Task 1), Setting Mousetraps (Task 5), Moving Boxes to Storage (Task 16), Tidying Bedroom (Task 18), and Putting Shoes on Rack (Task 22). Our evaluations of RoboHarness, π 0.5 \pi_{0.5}   ( Black et al., 2025a ) , Robot Learning Collective (RLC)  ( Larchenko et al., 2025 ) , and X-VLA  ( Zheng et al., 2025 ) use 10 episodes per task. For G0.5  ( Liu et al., 2026b ) , we use the published per-task progress scores of its four-epoch model; per-task binary success rates are unavailable. These tasks require agents to navigate across environments, manipulate multiple objects, and execute temporally ordered subtasks under substantial viewpoint and background changes. We report the arithmetic mean across the six tasks and evaluate SR independently from PS using the benchmark’s binary success criterion. The task-level results are provided in Table   5 . 
+ Table 5: Per-task results on the six selected BEHAVIOR-1K tasks. SR and PS denote success rate and progress score, respectively. Dashes mark unavailable results. The average is the arithmetic mean across tasks, and all results are rounded to two decimal places. 
+ RoboHarness 
+ π 0.5 \pi_{0.5} 
+ RLC 
+ X-VLA 
+ G0.5 
+ Task 
+ SR 
+ PS 
+ SR 
+ PS 
+ SR 
+ PS 
+ SR 
+ PS 
+ SR 
+ PS 
+ Task 0: Turning On Radio 
+ 0.90 
+ 0.90 
+ 0.20 
+ 0.20 
+ 0.30 
+ 0.30 
+ 0.20 
+ 0.20 
+ – 
+ 0.05 
+ Task 1: Picking Up Trash 
+ 0.50 
+ 0.73 
+ 0.00 
+ 0.15 
+ 0.30 
+ 0.62 
+ 0.10 
+ 0.40 
+ – 
+ 0.85 
+ Task 5: Setting Mousetraps 
+ 0.40 
+ 0.67 
+ 0.00 
+ 0.23 
+ 0.10 
+ 0.36 
+ 0.00 
+ 0.12 
+ – 
+ 0.57 
+ Task 16: Moving Boxes to Storage 
+ 0.60 
+ 0.75 
+ 0.10 
+ 0.33 
+ 0.70 
+ 0.73 
+ 0.00 
+ 0.03 
+ – 
+ 0.55 
+ Task 18: Tidying Bedroom 
+ 0.00 
+ 0.43 
+ 0.00 
+ 0.33 
+ 0.00 
+ 0.20 
+ 0.00 
+ 0.08 
+ – 
+ 0.62 
+ Task 22: Putting Shoes on Rack 
+ 0.20 
+ 0.46 
+ 0.00 
+ 0.34 
+ 0.00 
+ 0.33 
+ 0.00 
+ 0.05 
+ – 
+ 0.57 
+ Average 
+ 0.43 
+ 0.66 
+ 0.05 
+ 0.26 
+ 0.23 
+ 0.42 
+ 0.05 
+ 0.15 
+ – 
+ 0.54 
+ D.4 LIBERO-LoHo 
+ LIBERO-LoHo evaluates long-horizon task execution across five tasks using progress score and success rate. RoboHarness achieves an average progress score of 98.2 % 98.2\% and success rate of 96.0 % 96.0\% , outperforming all compared methods on both metrics across all five tasks ( Table   6 ). 
+ Table 6: LIBERO-LoHo long-horizon evaluation. Each entry reports the progress score / success rate (%). The best and second-best results for each metric are shown in bold and underlined , respectively. 
+ Method 
+ Task 1 
+ Task 2 
+ Task 3 
+ Task 4 
+ Task 5 
+ Overall 
+ H-WM- π 0.5 \pi_{0.5} 
+ 98.0 / 94.0 
+ 86.7 / 60.0 
+ 74.0 / 46.0 
+ 70.7 / 42.0 
+ 95.0 / 82.0 
+ 84.9 / 64.8 
+ Logic-guided π 0.5 \pi_{0.5} 
+ 95.3 / 86.0 
+ 84.7 / 58.0 
+ 54.7 / 16.0 
+ 39.3 / 4.0 
+ 92.0 / 78.0 
+ 73.2 / 48.4 
+ LLM-guided π 0.5 \pi_{0.5} 
+ 84.7 / 54.0 
+ 80.7 / 42.0 
+ 68.0 / 24.0 
+ 41.3 / 4.0 
+ 59.5 / 10.0 
+ 66.8 / 26.8 
+ π 0.5 \pi_{0.5} 
+ 66.0 / 4.0 
+ 73.3 / 24.0 
+ 54.7 / 4.0 
+ 44.7 / 0.0 
+ 38.0 / 0.0 
+ 55.3 / 6.4 
+ π 0 \pi_{0} 
+ 54.0 / 0.0 
+ 62.0 / 28.0 
+ 44.0 / 0.0 
+ 31.3 / 0.0 
+ 34.0 / 0.0 
+ 45.1 / 5.6 
+ X-VLA 
+ 48.8 / 0.0 
+ 16.7 / 0.0 
+ 23.3 / 0.0 
+ 33.3 / 0.0 
+ 40.0 / 0.0 
+ 32.4 / 0.0 
+ Faster-WAM 
+ 0.0 / 0.0 
+ 64.0 / 2.0 
+ 28.7 / 0.0 
+ 32.0 / 0.0 
+ 0.0 / 0.0 
+ 24.9 / 0.4 
+ OpenVLA-OFT 
+ 0.0 / 0.0 
+ 60.0 / 0.0 
+ 17.3 / 0.0 
+ 22.7 / 0.0 
+ 0.0 / 0.0 
+ 20.0 / 0.0 
+ GR00T-N1.5 
+ 0.0 / 0.0 
+ 30.7 / 0.0 
+ 34.7 / 0.0 
+ 2.7 / 0.0 
+ 0.0 / 0.0 
+ 13.6 / 0.0 
+ RoboHarness (ours) 
+ 99.3 / 98.0 
+ 97.3 / 96.0 
+ 99.3 / 98.0 
+ 98.0 / 96.0 
+ 97.0 / 92.0 
+ 98.2 / 96.0 
+ Experimental support, please
+ view the build logs 
+ for errors. Generated by
+ L
+ A 
+ T
+ E 
+ xml 
+ .
+ Instructions for reporting errors 
+ We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below: 
+ Click the "Report Issue" ( 
+ ) button, located in the page header. 
+ Tip: You can select the relevant text first, to include it in your report. 
+ Our team has already identified the following issues . We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all. 
+ Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion , and welcome developer contributions . 
+ We gratefully acknowledge support from
+ our major funders ,
+ member institutions , ,
+ and all contributors.
+ About 
+ · 
+ Help 
+ · 
+ Contact 
+ · 
+ Subscribe 
+ · 
+ Copyright 
+ · 
+ Privacy 
+ · 
+ Accessibility 
+ · 
+ Operational Status (opens in new tab) 
+ Major funding support from 

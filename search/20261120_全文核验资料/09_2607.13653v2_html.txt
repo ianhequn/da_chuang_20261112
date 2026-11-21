@@ -1,0 +1,1518 @@
+ 
+ Exploratory, Communicative, and Deployable: Vision-Driven Embodied Agents for Open-World Mobile Manipulation 
+ Skip to main content 
+ Report GitHub Issue 
+ × 
+ Title: 
+ Content selection saved. Describe the issue below: 
+ Description: 
+ Submit without GitHub 
+ Submit in GitHub 
+ Why HTML? 
+ Report Issue 
+ Back to Abstract 
+ Download PDF 
+ Contents 
+ Reading mode 
+ Colour theme 
+ Abstract 
+ 1 Introduction 
+ 2 Related Work 
+ 2.1 Simulation Environments and Benchmarks for Embodied Agents 
+ 2.2 High-Level Embodied Agent Frameworks 
+ 2.3 Interactive Embodied Agents and User Modeling 
+ 3 Environment Design 
+ 3.1 Environment Modeling without Oracle Perception 
+ Initial Observation. 
+ Multi-level Active Exploration. 
+ Vision-Grounded Interaction. 
+ Simulated User for Collaborative Tasks. 
+ 4 Agent Training 
+ 4.1 Problem Formulation and Context Management 
+ Closed-Loop Execution. 
+ Observation and State Aggregation. 
+ Scalable Asset Library and Task Instantiation. 
+ SFT Data Synthesis. 
+ 4.2 Paradigm Alignment via SFT 
+ Unified Input-Output Paradigm. 
+ Reasoning and Tool-Calling Alignment via Behavior Cloning. 
+ 4.3 Reinforcement Learning for Skill Optimization 
+ Algorithm Selection. 
+ Environment-Grounded Reward Shaping. 
+ 5 Experiments 
+ 5.1 Benchmark Construction 
+ 5.2 Results and Analysis of SFT and RL Training 
+ Tool Alignment and Behavior-Cloning Overfitting. 
+ Reinforcement Learning Restores Generalization. 
+ Social Reward Improves Proactive Intent Alignment. 
+ Complementary Effects of SFT and RL Reveal a Persistent Vision Bottleneck. 
+ Failure Mode Taxonomy. 
+ 5.3 Real-World Deployment via Sim-to-Real Transfer 
+ Seamless Transfer Through Standardized Interfaces. 
+ Hierarchical Execution with Specialized Physical Policies. 
+ Long-Horizon Causal Reasoning in Physical Environments. 
+ Physical Evaluation and Pipeline Analysis. 
+ 6 Conclusion and Limitations 
+ 7 Acknowledgments 
+ Appendix 
+ A Scene Setup and Task Synthesis 
+ A.1 Training Scenes 
+ A.2 Evaluation Scene 
+ A.3 3D Asset Library 
+ Object Assets. 
+ A.4 Semantic-Aware Task Generation 
+ A.5 Task Instruction Examples 
+ B Training Data Generation Pipeline 
+ B.1 Collision-Free Object Placement 
+ B.2 Two-Stage Task Filtering 
+ Stage 1: Static Geometric Filtering. 
+ Stage 2: Physics Verification. 
+ B.3 Oracle Trajectory Generation 
+ Environment Setup. 
+ Action Execution. 
+ B.4 Social Interaction Annotation 
+ Annotation Strategies. 
+ Annotation Prompt. 
+ Post-processing. 
+ Example Annotated Trajectory. 
+ B.5 Expert Trajectory Annotation 
+ State Alignment and Oracle Injection. 
+ Step-wise Reasoning Annotation. 
+ History Validation and Propagation. 
+ Formatting for Supervised Fine-Tuning. 
+ C Environment Implementation 
+ C.1 Overview 
+ C.2 Tool Implementation Details 
+ Sim-to-Real Rationale: Simulation Efficiency versus Physical Fidelity. 
+ Physical Infrastructure. 
+ nav_to (inter-receptacle navigation). 
+ walk_around (intra-receptacle broad scanning). 
+ show_object_by_category . 
+ show_receptacles (receptacle labeling). 
+ gaze_at (target approach and alignment). 
+ pick / place / open / close (manipulation primitives). 
+ ask (natural language query to user). 
+ C.3 Simulated User Module 
+ Profile template. 
+ Auxiliary observation. 
+ D Reinforcement Learning Setup 
+ D.1 Full POMDP Definition 
+ D.2 Action Space and Tool Configurations 
+ D.3 Detailed Reward Configuration 
+ D.4 GSPO Objective and Distributed Training 
+ D.5 Evaluation Metrics 
+ D.6 Analysis of RL Training: Successes and Bottlenecks 
+ Cognitive and Interactive Policy Improvements 
+ Perceptual Bottlenecks. 
+ Discrepancy Between Training and Benchmark Performance. 
+ E Agent Inference and Evaluation Setup 
+ E.1 Zero-Shot VLM Baseline 
+ E.2 REAL -Agent (Ours) 
+ Example scene and output. 
+ Episode loop. 
+ E.3 Simulated-User Fidelity and Human-User Generalization 
+ Simulated-user answer fidelity. 
+ Generalization to real users. 
+ F Qualitative Analysis 
+ F.1 Failure Case Analysis 
+ Wrong Object Selection. 
+ Similar Furniture Confusion. 
+ Key Action Missing. 
+ Lost Action Memory. 
+ F.2 Successful Exploration Cases 
+ Active Object Discovery via walk_around . 
+ Multi-Receptacle Exploration. 
+ G Real-World Deployment Details 
+ G.1 Hardware and System Architecture 
+ Hardware Platform. 
+ System Architecture and MCP Server. 
+ G.2 Quantitative Evaluation and Failure Analysis 
+ Quantitative Real-World Evaluation. 
+ Real-World Failure Breakdown. 
+ G.3 Qualitative Execution Walkthrough 
+ Qualitative Execution Walkthrough (12-Step Task). 
+ References 
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2607.13653v2 [cs.CV] 27 Jul 2026 
+ Exploratory, Communicative, and Deployable: Vision-Driven Embodied Agents for Open-World Mobile Manipulation 
+ Abstract 
+ Real-world deployment of embodied agents requires active exploration, visual grounding, and interactive intent disambiguation. However, existing frameworks often rely on privileged simulator states or assume complete instructions, bypassing realistic deployment challenges. To bridge this gap, we present REAL , an agentic framework for open-world mobile manipulation. REAL establishes sim-to-real-consistent environment APIs without oracle perception and integrates a simulated user to enable human-in-the-loop interaction. Within this environment, we design diverse task compositions to drive data collection, supervised fine-tuning, and online reinforcement learning, systematically optimizing agent performance. To comprehensively evaluate this approach, we introduce REAL -Bench , a benchmark spanning 241 tasks across active exploration, visual distraction, articulated manipulation, and interactive disambiguation.
+Experimental results demonstrate that our trained agent outperforms leading commercial closed-source VLMs on interactive tasks with a 56.9% success rate. Further empirical analysis reveals that our hierarchical training pipeline successfully aligns the model’s tool-use capabilities while maintaining robust open-vocabulary reasoning under extended exploration horizons. Finally, we deploy and evaluate our framework on a physical dual-arm mobile robot, where it achieves a 78.3% end-to-end success rate over 60 real-world episodes. These physical trials demonstrate robust zero-shot transferability to unseen household scenarios, validating that our sim-to-real-consistent design successfully bridges the reality gap for long-horizon mobile manipulation. Code is available at github.com/InternRobotics/REAL . 
+ keywords Embodied Agent; Mobile Manipulation
+ 1 Introduction 
+ Figure 1 : Comparison of embodied agent frameworks. Left: Reliance on oracle perceptual APIs and open-loop execution in prior environments hinders ambiguity resolution and real-world deployment. Right: REAL removes oracle perceptual APIs while retaining physically obtainable scene priors, enabling RGB-based exploration and natural language interaction for ambiguous instructions. 
+ With their advanced reasoning and planning capabilities, Large Language Models (LLMs) have become a primary driver for embodied agents [ 1 , 19 , 20 , 29 , 48 , 28 ] . Early frameworks primarily utilized these models to execute diverse household tasks within text-based environments built upon underlying physical simulators [ 24 , 46 , 44 , 38 , 26 , 43 ] via textual perception and tool calling. However, pure-text interactions inherently lack the spatial and physical grounding critical for complex execution. This limitation has driven the widespread adoption of Vision-Language Models (VLMs) to endow agents with rich visual perception [ 5 , 47 , 59 , 13 ] . By leveraging high-fidelity rendered imagery, modern vision-driven environments enable precise spatial reasoning and significantly expand the range of executable tasks [ 52 , 55 , 11 ] . Yet, a critical bottleneck persists: existing benchmarks often decouple simulation from real-world complexities across two fundamental dimensions—active exploration and communicative interaction (see fig.   1 , Left). Bypassing these realistic constraints inherently leads to deployment failures during sim-to-real transfer. 
+ Specifically, the first limitation lies in the reliance on simulator-privileged perceptual information during physical exploration. Many existing environments equip agents with idealized tools that access global object lists [ 28 , 11 , 55 ] or locate targets via oracle category-finding APIs [ 55 , 52 ] . Since these privileged interfaces are difficult to retrieve in physical environments, policies trained within such setups can face performance discrepancies during real-world deployment. To address this, several recent works [ 6 , 27 , 40 ] adopt a non-privileged paradigm that restricts agents to standard sensor inputs like RGB images. However, their exploration and planning trajectories often operate primarily at the textual level rather than being tightly grounded in visual observations. Consequently, these methods can still struggle with precise visual disambiguation when encountering visually similar objects or distractors. 
+ The second limitation stems from the assumption of explicit user instructions, leaving the need for dynamic intent alignment less addressed. Current benchmarks [ 7 , 52 , 27 ] typically treat execution as an open-loop process, assuming that the user possesses sufficient knowledge of the environment and issues unambiguous commands. In practical deployment, however, human users often operate under incomplete information, leading to initially ambiguous goals that require active, context-aware interaction to clarify intent. While recent studies [ 35 , 53 , 36 ] have introduced simulated users to facilitate interaction, their scope is primarily focused on text-based preference elicitation or memorization, leaving the co-optimization of communication and physical mobile manipulation tasks less explored. 
+ To resolve these issues, we present REAL (explo R atory, communicativ E , A nd, deploy L able), an agentic framework designed for interactive and deployable open-world mobile manipulation. As illustrated in fig.   1 (Right), REAL establishes a closed-loop visual environment entirely free of oracle perceptual APIs. The agent is restricted from accessing global object lists, target 3D poses, privileged simulator states, or goal locations. Instead, to ground objects, the agent must actively explore the environment and discover objects from raw RGB observations through a deployable toolchain spanning navigation, object detection, and visual prompting for manipulation [ 31 ] . In addition, we integrate a simulated user that issues initially ambiguous instructions and provides dynamic, context-aware natural language feedback. This feedback is tightly grounded in the agent’s ongoing exploration results, effectively capturing the information blind spots inherent in real-world human interactions. 
+ Within this environment, we develop an automated, scalable data generation and filtering pipeline to construct diverse exploration and interaction tasks.
+Utilizing the resulting trajectory data, we align and optimize the REAL agent based on Qwen3-VL-8B-Instruct [ 39 ] via a two-stage paradigm: supervised fine-tuning (SFT) for tool-use alignment, followed by online reinforcement learning (RL) to enhance adaptive reasoning and error recovery.
+To systematically evaluate our agent, we introduce REAL -Bench , a comprehensive benchmark comprising 241 task instances across four distinct families: active exploration, visual distraction, articulated manipulation, and interactive disambiguation.
+Experimental results show that our trained agent successfully outperforms leading commercial closed-source VLMs, achieving a 56.9% success rate on interactive tasks. Finally, we deploy and evaluate our agent on a physical ARX LIFT2 dual-arm mobile robot. The high-level policy achieves a 78.3% end-to-end success rate over 60 real-world episodes, demonstrating robust zero-shot transferability and validating that our sim-to-real-consistent framework design effectively bridges the reality gap. 
+ In summary, our main contributions are threefold: 
+ 1. 
+ REAL framework. We introduce REAL , a sim-to-real-consistent agentic framework without oracle perception, coupled with a simulated user for dynamic human-in-the-loop intent alignment. 
+ 2. 
+ Training pipeline. We develop an automated task-generation pipeline and train a Qwen3-VL-8B-based agent with dual-stage SFT and online RL, enabling robust tool-use alignment and adaptive replanning. 
+ 3. 
+ Benchmark and deployment. We construct REAL -Bench with 241 tasks and show that the trained agent outperforms strong commercial baselines in simulation while transferring zero-shot to a physical dual-arm mobile robot with a 78.3% success rate in real-world tasks. 
+ 2 Related Work 
+ 2.1 Simulation Environments and Benchmarks for Embodied Agents 
+ Many embodied-agent benchmarks are instantiated in foundational simulation platforms and task environments [ 24 , 46 , 44 , 38 , 26 , 25 , 12 , 56 ] . Beyond task coverage, these benchmarks differ in the policy-facing observations and action interfaces they expose, which directly affects sim-to-real transfer. The Embodied Agent Interface [ 28 ] and ManiTaskGen [ 11 ] evaluate LLMs or generate fine-grained tasks, but simplify exploration by providing ground-truth object metadata. VisualAgentBench [ 30 ] , EmbodiedBench [ 55 ] , and VoTa-Bench [ 52 ] incorporate visual observations, but some evaluation interfaces expose simulator-specific or oracle-assisted primitives, such as category-level “find,” that are difficult to realize reliably on physical robots. PARTNR [ 6 ] supports room exploration through Concept Graphs [ 17 ] , while EMMOE [ 27 ] combines a high-level planner with non-privileged low-level policies; nevertheless, their high-level interfaces refer to discovered objects primarily through text, limiting instance-level disambiguation among visually similar distractors. Some works contribute both a benchmark and an accompanying agent; here we discuss their evaluation interfaces, while the next subsection focuses on their policy designs. In contrast, our environment and REAL -Bench ground discovered objects in visual space and evaluate active exploration without exposing global object lists, target poses, or oracle category-search APIs. 
+ 2.2 High-Level Embodied Agent Frameworks 
+ Vision-language embodied systems operate at different levels of abstraction. Low-level VLA policies, such as OpenVLA [ 23 ] and π 0.5 \pi_{0.5} [ 37 ] , map visual observations and language instructions to robot actions. They are execution policies rather than direct counterparts to the high-level agent studied here; in our physical system, a VLA model implements manipulation primitives beneath REAL . At a higher level, LLM- and VLM-based agents reason over observations and orchestrate tools or reusable skills. Voyager [ 50 ] demonstrates open-ended exploration with an LLM agent. In simulation-oriented mobile-manipulation settings, VoTa-Bench [ 52 ] applies dual preference optimization to state prediction and action selection; EMMOE [ 27 ] trains a DPO-based planner above lightweight policies [ 9 ] ; ERA [ 7 ] distills embodied priors and refines its agent through online RL; and OWMM-Agent [ 8 ] adapts VLMs through simulation-based multimodal agentic data synthesis. RoboOS [ 49 ] and Being-0 [ 57 ] further demonstrate modular embodied systems on physical robots. The distinguishing focus of REAL is to train a high-level visual-interactive policy that unifies oracle-free active exploration, visually grounded object selection, and user interaction, while delegating physical execution to deployable low-level skills. 
+ Classical task and motion planning (TAMP) integrates symbolic task planning with continuous motion feasibility and state tracking [ 22 , 14 ] .
+LLM planners such as SayCan [ 1 ] ground language in predefined skills and affordances, while uncertainty-aware or replanning frameworks such as KnowNo [ 41 ] and RePLan [ 45 ] decide when to ask for help or recover from execution failures. REAL is complementary to this line of work: it does not solve the TAMP problem or model all uncertainty in low-level motion execution. Instead, REAL studies how to train a deployable visual-interactive policy that acquires missing task state through RGB exploration and user dialogue before dispatching physical skills. 
+ 2.3 Interactive Embodied Agents and User Modeling 
+ TEACh [ 34 ] establishes multi-turn human-agent dialogue for household tasks, while VL-LN [ 21 ] uses simulated users to resolve ambiguities through active communication. For user intent understanding, ADAPT [ 35 ] actively elicits preferences through questions, and FARMER [ 53 ] models unstated goals through theory of mind. Our focus is complementary: REAL grounds simulated-user feedback in observations acquired during exploration, requiring the agent to alternate among visual perception, multi-turn dialogue, and manipulation to acquire missing task state and complete long-horizon tasks. 
+ 3 Environment Design 
+ To facilitate the deployment of vision-driven embodied agents from simulation to the real world, we construct a closed-loop embodied environment ( fig.   2 ). Built upon the GRUtopia [ 51 ] platform, the proposed environment features high-fidelity rendering and rigid-body physics. At the macro level, the design adheres to two core principles that distinguish it from previous environments that simplify exploration and communication: providing a toolchain free of oracle perceptual APIs and capable of real-world implementation, and integrating a simulated user for natural language interaction. Within this architecture, scene entities are categorized into fixed macroscopic Receptacles (e.g., tables, cabinets) and manipulable Objects (e.g., cups, books). For a specific scene, the Receptacles remain static across different task instances, whereas the quantities, categories, and spatial placements of manipulable Objects vary. 
+ Figure 2 : 
+Overview of the environment design. The Embodied Agent receives physically obtainable receptacle priors and RGB/SoM observations with visual IDs, but no oracle object lists, poses, simulator states, or goal locations. The ToolChain exposes deployable exploration tools ( nav_to , walk_around , show_object_by_category , gaze_at ), Pick/Place/Open/Close controls, and Ask . The simulated user conditions on the agent’s action/observation history and a task profile to answer queries; backend state may be used by handlers but is never exposed to the policy. 
+ 3.1 Environment Modeling without Oracle Perception 
+ Initial Observation. 
+ We assume that the agent is equipped with a long-term 3D occupancy map and semantic segmentation of the receptacles, enabling navigation to a receptacle through path planning. This prior is physically obtainable from a robot’s previous scans or mapping stack. Consequently, at task initialization, the agent receives only a prior list of receptacle IDs and their semantic categories (e.g., table_2 ; see the Embodied Agent block in fig.   2 ). Despite this structural prior, the agent has no access to global object lists, target 3D poses, simulator object states, or goal locations. It also lacks the fine-grained appearance of receptacles and the distribution of objects upon or within them. To ground target objects, the agent must employ the active exploration toolchain described below to acquire observations. 
+ Multi-level Active Exploration. 
+ To enable exploration, we introduce a multi-level active exploration toolchain (see the Exploration Tools block in fig.   2 ). These tools avoid oracle perceptual APIs at the policy interface and can be transferred to the real world (implementation details are provided in Appendix C.2 ). The overall process is structured into four sequential actions. The inter-receptacle navigation tool ( nav_to ) enables movement between different receptacle nodes based on structural priors. Subsequently, the intra-receptacle scanning tool ( walk_around ) functions as a broad-spectrum scanner driven by open-vocabulary 2D perception models. This tool navigates the agent around a specific receptacle to bypass physical occlusions and detect common object categories from multiple viewpoints. Following this, the object detection tool ( show_object_by_category ) actively isolates objects of a user-defined category within the current ego-centric view. Ultimately, the target approach and alignment tool ( gaze_at ) advances the agent toward a selected target to center it within the view of the camera, while accounting for physical distance constraints. 
+ Vision-Grounded Interaction. 
+ To maintain spatial memory without relying on privileged 3D coordinates, the detected objects are dynamically back-projected from the 2D segmentation masks into the 3D space. This geometric projection constructs a temporary exploration map that records all discovered object categories and their spatial anchors during the most recent invocation of the exploration tool. Objects recorded in this map are highlighted within the RGB/SoM observation of the agent [ 54 ] (see the Observation block in fig.   2 ). This mechanism bridges perception with physical interaction, enabling the agent to distinguish objects of the same category and parameterize downstream manipulation skills (e.g., pick , open ; see the Pick/Place/Open/Close of the ToolChain block in fig.   2 ) by referencing the assigned visual IDs. 
+ Simulated User for Collaborative Tasks. 
+ To simulate collaborative tasks, we integrate a simulated user server driven by gemini-3-flash [ 15 ] directly into the dynamics of the environment (see the Simulated User block in fig.   2 ). At the top level, this module functions as an interactive supervisor that directs the overall task flow. It provides ambiguous initial instructions, monitors the task progress of the agent remotely, and progressively clarifies objectives by answering queries based on real-time exploration results. 
+ To operationalize this top-level design, the module relies on specific mechanisms for configuration, synchronization, and communication. A task-specific profile is initialized for the simulated user to establish the boundaries of preferences and choices, such as restricting targets to objects currently present in the scene. This configuration ensures evaluation stability and prevents the generation of instructions involving non-existent or unexplored items. Furthermore, the server maintains continuous synchronization with the execution trajectory of the embodied agent. By accessing the interaction history and physical observations of the agent, the system constructs a consistent shared context for multi-turn alignment, accurately replicating a human user with limited perception of the initial scene layout. Finally, a bilateral communication interface facilitates interaction. When physical exploration alone fails to resolve ambiguity, the agent can issue an ask action to query the user (see the Ask block and question flow in fig.   2 ). Leveraging the shared context and predefined profile, the simulated user subsequently generates natural language guidance to clarify intent and drive the completion of the task. 
+ 4 Agent Training 
+ To minimize online inference overhead and mitigate risks of context explosion or temporal hallucinations during long-horizon deployment, we formulate the decision-making process as a Partially Observable Markov Decision Process (POMDP). Instead of continuously concatenating raw historical observations, our policy relies on a compact memory paired with the current visual input to derive discrete tool actions, maintaining a computationally efficient, localized historical proxy. 
+ Our training pipeline consists of three steps. First, we construct a causal, closed-loop policy context and transition pipeline to support efficient data generation ( Section   4.1 ). Second, we use expert demonstrations to align the model with the tool interface and structured reasoning format ( Section   4.2 ). Finally, we optimize the policy with Group Sequence Policy Optimization (GSPO) [ 58 ] , using exploration and environmental feedback to improve task-solving performance ( Section   4.3 ). 
+ 4.1 Problem Formulation and Context Management 
+ Closed-Loop Execution. 
+ We formulate the single-step decision-making process of the embodied agent as a POMDP (see Appendix D.1 for the complete tuple definition). The true environment state s t ∈ 𝒮 s_{t}\in\mathcal{S} is not exposed to the policy; instead, the environment emits a partial observation o t env o_{t}^{\mathrm{env}} through the observation kernel Ω \Omega . The agent operates in a continuous perception–reasoning–action loop. Given a task instruction T T , the VLM policy produces a formatted tool call a t ∈ 𝒜 a_{t}\in\mathcal{A} using tools free of oracle perceptual APIs. A tool executor validates and dispatches the call, immediately returning invalid actions as environmental feedback. This architecture decouples high-level decision-making from low-level safety verification and environmental dynamics. 
+ Observation and State Aggregation. 
+ At decision step t t , the environment first emits 
+ o t env ∼ Ω ( ⋅ ∣ s t ) . o_{t}^{\mathrm{env}}\sim\Omega(\,\cdot\mid s_{t}). 
+ (1) 
+ This environmental observation contains ego-centric visual inputs and execution feedback e t e_{t} for the preceding action a t − 1 a_{t-1} . To avoid replaying the raw interaction trace, the policy combines it with a one-step action record and a compact long-term memory. Its complete conditioning context is 
+ x t = ( T , Serialize ⁡ ( 𝒜 ) , o t env , a t − 1 , h t − 1 ) . x_{t}=\left(T,\operatorname{Serialize}(\mathcal{A}),o_{t}^{\mathrm{env}},a_{t-1},h_{t-1}\right). 
+ (2) 
+ We index the first decision by t = 1 t=1 and initialize a 0 = ∅ a_{0}=\varnothing , σ 0 = ∅ \sigma_{0}=\varnothing , q 0 = Init ⁡ ( T ) q_{0}=\operatorname{Init}(T) , and h 0 = ( σ 0 , q 0 ) h_{0}=(\sigma_{0},q_{0}) . Thus, every component of x t x_{t} is available before selecting a t a_{t} . 
+ The model output contains a reasoning trace c t c_{t} , a compact History summary σ t \sigma_{t} of tool-verified action outcomes up to the current decision, an active task-phase analysis q t q_{t} , and the next action a t a_{t} . Denoting the model’s assistant-response distribution by π θ \pi_{\theta} , we write 
+ ( c t , σ t , q t , a t ) ∼ π θ ( ⋅ ∣ x t ) , h t = ( σ t , q t ) . (c_{t},\sigma_{t},q_{t},a_{t})\sim\pi_{\theta}(\,\cdot\mid x_{t}),\qquad h_{t}=(\sigma_{t},q_{t}). 
+ (3) 
+ Unlike an unbounded concatenation of per-step messages, σ t \sigma_{t} is a single updated summary field. It may record both successful and failed actions, but only when their outcomes are grounded in the tool feedback e t e_{t} . 
+ Scalable Asset Library and Task Instantiation. 
+ Our data engine leverages 7 high-fidelity scenes from GRScenes [ 51 ] (11 room types, 100 interactive receptacles) and over 2,500 object instances spanning 639 categories from MesaTask [ 18 ] . We represent each scene state as a World Graph (WG) , formally WG = { ( r j , ℰ j ) } \text{WG}=\{(r_{j},\mathcal{E}_{j})\} , mapping each receptacle r j r_{j} to its contained object instances ℰ j \mathcal{E}_{j} . The WG serves as the canonical state representation throughout the framework: it grounds task definitions, enables state-differential reward computation ( Section   4.3 ), and provides the success criterion for evaluation. 
+ Tasks center on cross-receptacle object rearrangement: we prompt LLMs to generate semantically plausible (source, destination, object) triplets conditioned on the scene layout, which are instantiated as task configurations by specifying an initial WG and a goal WG in the simulator. 
+ To systematically challenge the agent, we introduce distractors at both the object and receptacle levels. Object-level distractors inject visually distinct instances of the same category to require fine-grained discrimination. At the receptacle level, each receptacle is annotated with uniquely identifying descriptions covering functional purpose and visual appearance. LLMs then generate unambiguous natural-language instructions from these annotations. Detailed task-generation statistics and instruction examples are provided in Appendix A.4 and Appendix A.5 , respectively. 
+ SFT Data Synthesis. 
+ For each task i i , a rule-based planner decomposes the objective into an ordered action sequence ( a t ( i ) ) t = 1 L i (a_{t}^{(i)})_{t=1}^{L_{i}} with a t ( i ) ∈ 𝒜 a_{t}^{(i)}\in\mathcal{A} , covering navigation, exploration, and manipulation, and executes it in the simulator. At each step, the observation kernel Ω \Omega yields o t env o_{t}^{\mathrm{env}} , including ego-centric RGB images with visual IDs and execution feedback e t e_{t} ; all manipulation operates exclusively on visual IDs from 2D perception.
+In an automated Social Annotation phase for collaborative trajectories, LLMs rewrite instructions to be deliberately vague, injecting communicative actions ( ask ) with simulated user responses into trajectories to train the agent to communicate actively under uncertainty.
+The resulting SFT dataset is 𝒟 = { ( T ( i ) , τ ( i ) ) } i = 1 N \mathcal{D}=\{(T^{(i)},\tau^{(i)})\}_{i=1}^{N} , where N N is the number of expert trajectories and T ( i ) T^{(i)} is the task instruction for trajectory i i . The i i -th trajectory is 
+ τ ( i ) = ( ( , , , , , , , , , , , ) ) t = 1 L i , \tau^{(i)}=\left(\big(o_{t}^{\mathrm{env},(i)},a_{t-1}^{(i)},h_{t-1}^{(i)},c_{t}^{(i)},h_{t}^{(i)},a_{t}^{(i)}\big)\right)_{t=1}^{L_{i}}, 
+ (4) 
+ where a t − 1 ( i ) a_{t-1}^{(i)} explicitly records the previous action, while h t − 1 ( i ) h_{t-1}^{(i)} provides the long-term memory available before the current decision. Each trajectory contains L i L_{i} step-wise decision examples: c t ( i ) c_{t}^{(i)} is the supervised reasoning trace, h t ( i ) h_{t}^{(i)} is the updated long-term historical state, and a t ( i ) a_{t}^{(i)} is the expert action executed next. The observations and actions come from planner rollouts in the simulator, while the corresponding reasoning traces and historical states are annotated by gemini-3-pro [ 15 ] . Thus, each trajectory of length L i L_{i} yields L i L_{i} multimodal prompt–response pairs for SFT. The annotation procedure is detailed in Appendix B.5 . 
+ 4.2 Paradigm Alignment via SFT 
+ Unified Input-Output Paradigm. 
+ We select Qwen3-VL-8B-Instruct as the backbone VLM to support deployment on computationally constrained robotic systems, implementing a unified input-output structure for both training and inference. 
+ At each time step, the model receives the conditioning context x t x_{t} defined in eq.   2 . The action-space schemas are serialized into the prompt, o t env o_{t}^{\mathrm{env}} provides the current visual observation and execution feedback, a t − 1 a_{t-1} records the immediately preceding action, and h t − 1 h_{t-1} supplies compact long-term memory. Given x t x_{t} , the VLM generates an explicit reasoning trace c t c_{t} (e.g., <think>...</think> ) followed by a JSON object containing the updated memory h t h_{t} and next tool call a t ∈ 𝒜 a_{t}\in\mathcal{A} . We denote the tokenized serialization of this complete assistant response by 
+ y t = Serialize ⁡ ( c t , h t , a t ) . y_{t}=\operatorname{Serialize}(c_{t},h_{t},a_{t}). 
+ (5) 
+ The same input–output format is used during training and inference: the annotated h t h_{t} is included in the next step’s historical input during teacher-forced SFT, whereas the model-generated h t h_{t} is used during closed-loop deployment. 
+ Reasoning and Tool-Calling Alignment via Behavior Cloning. 
+ In the first stage, we adapt the pre-trained VLM to the structured reasoning and tool interface by behavior cloning on 𝒟 \mathcal{D} . Let π θ \pi_{\theta} denote the autoregressive next-token distribution parameterized by the VLM. We minimize the token-level negative log-likelihood of the complete expert responses: 
+ ℒ SFT = − 1 N tok ∑ i = 1 N ∑ t = 1 L i ∑ k = 1 | y t ( i ) | log π θ ( y t , k ( i ) ∣ x t ( i ) , y t , < k ( i ) ) , \mathcal{L}_{\text{SFT}}=-\frac{1}{N_{\mathrm{tok}}}\sum_{i=1}^{N}\sum_{t=1}^{L_{i}}\sum_{k=1}^{|y_{t}^{(i)}|}\log\pi_{\theta}\!\left(y_{t,k}^{(i)}\mid x_{t}^{(i)},y_{t,<k}^{(i)}\right), 
+ (6) 
+ where y t , k ( i ) y_{t,k}^{(i)} is the k k -th token of the serialized response, y t , < k ( i ) y_{t,<k}^{(i)} is its ground-truth prefix under teacher forcing, and | y t ( i ) | |y_{t}^{(i)}| is its token length. The normalization term N tok = ∑ i = 1 N ∑ t = 1 L i | y t ( i ) | N_{\mathrm{tok}}=\sum_{i=1}^{N}\sum_{t=1}^{L_{i}}|y_{t}^{(i)}| is the total number of supervised response tokens. The summation covers all assistant-response tokens, including the reasoning trace, historical state, and tool call. The textual prompt and visual observation remain conditioning inputs but are excluded from the prediction targets. We freeze the vision encoder to preserve pre-trained visual representations. 
+ 4.3 Reinforcement Learning for Skill Optimization 
+ Deploying the SFT-aligned initial policy π init \pi_{\text{init}} ( Section   4.2 ) in closed-loop inference exposes two limitations: (1) distribution shift , where behavior cloning on expert demonstrations does not equip the model to replan or recover from execution failures (e.g., occluded targets, invalid API calls); and (2) scarce interactive data , where static datasets cannot cover the diversity of proactive human-robot interaction, causing the policy to overfit to templates rather than querying the user under ambiguity. RL addresses both issues by enhancing the agent to explore dynamic environments and actively acquire information from users. 
+ Algorithm Selection. 
+ We aim to maximize the expected discounted return over variable-length trajectories under the POMDP formulation ( Section   4.1 ). Accurately modeling a critic for VLM-based RL is computationally prohibitive, making critic-free methods such as Group Relative Policy Optimization (GRPO) a natural choice. However, GRPO applies importance ratios and clipping at the token level despite assigning sequence-level rewards. We therefore adopt GSPO, which constructs a length-normalized sequence ratio as the geometric mean of token-level ratios and applies clipping at the sequence level. This better aligns the optimization unit with the rollout reward and reduces sensitivity to token-level outliers. The objective and implementation details are provided in Appendix D.4 . 
+ Environment-Grounded Reward Shaping. 
+ Instead of sparse task-completion signals, we design a transition reward r t = ℛ ⁡ ( s t , a t , s t + 1 ) r_{t}=\mathcal{R}(s_{t},a_{t},s_{t+1}) grounded in the WG ( Section   4.1 ). We define the goal-change set Δ goal = WG goal ⊖ WG init \Delta_{\mathrm{goal}}=\text{WG}_{\mathrm{goal}}\ominus\text{WG}_{\mathrm{init}} , where ⊖ \ominus enumerates signed additions, removals, and attribute changes (e.g., picking and placing n n objects yields 2 ​ n 2n entries). For reward shaping, we augment it with navigation and articulation targets Δ aux \Delta_{\mathrm{aux}} to obtain Δ task = Δ goal ∪ Δ aux \Delta_{\mathrm{task}}=\Delta_{\mathrm{goal}}\cup\Delta_{\mathrm{aux}} . The observed event set δ t \delta_{t} for transition ( s t , a t , s t + 1 ) (s_{t},a_{t},s_{t+1}) is matched against the remaining targets in Δ task \Delta_{\mathrm{task}} ; each new match yields positive reward and is marked complete to prevent duplicate credit. The physics engine inherently enforces temporal causality (e.g., pick-before-place), eliminating the need to manually model temporal dependencies. 
+ Beyond task progress, the agent receives a timing penalty − λ time -\lambda_{\mathrm{time}} , with λ time > 0 \lambda_{\mathrm{time}}>0 , and a severity-scaled penalty for failed actions based on the resulting traceback in o t + 1 env o_{t+1}^{\mathrm{env}} . For tasks involving distractors, we reward the communicative tool ask subject to a difficulty-conditioned query budget B ask ≤ 3 B_{\mathrm{ask}}\leq 3 . Detailed numerical configurations are provided in Appendix D.3 . 
+ 5 Experiments 
+ 5.1 Benchmark Construction 
+ To evaluate embodied agents along two key dimensions, active exploration and communicative interaction , we introduce REAL -Bench . Built on the environment and tool interface ( Section   3 ) and the data generation pipeline ( Section   4.1 ), it covers novel scenarios across REAL rooms. REAL -Bench contains 241 task instances in four families: Furniture-Distractor Pick-and-Place (FDP, 72), Furniture & Object-Distractor Pick-and-Place (FODP, 56), Furniture-Distractor Open/Close (FDO, 48), and Simulator-User-Loop (SUL, 65). 
+ FDP and FODP are cluttered mobile manipulation tasks that require moving a target object from a source to a destination receptacle. FODP further adopts an open-vocabulary, full-category distractor setting at both the furniture and object levels, placing greater demands on active exploration and fine-grained visual disambiguation. FDO evaluates articulation-centric manipulation with openable and closeable furniture. These tasks involve highly dynamic state transitions and challenge temporal consistency and precise sequential tool use (e.g., interleaving open / close with perception and pick-and-place actions). Finally, SUL introduces instruction ambiguity by design to test whether the agent can proactively query the simulated user via ask before execution. 
+ 5.2 Results and Analysis of SFT and RL Training 
+ We evaluate (i) strong open-source and commercial VLMs under zero-shot prompting, and (ii) the proposed Qwen3-VL-8B agent after tool-interface alignment via SFT and closed-loop improvement via GSPO. Table   1 reports success rates (higher is better) on the four REAL -Bench task families. 
+ Table 1: Main results on REAL -Bench . Success rates (successful / total episodes) are reported across four task families. Bold marks the best result per column within each group, and the highlighted row denotes the teacher model used for SFT annotation. SFT aligns Qwen3-VL-8B to the tool interface free of oracle perceptual APIs, while GSPO further improves the interaction-heavy SUL split and surpasses all zero-shot VLM baselines, including the teacher. 
+ Model Name 
+ FDP 
+ FODP 
+ FDO 
+ SUL 
+ Zero-shot Prompting 
+ gemini-3-pro-preview [ 16 ] 
+ 81.9 
+ 39.3 
+ 50.0 
+ 53.8 
+ gemini-2.5-pro [ 10 ] 
+ 66.7 
+ 41.1 
+ 43.8 
+ 49.2 
+ gpt-5 [ 33 ] 
+ 68.1 
+ 30.4 
+ 47.9 
+ 52.3 
+ gpt-4o [ 32 ] 
+ 30.6 
+ 28.6 
+ 27.1 
+ 40.0 
+ claude-haiku-4-5 [ 3 ] 
+ 45.8 
+ 16.1 
+ 52.1 
+ 47.7 
+ Qwen3-VL-235B-A22B-Instruct [ 4 ] 
+ 22.2 
+ 14.3 
+ 14.6 
+ 18.5 
+ Qwen3-VL-8B-Instruct [ 4 ] 
+ 0.0 
+ 0.0 
+ 0.0 
+ 1.5 
+ Ours 
+ Ours-8B-SFT-only (1 epoch) 
+ 45.8 
+ 30.4 
+ 35.4 
+ 36.9 
+ Ours-8B-SFT-only (2 epochs) 
+ 65.3 
+ 28.6 
+ 43.8 
+ 50.8 
+ Ours-8B-SFT+RL 
+ 58.3 
+ 33.9 
+ 41.7 
+ 56.9 
+ Tool Alignment and Behavior-Cloning Overfitting. 
+ Zero-shot Qwen3-VL-8B fails on manipulation tasks and achieves only 1.5% on interactive scenarios. One epoch of supervised fine-tuning aligns the model with the tool interface, reaching 45.8% on FDP. However, a second epoch exposes the limits of behavior cloning: while execution stability on standard manipulation improves (FDP rises to 65.3%), performance on the distractor-rich FODP split drops from 30.4% to 28.6%. This suggests that strict imitation overfits expert trajectories and weakens robustness under open-vocabulary clutter and visual ambiguity. 
+ Reinforcement Learning Restores Generalization. 
+ Applying closed-loop group sequence policy optimization to the single-epoch checkpoint circumvents this overfitting. RL recovers the exploration capability lost during extended supervised training, increasing FODP success to 33.9% while maintaining tool-calling performance comparable to the model more tightly fine-tuned on standard tasks. This suggests that environmental feedback promotes adaptive problem-solving over rote trajectory memorization, helping the agent handle edge cases. 
+ Social Reward Improves Proactive Intent Alignment. 
+ The impact of closed-loop optimization is most pronounced in the interaction-heavy SUL split, where the agent reaches 56.9% success and outperforms the strongest proprietary zero-shot baselines. By integrating a difficulty-conditioned query budget and explicit rewards for resolving ambiguity, the training pipeline shifts the agent from passive instruction following to proactive intent alignment. The policy learns when to pause and query the simulator-user, showing that social interaction emerges from end-to-end environmental feedback rather than static prompt engineering. 
+ Figure 3 : Failure mode taxonomy. Manual analysis over 100 evaluation episodes from the best SFT+RL checkpoint. 
+ Complementary Effects of SFT and RL Reveal a Persistent Vision Bottleneck. 
+ SFT substantially improves performance across all four visually grounded task families over the base model, indicating better adaptation to embodied visual observations and the tool-use interface. However, the decrease on FODP from 30.4% after one epoch to 28.6% after two epochs suggests a risk of behavior-cloning overfitting. Starting from the one-epoch SFT checkpoint, RL improves every split, with the largest gain on the interaction-heavy SUL benchmark (36.9% to 56.9%), while also improving exploration and multi-step task execution. Nevertheless, because the vision encoder remains frozen, RL can only influence visual grounding indirectly and cannot directly refine the underlying visual representations. The dominance of object-confusion errors therefore indicates that fine-grained visual grounding remains a key bottleneck, motivating more explicit perceptual supervision or selective adaptation of the vision module. 
+ Failure Mode Taxonomy. 
+ We manually annotate 100 episodes from the best SFT+RL checkpoint to diagnose residual errors ( fig.   3 ). Of 53 failures, most fall under Object Confusion (25), followed by Key Action Missing (17), Lost Memory (9), and Other Error (2). These results identify cluttered visual grounding, procedural completeness, and long-horizon memory as the main remaining bottlenecks. 
+ 5.3 Real-World Deployment via Sim-to-Real Transfer 
+ Figure 4 : Real-world deployment on the ARX LIFT2 mobile manipulator. REAL transfers the high-level visual-interactive policy zero-shot to a physical backend with the same MCP tool interface. The execution trajectory demonstrates causal planning (e.g., preparing the microwave before fetching food), human-robot disambiguation under multiple candidate objects, and language-to-physical grounding for closed-loop task completion. Quantitative reliability is reported in table   2 . 
+ To validate the effectiveness and robustness of our training pipeline, we deploy the simulated agent in a real-world household scenario using the ARX LIFT2 mobile manipulator. This direct sim-to-real transfer tests how capabilities learned in simulation map to physical execution across varying environmental complexity. 
+ Seamless Transfer Through Standardized Interfaces. 
+ The system uses a Model Context Protocol(MCP) server for tool invocation, keeping the high-level cognitive framework identical between simulation and the physical robot. At each step, agent receives real-time ego-centric observations, combines them with the structured history and immediate past action, and outputs the next discrete tool call. This standardized interface decouples the reasoning algorithm from the environment, allowing the physical world to act as an alternative backend to the simulator without retraining the high-level policy. 
+ Hierarchical Execution with Specialized Physical Policies. 
+ While high-level planning is transferred zero-shot from simulation, continuous physical dynamics still require robust motor control. We therefore map the abstract tools used in simulation to dedicated real-world implementations. Specifically, atomic manipulation commands are executed by a fine-tuned π 0.5 \pi_{0.5} [ 37 ] base model. This hierarchy keeps VLM focused on visual grounding, state tracking, and task planning, while the π 0.5 \pi_{0.5} policy provides stable execution for opening, closing, picking, and placing. 
+ Long-Horizon Causal Reasoning in Physical Environments. 
+ As shown in fig.   4 , the system successfully executes a multi-stage food preparation task requiring the robot to fetch bread and place it in a microwave. Rather than immediately navigating to the cabinet, the reasoning engine first approaches the table and opens the microwave door. Only after preparing the receptacle does the robot navigate to the secondary location, select the target object, and return to complete placement and closure. This sequence suggests that the structured memory mechanism helps prevent temporal hallucinations, maintain an accurate internal state, and respect causal constraints over long physical executions. 
+ Physical Evaluation and Pipeline Analysis. 
+ We further evaluate the pipeline in the physical environment across different spatial layouts. Across 60 real-world episodes, REAL achieves 78.3% end-to-end success with zero unrecoverable system crashes ( table   2 ). The low-level primitive layer is executable in 85.3% of 600 VLA primitive executions, indicating that the high-level policy transfers without requiring privileged simulator state while still depending on robust physical skills. A more detailed breakdown of these real-world trials, along with primitive-level evaluation and failure analysis, is provided in Appendix G.2 . 
+ Table 2 : End-to-end real-world evaluation. SR denotes task success rate, SPL measures path efficiency, Ask is the average number of user queries, and VLM Lat. reports total VLM inference latency per episode. 
+ Task 
+ SR 
+ Steps 
+ SPL 
+ Ask 
+ VLM Lat. 
+ FDO 
+ 80.0% 
+ 12.2 
+ 67.0% 
+ 0.90 
+ 71.1s 
+ FODP 
+ 100.0% 
+ 9.6 
+ 86.9% 
+ 0.70 
+ 53.5s 
+ SUL 
+ 55.0% 
+ 13.0 
+ 35.4% 
+ 0.55 
+ 80.5s 
+ Overall 
+ 78.3% 
+ 11.6 
+ 63.1% 
+ 0.72 
+ 68.4s 
+ 6 Conclusion and Limitations 
+ We presented REAL , a closed-loop framework for training exploratory and communicative embodied agents that transfer directly to physical robots. By replacing oracle perceptual APIs with a physically realizable exploration toolchain and integrating an VLM-driven simulated user for dynamic intent alignment, REAL addresses two key oversimplifications in prior work. Training a Qwen3-VL-8B agent via SFT followed by closed-loop GSPO on REAL -Bench (241 tasks, four families) shows that tool-interface alignment is a prerequisite for closing the perception-action loop, while RL uniquely improves interactive disambiguation. Deployment on the ARX LIFT2 dual-arm mobile robot further validates sim-to-real transferability for long-horizon household tasks. 
+ Despite these results, several limitations remain.
+First, the task space centers on cross-receptacle rearrangement and does not yet encode richer compositional constraints such as temporally ordered sub-tasks [ 6 ] or spatial relational goals [ 11 ] (e.g., “place the cup to the left of the plate”).
+Second, the simulated user operates within a bounded behavioral envelope—its preferences are constrained to in-scene objects and its responses are anchored to the agent’s trajectory—whereas real users may introduce new goals mid-task or convey intent through implicit cues.
+Third, receptacles are modeled as monolithic entities (e.g., cabinet_1 ) without part-level distinction (e.g., individual shelves), limiting spatial precision for both exploration and manipulation. Incorporating part-level segmentation and hierarchical receptacle modeling would address this gap. 
+ 7 Acknowledgments 
+ This work was supported in part by Shanghai Artificial Intelligence Laboratory, the National Natural Science Foundation of China under Grant 62401367 and the Shanghai Magnolia Talent Program Pujiang Project under Grant No. 25PJA076. 
+ Appendix 
+ Appendix A Scene Setup and Task Synthesis 
+ A.1 Training Scenes 
+ The training and evaluation datasets are constructed using high-fidelity 3D scenes sourced from GRScene [ 51 ] .
+ Figure   A.1 presents overhead floor plan views of two training environments, illustrating the spatial layout and object arrangements.
+The training set comprises 6 residential indoor environments , featuring a total of 82 furniture pieces and 157 natural-language captions .
+The complexity of the scenes ranges from 5 to 7 room types and 10 to 17 furniture pieces per scene. Each scene contains multiple rooms with various furniture pieces, offering diverse spatial configurations that facilitate the learning of mobile manipulation and spatial reasoning.
+ Table   A.1 details the breakdown of rooms, furniture, and captions for each scene. 
+ Table A.1 : Per-scene statistics for the 6 training environments. #Furniture denotes the number of interactable receptacle pieces; #Captions denotes the total number of annotated natural-language descriptions. 
+ Scene 
+ Room Types 
+ Furniture Types 
+ #Furn. 
+ #Cap. 
+ S1 
+ balcony, bedroom, dining room, kitchen, living room, study room, toilet 
+ bed, cabinet, chest of drawers, desk, microwave, nightstand, refrigerator, shoe cabinet, table, tea table 
+ 17 
+ 32 
+ S2 
+ balcony, bedroom, dining room, entry, kitchen, living room 
+ bed, cabinet, couch, desk, fridge, microwave, table 
+ 17 
+ 29 
+ S3 
+ balcony, bedroom, dining room, kitchen, living room 
+ bed, couch, desk, microwave, refrigerator, table, TV stand 
+ 12 
+ 21 
+ S4 
+ bathroom, bedroom, corridor, dining room, kitchen, living room 
+ bed, cabinet, couch, desk, microwave, refrigerator, table 
+ 12 
+ 24 
+ S5 
+ bedroom, dining room, kitchen, living room, toilet 
+ bed, cabinet, couch, counter, desk, microwave, refrigerator, table 
+ 14 
+ 32 
+ S6 
+ bedroom, dining room, kitchen, living room, toilet 
+ bed, cabinet, refrigerator, sink, table, TV stand 
+ 10 
+ 19 
+ Total 
+ 82 
+ 157 
+ Figure A.1 : 
+ Training scenes: Overhead floor plan views of two training environments. The scenes display the spatial layout along with the arrangements of furniture and objects. They vary in complexity, room configurations, and object density, offering diverse training examples to learn capabilities in spatial reasoning, active perception, and manipulation.
+ A.2 Evaluation Scene 
+ The test set consists of a held-out scene (S7) used to evaluate the model’s generalization to previously unseen spatial configurations. This scene is specifically selected to establish a meaningful evaluation benchmark while introducing a distribution shift from the training scenes. S7 contains 6 room types (bedroom, dining room, kitchen, living room, study room, and washroom) along with 18 furniture pieces. Furthermore, it incorporates articulated appliances (such as a washing machine and an electric cooker) that are not prominently featured during training. 
+ Figure A.2 : 
+ Evaluation scene: Overhead floor plan of the evaluation environment. This scene is held out from training and used to assess the performance of the model on unseen spatial layouts. The composition of the scene and the arrangements of objects present different spatial challenges compared to the training set, thereby enabling a fair evaluation of generalization.
+ A.3 3D Asset Library 
+ To support the generation of diverse and realistic layouts, a large-scale asset library is curated, comprising manipulable objects from MesaTask [ 18 ] . 
+ Object Assets. 
+ The object asset library contains 3,204 unique 3D assets that span 810 fine-grained semantic categories . As summarized in Table A.2 , these assets are organized into four general categories: household items (1,865 assets), containers (1,185 assets), food (127 assets), and furniture (27 assets).
+The experiments primarily use the assets from the household items and containers categories.
+Each asset is annotated with physical size information, semantic category labels, and detailed descriptions. This broad coverage ensures that the generated tasks reflect the diversity of everyday household manipulation scenarios, ranging from placing food items into containers to rearranging household objects across different room types. 
+ Table A.2 : Distribution of object assets across general categories. 
+ General Category 
+ Asset Count 
+ Proportion 
+ Household Items 
+ 1,865 
+ 58.2% 
+ Containers 
+ 1,185 
+ 37.0% 
+ Food 
+ 127 
+ 4.0% 
+ Furniture 
+ 27 
+ 0.8% 
+ Total 
+ 3,204 
+ 100% 
+ A.4 Semantic-Aware Task Generation 
+ As described in Section   4.1 , the tasks are defined by LLM-generated (source, destination, object) triplets. These triplets specify a source receptacle for picking, a destination receptacle for placing, and a set of semantically plausible objects for the transfer. The generation of triplets is conditioned on the layout of the scene and the inter-room semantic compatibility, which yields 291 unique receptacle-pair groups that cover diverse scenarios for room-to-room rearrangement. Table A.3 presents a selection of examples that illustrate the spatial and semantic diversity of the generated tasks. 
+ Table A.3 : 
+Examples of (source, destination, object) triplets used to instantiate tasks.
+Each row corresponds to a single receptacle pair; the Objects column lists a sample of semantically compatible items for the specified transfer.
+The source and destination are denoted as room / furniture .
+ Source 
+ Destination 
+ Objects (sample) 
+ kitchen / refrigerator 
+ dining room / table 
+ drink, apple, cake, juice 
+ dining room / table 
+ kitchen / refrigerator 
+ apple, butter, fruit, dessert 
+ bedroom / bed 
+ bedroom / nightstand 
+ alarm clock, book, notebook, remote control 
+ study room / desk 
+ bedroom / cabinet 
+ notebook, pen holder, picture frame, book 
+ living room / table 
+ living room / TV stand 
+ speaker, book, basket, remote control 
+ bathroom / sink 
+ bathroom / cabinet 
+ towel, napkin, tray, hand soap 
+ balcony / table 
+ living room / cabinet 
+ basket, flower, book, ornament 
+ A.5 Task Instruction Examples 
+ The tasks are grouped into two categories. Static tasks require no human interaction and target the core manipulation capabilities of the agent, including spatial reasoning, object recognition, and goal-directed navigation. Dynamic tasks require the agent to interact with a human user to disambiguate the true goal of the task, thereby targeting the communicative and clarification capabilities of the agent. Table A.4 provides illustrative examples. The color blue highlights the source or destination furniture, while red highlights the target object. 
+ Table A.4 : 
+Task examples grouped by interaction type.
+ Precise instructions reference objects with visual attributes, whereas fuzzy instructions use only category labels.
+The dynamic tasks employ deliberately vague language to elicit clarification dialogues.
+ Blue : source and destination furniture. Red : target object.
+ Split 
+ Task Instruction 
+ Static Task 
+ “Head over to bedside cabinet with thin handles , fetch the rectangular wooden picture frame with a clean design and light finish , and bring it back to display cabinet with circular decor .” 
+ “Pick up the sleek black remote control with a circular navigation button and multicolored buttons from gold leg coffee table and place it on desk with white marble tabletop .” 
+ “Head over to two drawer cabinet , fetch an avocado , and bring it back to the only refrigerator in the scene.” 
+ “Head over to the only refrigerator in the scene, fetch a peanut , and bring it back to the only tea table in the room.” 
+ Dynamic Task 
+ “Bring a notebook from desk with ribbed drawer front to cabinet with dark interior backing .” 
+ “Can you find my pen holder in the bedroom?” 
+ “Can you help me move a book ?” 
+ Appendix B Training Data Generation Pipeline 
+ This section describes the three-stage data generation pipeline that transforms raw task specifications into the final SFT training corpus: (1) two-stage geometric and physics-based task filtering, (2) simulation-driven oracle trajectory generation, and (3) LLM-based social interaction annotation. 
+ B.1 Collision-Free Object Placement 
+ Before filtering, each task specification must be grounded into concrete 3D object positions.
+Given a receptacle surface with bounding box ℬ \mathcal{B} and the scene’s pre-computed occupancy map ℳ \mathcal{M} (a 2D grid encoding free vs. occupied cells at ∼ \sim 5 cm resolution), the placement algorithm assigns a collision-free 2D position to each object while satisfying two constraints beyond mere non-overlap:
+(i) free-space feasibility —the circular footprint of radius r i = 1 2 ​ w i 2 + d i 2 r_{i}=\tfrac{1}{2}\sqrt{w_{i}^{2}+d_{i}^{2}} centered at the chosen position must lie entirely within free cells of ℳ \mathcal{M} , ensuring no static obstacle occludes the object; and
+(ii) edge-proximity for reachability —each object is restricted to a perimeter band of width d max = 0.5 d_{\max}=0.5  m from the nearest receptacle edge, and the edge point closest to the object must also be unoccupied within a small robot-stand radius of 5 cm, guaranteeing that a mobile manipulator can approach and grasp the object without obstruction.
+Candidate positions are generated by uniform grid sampling over axis-aligned edge strips that tile the perimeter band; among all valid candidates per iteration, the algorithm selects the one maximizing the minimum Euclidean distance to already-placed objects, promoting spatial spread.
+Figure B.1 shows a representative layout produced by this procedure. 
+ Figure B.1 : Example object layout produced by the placement algorithm on a kitchen table. Five food items are distributed across the surface, each within the perimeter reachability band and clear of static obstacles. 
+ B.2 Two-Stage Task Filtering 
+ Raw task specifications contain object placements that may be geometrically infeasible or physically unstable in the target 3D scene.
+We apply a two-stage filtering pipeline to ensure every training episode is physically realizable and reproducible. 
+ Stage 1: Static Geometric Filtering. 
+ The static filter checks whether all objects in a task’s initial world graph can be placed on their assigned receptacle surfaces without launching the physics simulator.
+For each receptacle, we retrieve its surface bounding box ℬ = [ 𝐩 min , 𝐩 max ] \mathcal{B}=[\mathbf{p}_{\min},\,\mathbf{p}_{\max}] from the scene furniture library and the physical footprint ( w i , d i , h i ) (w_{i},d_{i},h_{i}) of each object i i from the asset size library.
+A randomized collision-free placement algorithm ( algorithm   B.1 ) then attempts to assign a 2D position to each object within ℬ \mathcal{B} , with a minimum inter-object margin of δ = 0.05 \delta=0.05  m. 
+ Algorithm B.1 Static Placement Feasibility Check 
+ 1: 
+ Object list 𝒱 obj \mathcal{V}_{\mathrm{obj}} , receptacle bbox ℬ \mathcal{B} , margin δ \delta , max attempts K try K_{\mathrm{try}} 
+ 2: 
+ Placement dictionary 𝒬 \mathcal{Q} or Fail 
+ 3: 
+ 𝒬 ← { } \mathcal{Q}\leftarrow\{\} ;  placed ← [ ] \text{placed}\leftarrow[] 
+ 4: 
+ for each object o i ∈ 𝒱 obj o_{i}\in\mathcal{V}_{\mathrm{obj}} with footprint ( w i , d i ) (w_{i},d_{i}) do 
+ 5: 
+    x lo ← p min x + w i / 2 + δ x_{\text{lo}}\leftarrow p_{\min}^{x}+w_{i}/2+\delta ;  x hi ← p max x − w i / 2 − δ x_{\text{hi}}\leftarrow p_{\max}^{x}-w_{i}/2-\delta 
+ 6: 
+    y lo ← p min y + d i / 2 + δ y_{\text{lo}}\leftarrow p_{\min}^{y}+d_{i}/2+\delta ;  y hi ← p max y − d i / 2 − δ y_{\text{hi}}\leftarrow p_{\max}^{y}-d_{i}/2-\delta 
+ 7: 
+    if x lo ≥ x hi x_{\text{lo}}\geq x_{\text{hi}} or y lo ≥ y hi y_{\text{lo}}\geq y_{\text{hi}} then 
+ return Fail ⊳ \triangleright Object too large for surface
+ 8: 
+    end if 
+ 9: 
+    found ← False \text{found}\leftarrow\text{False} 
+ 10: 
+    for k = 1 k=1 to K try K_{\mathrm{try}} do 
+ 11: 
+    Sample ( x , y ) ∼ 𝒰 ⁡ ( [ x lo , x hi ] × [ y lo , y hi ] ) (x,y)\sim\mathcal{U}([x_{\text{lo}},x_{\text{hi}}]\times[y_{\text{lo}},y_{\text{hi}}]) 
+ 12: 
+     if no collision with any ( x j , y j , w j , d j ) ∈ placed (x_{j},y_{j},w_{j},d_{j})\in\text{placed} then ⊳ \triangleright AABB check
+ 13: 
+        𝒬 ⁡ [ o i ] ← ( x , y , p max z + h i / 2 ) \mathcal{Q}[o_{i}]\leftarrow(x,\,y,\,p_{\max}^{z}+h_{i}/2) 
+ 14: 
+       Append ( x , y , w i / 2 , d i / 2 ) (x,y,w_{i}/2,d_{i}/2) to placed ;  found ← True \text{found}\leftarrow\text{True} ;  break 
+ 15: 
+     end if 
+ 16: 
+    end for 
+ 17: 
+    if ¬ found \lnot\,\text{found} then 
+ return Fail ⊳ \triangleright Exceeded K try = 2000 K_{\mathrm{try}}{=}2000 attempts
+ 18: 
+    end if 
+ 19: 
+ end forreturn 𝒬 \mathcal{Q} 
+ Tasks that pass static filtering have their computed placements 𝒬 \mathcal{Q} cached for the subsequent physics stage. 
+ Stage 2: Physics Verification. 
+ Tasks that pass static filtering are loaded into the GRUTopia [ 51 ] physics simulator (Isaac Sim backend) to validate that objects remain stable after spawning.
+Each object is placed at its cached position 𝒬 ⁡ [ o i ] \mathcal{Q}[o_{i}] with a small upward offset of + 0.1 +0.1  m, and the simulation runs for N settle = 500 N_{\text{settle}}=500 physics steps ( Δ ​ t = 1 / 240 \Delta t=1/240  s) to allow objects to come to rest.
+A task is considered valid if every object satisfies: 
+ z final , i ≥ z init , i − ϵ fall , ‖ 𝐩 final , i ‖ ∞ ≤ 50 ​ m , z_{\text{final},i}\geq z_{\text{init},i}-\epsilon_{\text{fall}},\qquad\|\mathbf{p}_{\text{final},i}\|_{\infty}\leq 50\,\text{m}, 
+ (7) 
+ where ϵ fall = 0.3 \epsilon_{\text{fall}}=0.3  m is the fall threshold.
+Tasks passing both stages are saved with their final resting positions { ( x i ∗ , y i ∗ , z i ∗ ) } \{(x_{i}^{*},y_{i}^{*},z_{i}^{*})\} , guaranteeing full reproducibility during trajectory generation. 
+ B.3 Oracle Trajectory Generation 
+ Given a validated task episode, we execute its oracle execution_plan inside the physics simulator to record a demonstration trajectory suitable for SFT.
+The oracle plan is a deterministic sequence of high-level actions (pre-computed by the task generation stage); the trajectory generator executes each action and records the resulting visual observations to form action–observation pairs. 
+ Environment Setup. 
+ At the start of each episode, all target and distractor objects are spawned at their verified positions using the world graph, the simulation undergoes a brief physics warmup to allow objects to settle, and an RGB camera mounted atop the robot’s head (resolution 640 × 480 640\times 480 ) is initialized to provide the visual observations consumed by the policy. 
+ Action Execution. 
+ Algorithm B.2 Oracle Trajectory Generation for One Episode 
+ 1: 
+ Episode e e with execution_plan , initial_world_graph 
+ 2: 
+ Trajectory τ \tau (list of action–obs pairs)
+ 3: 
+ Spawn objects per initial_world_graph ; run physics warmup
+ 4: 
+ τ ← [ { \tau\leftarrow[\{ task : e . e. task_description } ] \}] ;  inv ← ∅ \text{inv}\leftarrow\varnothing 
+ 5: 
+ for each step s s in execution_plan do 
+ 6: 
+    if s . s. action = = ask then 
+ 7: 
+    Append dialogue turns to τ \tau ⊳ \triangleright Social annotation (Sec. B.4 )
+ 8: 
+    else if s . s. action = = nav_to then 
+ 9: 
+    Find non-occluded camera position via NavManager 
+ 10: 
+    Move camera; step 20 20 times; append nav_to + obs(RGB) to τ \tau 
+ 11: 
+    else if s . s. action = = pick then 
+ 12: 
+     𝑖𝑚𝑔 , M ← \mathit{img},M\leftarrow ShowObjectByCategory ( s . s. target_cat. ) ⊳ \triangleright Always probe visibility first
+ 13: 
+    Append show_object_by_category + + obs ( 𝑖𝑚𝑔 \mathit{img} ) to τ \tau 
+ 14: 
+     if target ∈ \in values( M M ) then ⊳ \triangleright Target visible in head-camera view
+ 15: 
+        m ∗ ← m^{*}\leftarrow marker key of target in M M 
+ 16: 
+        GazeAt ( m ∗ m^{*} ); step 10 10 times; append gaze_at + + obs(RGB) to τ \tau 
+ 17: 
+       Append pick ( m ∗ m^{*} ); teleport obj away; update 𝒲 \mathcal{W} ; inv ← \text{inv}\leftarrow target
+ 18: 
+     else ⊳ \triangleright Target occluded: fall back to randomized walk-around
+ 19: 
+        C ← C\leftarrow same-category objects at 𝑙𝑎𝑛𝑑𝑚𝑎𝑟𝑘 \mathit{landmark} (from 𝒲 \mathcal{W} )
+ 20: 
+       Append walk_around + + obs(text enumeration of C C ) to τ \tau 
+ 21: 
+        RandomShuffle ( C C ) ⊳ \triangleright Randomize order for trajectory diversity
+ 22: 
+        for each candidate c ∈ C c\in C do 
+ 23: 
+         GazeAt ( c c ); step 10 10 times; append gaze_at + + obs(RGB) to τ \tau 
+ 24: 
+         if c = c= target then 
+ 25: 
+          Append pick ( c c ); update 𝒲 \mathcal{W} ; inv ← c \text{inv}\leftarrow c ; break 
+ 26: 
+         end if 
+ 27: 
+        end for 
+ 28: 
+     end if 
+ 29: 
+    else if s . s. action = = place then 
+ 30: 
+     ShowReceptacles ; overlay receptacle markers; find target marker
+ 31: 
+    Compute placement via ClampAlgorithm ( ℬ surf \mathcal{B}_{\text{surf}} , robot pos)
+ 32: 
+    Teleport inv to placement; step 1000 1000 times; inv ← ∅ \text{inv}\leftarrow\varnothing 
+ 33: 
+    Append show_receptacles + obs(RGB) + place to τ \tau 
+ 34: 
+    else if s . s. action ∈ { \in\{ open , close } \} then 
+ 35: 
+    Drive door to 90 ∘ 90^{\circ} / 0 ∘ 0^{\circ} ; step 100 100 times
+ 36: 
+    Append open / close + obs(RGB) to τ \tau 
+ 37: 
+    end if 
+ 38: 
+ end for 
+ 39: 
+ Save τ \tau to .pkl ; save task metadata to .json 
+ Algorithm   B.2 details the oracle planner, which generates successful trajectories from the task configuration and the current simulator state.
+The pick action deserves special attention: the oracle always performs an object-category detection step first to probe what is currently visible from the robot’s head-mounted camera.
+If the target object appears in the resulting marker map, the robot gazes directly at it ( visible branch). 
+ Otherwise it falls back to an walk_around search: it enumerates all same-category objects at the current landmark as text, then iterates through them in randomized order—shuffling the exploration sequence to inject trajectory diversity rather than always visiting objects in a fixed spatial order. 
+ B.4 Social Interaction Annotation 
+ Raw oracle trajectories contain no communicative interactions.
+We augment each trajectory with realistic human–robot dialogue by injecting ask steps via an LLM-based annotator. 
+ Annotation Strategies. 
+ The LLM annotator applies up to two interaction strategies per task, selected based on scene context.
+ Strategy A ( Proactive Clarification , ask ) is triggered when the task description is ambiguous or underspecified: a multi-turn dialogue is injected before execution in which the robot requests clarification and the user responds with additional details.
+ Strategy B ( Object Disambiguation , ask ) is triggered when multiple instances of the same furniture class appear in the scene (e.g., two cabinets ): the robot asks which specific instance the user intends before proceeding. 
+ Annotation Prompt. 
+ The annotator receives (i) the scene context (room layouts, furniture captions, object descriptions, and optionally a top-down scene image) and (ii) a task summary with the execution plan annotated with step indices.
+The LLM annotator is prompted to reason about which strategies apply and then output a structured JSON list of annotation actions.
+The key prompt template is shown below: 
+ Annotation Prompt 
+ Post-processing. 
+ Annotation actions are applied in reverse insertion-point order to preserve index validity.
+Processing is batched asynchronously (batch size 10), with checkpointing to resume from partial runs. 
+ Example Annotated Trajectory. 
+ Figure B.2 illustrates the effect of social annotation on a representative task.
+The raw oracle plan (left) is augmented with a Strategy B disambiguation dialogue at step 0, producing the socially-enriched trajectory (right). 
+ Before annotation: 
+0: nav_to(cabinet_1)
+1: show_object_by_category(book)
+2: gaze_at(book)
+3: pick(book)
+4: nav_to(desk_1)
+5: place(desk_1)
+ After annotation (Strategy B): 
+0: ask [B]
+ Embodied Agent:
+ "Which cabinet - the oak one
+ or the glass-door one?"
+ User: "The oak one, please."
+1: nav_to(cabinet_1)
+2: show_object_by_category(book)
+3: gaze_at(book)
+4: pick(book)
+5: nav_to(desk_1)
+6: place(desk_1)
+ Figure B.2: Social annotation example. Strategy B (disambiguation) is inserted before navigation, prompting the robot to clarify which specific furniture instance the user intends. 
+ B.5 Expert Trajectory Annotation 
+ As introduced in Section   4.1 , our SFT dataset requires not only the physical execution trajectories but also the internal reasoning traces and the structured historical state h t = ( σ t , q t ) h_{t}=(\sigma_{t},q_{t}) . We use gemini-3-pro to retroactively annotate these cognitive variables on the raw expert trajectories collected from the simulator. 
+ State Alignment and Oracle Injection. 
+ Raw trajectories consist of paired actions a t a_{t} and environmental observations o t env o_{t}^{\mathrm{env}} (ego-centric RGB images and text feedback). To enable gemini-3-pro to produce accurate visual reasoning during annotation, we inject task-specific oracle metadata into its prompt, explicitly specifying the target source object, destination receptacle, and their respective visual distractors. Crucially, this oracle information is restricted to the offline annotation phase; the final SFT dataset retains only policy-facing inputs x t x_{t} free of oracle perceptual APIs to train the online policy. 
+ Step-wise Reasoning Annotation. 
+ We initialize a 0 = ∅ a_{0}=\varnothing , σ 0 = ∅ \sigma_{0}=\varnothing , q 0 = Init ⁡ ( T ) q_{0}=\operatorname{Init}(T) , and h 0 = ( σ 0 , q 0 ) h_{0}=(\sigma_{0},q_{0}) . For each decision step t = 1 , … , L t=1,\ldots,L , the annotator receives the current environmental observation o t env o_{t}^{\mathrm{env}} , the previously executed action a t − 1 a_{t-1} , and the preceding historical state h t − 1 h_{t-1} , together with oracle metadata available only during offline annotation. Conditioned on this input, gemini-3-pro outputs a structured JSON containing: (1) the reasoning trace c t c_{t} supporting the next ground-truth action, (2) a compact History field σ t \sigma_{t} summarizing tool-verified outcomes relevant to future decisions, (3) a task-phase analysis q t q_{t} , and (4) the next ground-truth action a t a_{t} . The two persistent fields form h t = ( σ t , q t ) h_{t}=(\sigma_{t},q_{t}) . 
+ History Validation and Propagation. 
+ At each step, a deterministic script validates the model-produced History field against the recorded simulator outcome and stores the validated result as σ t \sigma_{t} . Only the current compact state h t h_{t} is propagated to step t + 1 t+1 ; the raw transcript is not replayed. This construction aligns the history with the physical execution while matching the policy interface used at training and inference time. 
+ Formatting for Supervised Fine-Tuning. 
+ The final SFT dataset uses the same single-turn-per-step format used at inference ( Section   E.2 ). At each step, the prompt is the policy context x t x_{t} defined in eq.   2 , including the tool APIs 𝒜 \mathcal{A} and the current dynamic fields. The target is the serialized response y t y_{t} defined in eq.   5 , which contains the reasoning trace, historical state, and action. This makes the training and inference interfaces identical. 
+ Appendix C Environment Implementation 
+ C.1 Overview 
+ Figure C.1 : 
+ MCP tool dispatch pipeline. 
+The embodied agent always issues the same tool calls through the same MCP schema.
+In simulation, deterministic handlers update Isaac Sim and return RGB/text observations efficiently.
+On the physical robot, the backend is swapped for onboard navigation, open-vocabulary perception, VLA manipulation, and HRI modules.
+Only the backend implementation changes; the policy-facing tool names, input signatures, and response types remain invariant.
+ Our system is built around the Model Context Protocol (MCP) [ 2 ] , a standardized interface through which the embodied agent issues all tool calls and receives all responses.
+As illustrated in fig.   C.1 , each tool call first reaches a router that classifies it and dispatches it along one of two paths.
+Simulation-related tools—those that require physical grounding, such as navigation, pick-and-place, and articulation—are forwarded to the Isaac Sim backend, which modifies the simulator state, steps the physics engine until the scene settles, and renders the resulting camera observation as an image response.
+Tools that require no physics interaction—such as querying the user—bypass the simulation backend entirely and are handled by the simulated-user module, returning a plain-text response.
+In both cases the agent receives its result through the same MCP interface, forming a closed perception–action loop without any awareness of which backend produced the response. 
+ The same MCP interface is used when the agent operates on a physical robot.
+The router and the tool protocol remain identical; only the backend changes—the Isaac Sim engine is replaced by the robot’s onboard navigation stack and manipulation system, while the MCP server continues to surface the same set of tool names, input signatures, and response types.
+The agent therefore interacts with simulation and with the real robot in exactly the same way, with no modification to its tool calls or its planning logic. 
+ C.2 Tool Implementation Details 
+ We describe each tool in the policy-facing toolchain, which is free of oracle perceptual APIs (see Section   3 ), along with its concrete simulation implementation. 
+ Sim-to-Real Rationale: Simulation Efficiency versus Physical Fidelity. 
+ The core design of our system resolves the tension between simulation efficiency and physical fidelity by separating the policy-facing interface from the backend implementation. During simulation, deterministic server-side handlers execute navigation, perception, and manipulation effects efficiently, reducing trajectory noise and per-step wall-clock time for large-scale data collection. Crucially, these handlers do not expose oracle perceptual APIs to the policy: the agent receives only RGB/SoM images, text responses, execution tracebacks, and the same tool return format used at deployment. This preserves the invariant required for zero-shot transfer. In the real world, only the backend changes: deterministic simulation handlers are replaced by the robot’s navigation stack, open-vocabulary perception, VLA manipulation model, and HRI interface, while the agent weights, tool names, input signatures, and response types remain unchanged. 
+ Physical Infrastructure. 
+ To enable this deployment on the ARX LIFT2 platform and bridge the sim-to-real gap, we integrate ConceptGraph [ 17 ] with an Intel RealSense D455 camera for semantic 3D scene graph construction. Furthermore, to overcome the RealSense camera’s relocalization errors exceeding 5 cm, we introduce a dual-tracking architecture. This setup features an Odin1 depth camera with proprietary SLAM, effectively reducing relocalization error to under 1 cm. It is coupled with a robust navigation stack using A* search for global planning, the Dynamic Window Approach (DWA) for local obstacle avoidance, and PID controllers to ensure reliable, fine-grained mobility. 
+ nav_to (inter-receptacle navigation). 
+ Simulation. 
+Given a target receptacle name, the handler identifies a collision-free camera position that maintains an unobstructed line of sight to the primary interaction surface of the receptacle (e.g., the top shelf or door).
+To do so, it determines the axis-aligned bounding box of the navigable part of the receptacle, derives an appropriate standoff radius, and queries an occupancy-map-based navigation module for the closest non-occluded vantage point on the two-dimensional floor plan.
+The observation is rendered from the new camera pose, and the tool returns the RGB render of the resulting viewpoint.
+ Real World. 
+The MCP server queries the target node from the ConceptGraph, and an A* planner generates a trajectory from the current pose of the robot to a valid interaction point.
+The goal pose maintains a standoff distance of at least 0.6 meters from the target to ensure sufficient manipulation workspace.
+If no valid trajectory exists, the tool returns a failure log.
+The robot tracks this path using DWA and PID control, returning the final RGB frame upon arrival. 
+ walk_around (intra-receptacle broad scanning). 
+ Simulation. 
+The simulation maintains a per-receptacle object registry that is kept synchronized throughout each episode: every pick operation removes an object entry from the source receptacle, and every place operation inserts an entry at the destination, ensuring the registry always reflects the current scene state.
+When walk_around is invoked, the handler reads this live registry for the active receptacle of the agent and resolves each entry to the corresponding semantic category, returning a natural-language inventory string (e.g., “I found the following object(s): 0: a(an) apple.” ) paired with an integer-to-category index for downstream reference.
+ Real World. 
+The implementation generates predefined navigation waypoints covering the entire field of view of the occupancy map for each furniture node.
+The robot traverses these waypoints and captures images, which Grounded-SAM-2 [ 42 ] processes to extract object masks.
+These masks are deduplicated across viewpoints using visual feature matching and are subsequently merged into an annotated image.
+Following this, the robot navigates to the waypoint closest to the cluster center of the target object for subsequent interactions. 
+ show_object_by_category . 
+ Simulation. 
+This tool implements open-vocabulary object detection through a four-stage perception pipeline.
+First, the photorealistic renderer of the simulator is coupled with a per-instance segmentation annotator to produce pixel-accurate object masks for all entities visible in the current view.
+Second, text embeddings are computed for both the open-vocabulary query of the agent and every asset category present in the scene using an embedding service; the category with the highest cosine similarity to the query is selected as the match.
+Third, pixel-level masks for the matched instances are extracted from the segmentation output.
+Fourth, numbered Set-of-Mark [ 54 ] overlays—colored region masks labeled with integer identifiers—are composited onto the RGB image.
+The resulting annotated image is returned to the agent, and the id-object mapping is stored in the environment for parsing following tool calls that reference the integer identifiers.
+ Real World. 
+The perception interface is replicated in the physical deployment using Grounded-SAM-2 [ 42 ] .
+The model receives the queried category name, performs open-vocabulary segmentation, and assigns an integer ID to each generated mask.
+These specific IDs and masks subsequently serve as the visual prompts fed into the downstream VLA model. 
+ show_receptacles (receptacle labeling). 
+ Simulation. 
+The handler retrieves the 3D bounding boxes of all receptacles within the current camera frustum, projects each box into the image plane to compute a 2D region mask, and composites numbered Set-of-Mark [ 54 ] overlays onto the RGB frame.
+The annotated image together with the integer-to-receptacle-name mapping is returned to the agent, enabling subsequent nav_to or place calls to reference receptacles by the corresponding visual identifiers.
+ Real World. 
+In the physical deployment, the annotations are registered against the head-mounted RGB-D point cloud and the ConceptGraph to align 3D bounding boxes with the 2D masks.
+Similar to the object detection pipeline, the specific IDs and masks function as visual prompts for the downstream VLA model. 
+ gaze_at (target approach and alignment). 
+ Simulation. 
+This tool moves the robot close to a specified object for detailed observation and subsequent grasping.
+The target object may originate from two upstream tools with different output modalities: walk_around returns a 3D bounding box for each discovered object, whereas show_object_by_category yields a 2D segmentation mask from which a 3D centroid is recovered via depth-camera back-projection.
+Given the 3D position of the object, the handler queries the occupancy map for a collision-free approach pose within the reach of the robotic arm, commands the mobile base to navigate to that pose, and reorients the camera toward the object.
+In simulation, the 3D positions are read directly from the scene graph.
+When marker persistence is requested, the Set-of-Mark overlays are re-rendered in the new close-up view, ensuring that visual identifiers remain consistent across viewpoint changes for subsequent grasping calls made by the agent.
+ Real World. 
+If the target mask identified by the associated ID is not clearly visible in the current field of view, the system retrieves the navigation waypoint from the walk_around history that originally captured the mask.
+The robot autonomously navigates back to this optimal viewpoint to center the target for manipulation. 
+ pick / place / open / close (manipulation primitives). 
+ Simulation. 
+All four manipulation tools follow the same pattern: the handler resolves the integer marker provided by the agent to the corresponding object or receptacle in the scene graph and subsequently executes a deterministic state change.
+Specifically, pick removes the target object from the scene and transfers the item to a virtual inventory; place restores the held object onto a designated surface at a collision-free position computed from the bounding box of the receptacle; open and close drive the articulated joint of a door or drawer to the fully open or resting angle, respectively.
+Each operation updates the per-receptacle object registry and the state of the world graph accordingly, while the simulator re-renders an RGB observation from the resulting scene.
+ Real World. 
+A fine-tuned Vision-Language-Action (VLA) model executes all manipulation primitives.
+Because Grounded-SAM-2 [ 42 ] functions as the dataset preprocessing scheme during the visually-instructed fine-tuning phase of the VLA, the deployed VLA model directly ingests the mask and ID generated by the perception tools as the initial visual prompt.
+This architecture effectively maps the RGB-D observation to a 6-DoF end-effector trajectory. 
+ ask (natural language query to user). 
+ Simulation. 
+This tool bypasses the physics dispatch pipeline and is routed directly to the Simulated User module.
+The Simulated User is a stateful language-model wrapper that maintains a task-specific system prompt encoding the goal state and the preference profile of the user, an interleaved conversation history, and a synchronized view of the most recent action and observation of the agent.
+When the agent invokes ask , the module injects the current state of the robot into the system prompt, appends the question to the conversation history, and queries a language-model backend to produce a reply.
+The response is extracted from a structured output format and returned to the agent as a plain-text tool result, rendering the text indistinguishable in form from the output of any other tool.
+ Real World. 
+For physical deployment, we developed a Human-Robot Interaction GUI.
+To ensure the human user can act as an oracle substitute, the GUI displays the decision history of the agent, reasoning processes, and live egocentric observations.
+The human user types a response based on this context, effectively closing the loop for physical execution. 
+ C.3 Simulated User Module 
+ The simulated user is driven by gemini-3-flash and serves as an interactive collaborator that answers questions from the embodied agent.
+To replicate realistic human behavior, the simulated user is governed by two complementary mechanisms: a profile that defines its persona and behavioral constraints, and an observation interface that keeps it synchronized with the evolving state of the robot. 
+ Profile template. 
+ Each task instance initializes the simulated user with a structured profile containing three elements: the initial object layout 𝒲 init \mathcal{W}_{\text{init}} , the goal layout 𝒲 goal \mathcal{W}_{\text{goal}} , and a fuzzy natural-language instruction that deliberately omits the exact target identity.
+To ensure that the simulated user behaves like a real human collaborator—goal-directed yet informationally constrained—behavioral rules are embedded in the profile: 
+ 1. 
+ Goal-driven. Every response must guide the robot from 𝒲 init \mathcal{W}_{\text{init}} toward 𝒲 goal \mathcal{W}_{\text{goal}} . 
+ 2. 
+ Information barrier. The user must not reveal the exact position of the target object; only vague references such as “check what’s inside” are permitted. 
+ 3. 
+ Dynamic clarification. The user may name the specific target object only after the robot explicitly reports seeing it in its current observation, faithfully simulating how a real person progressively discloses information as the situation unfolds. 
+ 4. 
+ No raw IDs. Internal alphanumeric object identifiers present in 𝒲 init \mathcal{W}_{\text{init}} and 𝒲 goal \mathcal{W}_{\text{goal}} are never spoken verbatim; the user maps them to natural-language descriptions derived from the fuzzy instruction or visual captions. 
+ Together, rules 2 and 3 create a progressive disclosure loop: the user initially withholds specifics, the robot explores and reports what it perceives, and the user then grounds its follow-up guidance in those concrete observations.
+Below is an illustrative profile for a “move eating utensil” task: 
+ Example User Profile 
+ Auxiliary observation. 
+ A fundamental representation gap exists between the simulated user and the embodied agent: the user profile encodes object layouts using internal alphanumeric IDs (e.g., _4004e25c… ), whereas the agent perceives the world exclusively through ego-centric RGB images.
+These two modalities are incommensurable—the simulated user cannot directly “see” what the robot’s camera captures, nor can it infer from raw IDs alone which objects have entered the agent’s field of view.
+To bridge this gap and allow the simulated user to accurately track the agent’s exploration progress, we introduce an auxiliary textual observation. 
+ After each tool call, the environment performs a visibility check on the current render and composes a structured summary that records (i) the action the robot just executed, and (ii) a list of objects now visible in its ego-centric view, each described by its semantic category and a natural-language caption.
+This summary replaces the previous one in the simulated user’s context at every step, ensuring that it always reasons over the most recent robot state without accumulating a growing history.
+An example is shown below: 
+ Auxiliary Observation 
+ By expressing visible objects through semantic captions (e.g., “a pair of wooden chopsticks with red tips”) rather than raw asset identifiers, the auxiliary observation serves two purposes.
+First, it enables the simulated user to apply the no-raw-IDs rule naturally, since the captions provide exactly the kind of everyday language a real person would use.
+Second, it closes the progressive disclosure loop defined by rules 2 and 3: upon recognizing that a semantically described object matches the fuzzy instruction (e.g., that “wooden chopsticks” qualifies as the requested “eating utensil”), the simulated user can unambiguously name the target in its next response. 
+ Appendix D Reinforcement Learning Setup 
+ D.1 Full POMDP Definition 
+ We provide the complete formalization of the single-step decision-making process. The embodied agent operates within a Partially Observable Markov Decision Process (POMDP) defined by the tuple ℳ = ⟨ 𝒮 , 𝒜 , 𝒪 , 𝒫 , ℛ , Ω , γ ⟩ \mathcal{M}=\langle\mathcal{S},\mathcal{A},\mathcal{O},\mathcal{P},\mathcal{R},\Omega,\gamma\rangle . 
+ The unobservable state space 𝒮 \mathcal{S} contains precise 3D object poses, the physical World Graph, and the internal simulator dynamics. The action space 𝒜 \mathcal{A} contains 11 non-privileged tools spanning navigation, perception, manipulation, communication, and episode termination. The environmental observation space is 𝒪 \mathcal{O} , with o t env ∼ Ω ( ⋅ ∣ s t ) o_{t}^{\mathrm{env}}\sim\Omega(\cdot\mid s_{t}) as in eq.   1 ; o t env o_{t}^{\mathrm{env}} contains ego-centric RGB views, execution tracebacks, and dynamic tool returns. The policy augments this observation with the preceding action and its compact memory to form x t x_{t} in eq.   2 . These agent-maintained variables are part of the policy context rather than outputs of the environment observation kernel. 
+ After the policy selects a t a_{t} , the environment evolves according to 
+ s t + 1 ∼ 𝒫 ( ⋅ ∣ s t , a t ) , r t = ℛ ( s t , a t , s t + 1 ) . s_{t+1}\sim\mathcal{P}(\,\cdot\mid s_{t},a_{t}),\qquad r_{t}=\mathcal{R}(s_{t},a_{t},s_{t+1}). 
+ (8) 
+ The transition includes both physical changes executed by Isaac Sim and conversational responses from the simulated user. The discount factor is γ = 0.99 \gamma=0.99 . 
+ D.2 Action Space and Tool Configurations 
+ The policy model outputs a reasoning block followed by a JSON object that specifies the updated history h t h_{t} and the selected tool call a t ∈ 𝒜 a_{t}\in\mathcal{A} . The environment enforces physical constraints during execution. Episodes terminate if the agent outputs the finish action, reaches the maximum horizon of H max = 30 H_{\max}=30 decision steps, or encounters an unrecoverable error. 
+ D.3 Detailed Reward Configuration 
+ Building upon Section   4.3 , the transition reward is the sum of signed components: 
+ r t = r t task + r t prog + r t phys + r t ask + r t time + r t safe . r_{t}=r_{t}^{\mathrm{task}}+r_{t}^{\mathrm{prog}}+r_{t}^{\mathrm{phys}}+r_{t}^{\mathrm{ask}}+r_{t}^{\mathrm{time}}+r_{t}^{\mathrm{safe}}. 
+ (9) 
+ We first define the goal-change set and then augment it with execution-specific targets: 
+ Δ goal = WG goal ⊖ WG init , Δ task = Δ goal ∪ Δ aux . \Delta_{\mathrm{goal}}=\text{WG}_{\mathrm{goal}}\ominus\text{WG}_{\mathrm{init}},\qquad\Delta_{\mathrm{task}}=\Delta_{\mathrm{goal}}\cup\Delta_{\mathrm{aux}}. 
+ (10) 
+ Here Δ aux \Delta_{\mathrm{aux}} contains navigation and articulation targets used only for shaping. Let η t \eta_{t} denote the auxiliary events triggered by a t a_{t} (e.g., a first visit to the source receptacle). The observed event set and normalized shaping progress are 
+ δ t = ( WG t + 1 ⊖ WG t ) ∪ η t , ρ t = 1 − | Δ rem , t | | Δ task | . \delta_{t}=\left(\text{WG}_{t+1}\ominus\text{WG}_{t}\right)\cup\eta_{t},\qquad\rho_{t}=1-\frac{|\Delta_{\mathrm{rem},t}|}{|\Delta_{\mathrm{task}}|}. 
+ (11) 
+ Here Δ rem , t ⊆ Δ task \Delta_{\mathrm{rem},t}\subseteq\Delta_{\mathrm{task}} is the target set remaining before action a t a_{t} . For each newly matched element of δ t ∩ Δ rem , t \delta_{t}\cap\Delta_{\mathrm{rem},t} , that element is removed and r t task r_{t}^{\mathrm{task}} receives + 1.5 +1.5 ; completed elements cannot receive duplicate credit. We use the progress-difference term r t prog = 2.0 ​ ( ρ t + 1 − ρ t ) r_{t}^{\mathrm{prog}}=2.0(\rho_{t+1}-\rho_{t}) . When all goal-state targets are complete, r t task r_{t}^{\mathrm{task}} receives a one-time + 2.0 +2.0 bonus. Within r t phys r_{t}^{\mathrm{phys}} , reversing a previously achieved physical state incurs − 0.5 -0.5 , and placing an object on an incorrect receptacle incurs − 2.0 -2.0 . 
+ While articulation actions and navigation primitives do not directly modify the core object–receptacle relations, they are essential for execution. Their targets in Δ aux \Delta_{\mathrm{aux}} (e.g., a first visit to nav_to(src) or the attribute change (receptacle, open) ) use the same matching logic and + 1.5 +1.5 reward as object-manipulation targets. The physics engine enforces temporal constraints such as opening a receptacle before placing an object inside it. 
+ To alleviate sparse rewards, r t phys r_{t}^{\mathrm{phys}} assigns + 0.3 +0.3 to a valid pick, a one-time + 0.5 +0.5 credit when the policy enters a valid in-transit holding state, and + 1.0 +1.0 for recovery after an incorrect pick. A valid disambiguation query receives r t ask = + 1.0 r_{t}^{\mathrm{ask}}=+1.0 , subject to the difficulty-conditioned budget B ask ≤ 3 B_{\mathrm{ask}}\leq 3 . 
+ We set the positive coefficient λ time = 0.03 \lambda_{\mathrm{time}}=0.03 and apply r t time = − λ time r_{t}^{\mathrm{time}}=-\lambda_{\mathrm{time}} after the initial three decisions. Safety is evaluated from the traceback returned in o t + 1 env o_{t+1}^{\mathrm{env}} : severe errors, such as an invisible target bounding box or invalid API format, set r t safe = − 0.5 r_{t}^{\mathrm{safe}}=-0.5 , while moderate perception errors and gripper-constraint violations set it to − 0.3 -0.3 . 
+ D.4 GSPO Objective and Distributed Training 
+ For each prompt, the rollout policy π θ old \pi_{\theta_{\mathrm{old}}} samples a group of G G interactive trajectories. Let z i = ( z i , 1 , … , z i , | z i | ) z_{i}=(z_{i,1},\ldots,z_{i,|z_{i}|}) denote the concatenated model-generated tokens in rollout i i , with token context ξ i , k \xi_{i,k} , and let J i = ∑ t = 1 L i γ t − 1 ​ r i , t J_{i}=\sum_{t=1}^{L_{i}}\gamma^{t-1}r_{i,t} be its discounted return. We define the group-relative advantage and the length-normalized sequence ratio as 
+ A ^ i = J i − J ¯ Std ⁡ ( J 1 , … , J G ) + ϵ A , s i ​ ( θ ) = exp ⁡ [ 1 | z i | ​ ∑ k = 1 | z i | log ⁡ π θ ​ ( z i , k ∣ ξ i , k ) π θ old ​ ( z i , k ∣ ξ i , k ) ] , \widehat{A}_{i}=\frac{J_{i}-\overline{J}}{\operatorname{Std}(J_{1},\ldots,J_{G})+\epsilon_{A}},\qquad s_{i}(\theta)=\exp\!\left[\frac{1}{|z_{i}|}\sum_{k=1}^{|z_{i}|}\log\frac{\pi_{\theta}(z_{i,k}\mid\xi_{i,k})}{\pi_{\theta_{\mathrm{old}}}(z_{i,k}\mid\xi_{i,k})}\right], 
+ (12) 
+ where J ¯ = G − 1 ​ ∑ i = 1 G J i \overline{J}=G^{-1}\sum_{i=1}^{G}J_{i} and ϵ A > 0 \epsilon_{A}>0 prevents division by zero. Let κ i ​ ( θ ) \kappa_{i}(\theta) denote the length-normalized token-level KL divergence from the fixed SFT reference policy: 
+ κ i ( θ ) = 1 | z i | ∑ k = 1 | z i | D KL ( π θ ( ⋅ ∣ ξ i , k ) ∥ π ref ( ⋅ ∣ ξ i , k ) ) . \kappa_{i}(\theta)=\frac{1}{|z_{i}|}\sum_{k=1}^{|z_{i}|}D_{\mathrm{KL}}\!\left(\pi_{\theta}(\,\cdot\mid\xi_{i,k})\middle\|\pi_{\mathrm{ref}}(\,\cdot\mid\xi_{i,k})\right). 
+ (13) 
+ GSPO minimizes 
+ ℒ GSPO = − 1 G ∑ i = 1 G min ( s i ( θ ) A ^ i , clip ( s i ( θ ) , 1 − ϵ , 1 + ϵ ) A ^ i ) + β G ∑ i = 1 G κ i ( θ ) , \mathcal{L}_{\mathrm{GSPO}}=-\frac{1}{G}\sum_{i=1}^{G}\min\!\left(s_{i}(\theta)\widehat{A}_{i},\,\operatorname{clip}\!\left(s_{i}(\theta),1-\epsilon,1+\epsilon\right)\widehat{A}_{i}\right)+\frac{\beta}{G}\sum_{i=1}^{G}\kappa_{i}(\theta), 
+ (14) 
+ where π ref \pi_{\mathrm{ref}} is the fixed SFT reference policy, ϵ \epsilon is the clipping radius, and β \beta is the KL coefficient. 
+ The one-epoch SFT checkpoint used to initialize GSPO is derived from Qwen3-VL-8B-Instruct. For this preceding SFT stage, we use a learning rate of 5 × 10 − 6 5\times 10^{-6} , per-device batch size 2, gradient accumulation steps 4, warmup ratio 0.08, image resolutions from 784 to 100,352 pixels, an 8,192-token context, and bfloat16 precision on 8 NVIDIA A800 GPUs. 
+ The training backend uses nine task pools to provide 144 concurrent Isaac Sim endpoints via MCP. A central server pool assigns an exclusive simulation instance to each prompt group (group size G = 8 G=8 ) to maintain consistency for the computation of the GSPO advantage A ^ i \widehat{A}_{i} . The optimization of the model runs on a single 8-GPU NVIDIA 4090 node to ensure compatibility with Isaac Sim. Two GPUs host the vLLM rollout server for trajectory generation, and the remaining six GPUs run the trainer using DeepSpeed ZeRO-2 with 6-way data parallelism. The hyperparameters for training are listed in table   D.1 . 
+ Table D.1 : GSPO Training Hyperparameters 
+ Hyperparameter 
+ Configuration 
+ Base Model 
+ Qwen3-VL-8B-Instruct (SFT Checkpoint) 
+ Parameter Efficient Tuning 
+ LoRA (rank 32, α = 64 \alpha=64 , target: all linear layers) 
+ Vision Encoder 
+ Frozen 
+ Optimizer 
+ AdamW (via DeepSpeed ZeRO-2) 
+ Learning Rate 
+ 5 × 10 − 6 5\times 10^{-6} 
+ KL Penalty Coefficient ( β \beta ) 
+ 0.04 
+ GSPO Group Size ( G G ) 
+ 8 
+ Per-Device Batch Size 
+ 1 
+ Gradient Accumulation Steps 
+ 8 
+ Effective Unique Prompts per Step 
+ 6 
+ Max Training Steps 
+ 1000 
+ D.5 Evaluation Metrics 
+ The performance of the system is measured across five primary dimensions. Let Δ goal , rem , term ⊆ Δ goal \Delta_{\mathrm{goal,rem,term}}\subseteq\Delta_{\mathrm{goal}} denote the goal-state changes still unsatisfied at termination. The success rate (SR) is the proportion of episodes with | Δ goal , rem , term | = 0 |\Delta_{\mathrm{goal,rem,term}}|=0 . The completion rate (CR), defined as 1 − | Δ goal , rem , term | / | Δ goal | 1-|\Delta_{\mathrm{goal,rem,term}}|/|\Delta_{\mathrm{goal}}| , quantifies partial goal completion without counting auxiliary shaping targets. Cumulative reward is the undiscounted evaluation statistic ∑ t r t \sum_{t}r_{t} . Episode length measures the number of decision steps, and ask frequency is the average number of communicative tool invocations per episode. 
+ D.6 Analysis of RL Training: Successes and Bottlenecks 
+ We analyze 7,304 rollout trajectories generated during the RL phase to evaluate the impact of GSPO training. The overall in-training success rate converged to 39.3%. Beyond numerical metrics, the analysis of the trajectories reveals two distinct trends: the agent demonstrates improved logical reasoning, yet the performance of the agent is constrained by hardware-induced perceptual bottlenecks. 
+ Cognitive and Interactive Policy Improvements 
+ The RL phase induced cognitive capabilities that were unstable in the SFT baseline, allowing the agent to construct reliable pipelines and resolve open-world uncertainty. The agent developed a canonical execution flow: nav_to → \rightarrow show_object_by_category → \rightarrow gaze_at → \rightarrow pick → \rightarrow nav_to → \rightarrow show_receptacles → \rightarrow place . This indicates that the agent systematically narrows down visual searches before committing to a target and surveys placement areas rather than guessing the states of the receptacles. 
+ Furthermore, the ask tool, rarely invoked in the SFT dataset, appeared in 15.8% of the RL trajectories. In 90.3% of these instances, the agent correctly identified multiple visual distractors (e.g., “I see a watch and a clock on the nightstand. Which one do you want?”) and paused execution to query the simulated user. This suggests that the GSPO optimization drove the policy to learn human-robot collaboration from sparse rewards. 
+ Perceptual Bottlenecks. 
+ Despite improvements in logical planning, the in-training success rate was limited by visual recognition failures. An analysis of the 4,431 failed trajectories indicates that 94.3% were not pipeline failures; the agent executed the sequence of pick and place correctly but manipulated the wrong object. 
+ These hallucinated marker selections stem from fine-grained visual grounding limits under the frozen 411M-parameter ViT backbone. Both SFT and RL use max_pixels = 100,352 =100{,}352 for image inputs, and a resolution-alignment control changes the final success rate by only about ± 3 % \pm 3\% across task families. Thus, the performance gains of GSPO do not arise from a resolution mismatch. Instead, the remaining errors reflect cases where visually similar distractors differ by subtle attributes such as texture, color, or part-level geometry that the frozen visual representation cannot reliably bind to the instruction. 
+ Discrepancy Between Training and Benchmark Performance. 
+ The 39.3% in-training success rate differs from the final evaluation on the offline benchmark primarily because training rollouts are sampled online from a heterogeneous task pool without an explicit curriculum. The intrinsic difficulty within a single GSPO sampling group fluctuates (e.g., distinct books versus highly ambiguous geometric distractors), introducing variance to the step-wise success rate. The benchmark suite, however, evaluates the agent across a fixed and more uniformly stratified task distribution, yielding a more stable assessment of the policy. Overall, GSPO optimizes the cognitive policy for reasoning and interaction, while the observed training ceiling is mainly a fine-grained perception bottleneck rather than an algorithmic flaw in the POMDP or RL formulation. 
+ Appendix E Agent Inference and Evaluation Setup 
+ E.1 Zero-Shot VLM Baseline 
+ We evaluate a family of proprietary VLMs as zero-shot embodied agents on our benchmark.
+Each model is queried through an OpenAI-compatible chat completion API with native function-calling support. 
+ At the beginning of each episode, the agent receives a system prompt that encodes the task rules, the marker-based object-reference protocol, and the available action vocabulary.
+The system prompt is augmented with a scene description that enumerates all rooms and their furniture/receptacles in the current house layout, giving the agent a static, text-only overview of the environment. The full system prompt template is shown below: 
+ Zero-Shot Agent Prompt 
+ Below is an example scene description that populates the scene description placeholder: 
+ Example Scene Description 
+ The task instruction is provided as the first user message, after which the agent is expected to respond with a tool call at each step.
+The tool calls are forwarded to the simulation server
+and the response (textual or visual observation) is appended to the context for the next turn.
+Each episode runs for a maximum of H max = 30 H_{\max}=30 steps.
+The episode terminates when the agent calls the finish action or exhausts the step budget.
+Success is determined by comparing the final world state against the ground-truth goal state in the task configuration. 
+ E.2 REAL -Agent (Ours) 
+ As described in Sec. 4.1 , our agent reformats the entire episode state into a single user turn at every step.
+The four dynamic placeholders in the prompt template map directly to the policy context: {TASK} ↔ T \leftrightarrow T , {TASK_PROGRESS} ↔ h t − 1 \leftrightarrow h_{t-1} , {LAST_ACTION} ↔ a t − 1 \leftrightarrow a_{t-1} , and {LAST_OBS} ↔ o t env \leftrightarrow o_{t}^{\mathrm{env}} .
+The tool list is embedded verbatim in the prompt as a JSON array rather than fetched dynamically from the MCP server. 
+ System Prompt — Fine-Tuned Embodied Agent 
+ Tool Definitions (JSON Schema) 
+ Example scene and output. 
+ Below is a representative model output illustrating the three-part structure (chain-of-thought, summary dictionary, and action JSON). 
+ Example Model Output 
+ Episode loop. 
+ Algorithm E.1 summarises the per-episode inference procedure.
+Each episode runs for a maximum of H max = 30 H_{\max}=30 steps with greedy decoding and a budget of 4096 new tokens per step.
+Only the images from the most recent action are included in the current prompt; prior images are discarded. 
+ Algorithm E.1 Fine-tuned agent episode loop 
+ 1: 
+ Task instruction T T , scene description 𝒞 \mathcal{C} , max steps H max H_{\max} 
+ 2: 
+ Build prompt template 𝖯𝗋𝗈𝗆𝗉𝗍 ⁡ ( 𝒞 ) \mathsf{Prompt}(\mathcal{C}) ⊳ \triangleright embed scene once
+ 3: 
+ a 0 ← ∅ a_{0}\leftarrow\varnothing ,  σ 0 ← ∅ \sigma_{0}\leftarrow\varnothing ,  q 0 ← Init ⁡ ( T ) q_{0}\leftarrow\operatorname{Init}(T) 
+ 4: 
+ h 0 ← ( σ 0 , q 0 ) h_{0}\leftarrow(\sigma_{0},q_{0}) ,  o 1 env ← Env.Reset ​ ( ) o_{1}^{\mathrm{env}}\leftarrow\textsc{Env.Reset}() 
+ 5: 
+ for t = 1 , 2 , … , H max t=1,2,\ldots,H_{\max} do 
+ 6: 
+    x t ← ( T , Serialize ⁡ ( 𝒜 ) , o t env , a t − 1 , h t − 1 ) x_{t}\leftarrow(T,\,\operatorname{Serialize}(\mathcal{A}),\,o_{t}^{\mathrm{env}},\,a_{t-1},\,h_{t-1}) 
+ 7: 
+    p t ← 𝖯𝗋𝗈𝗆𝗉𝗍 ⁡ ( 𝒞 ) ​ [ x t ] p_{t}\leftarrow\mathsf{Prompt}(\mathcal{C})[x_{t}] ⊳ \triangleright fill dynamic fields
+ 8: 
+    y ^ t ← Generate ​ ( model , p t , images ) \hat{y}_{t}\leftarrow\textsc{Generate}(\text{model},\,p_{t},\,\text{images}) 
+ 9: 
+    ( c t , σ t , q t , a t ) ← Parse ​ ( y ^ t ) (c_{t},\,\sigma_{t},\,q_{t},\,a_{t})\leftarrow\textsc{Parse}(\hat{y}_{t}) 
+ 10: 
+    h t ← ( σ t , q t ) h_{t}\leftarrow(\sigma_{t},q_{t}) 
+ 11: 
+    if a t . tool_name = finish a_{t}.\texttt{tool\_name}=\texttt{finish} then 
+ 12: 
+     success ← Eval ​ ( current scene state , goal state ) \textit{success}\leftarrow\textsc{Eval}(\text{current scene state},\text{goal state}) 
+ 13: 
+     break 
+ 14: 
+    end if 
+ 15: 
+    ( o t + 1 env , images ) ← Env ​ ( a t ) (o_{t+1}^{\mathrm{env}},\,\text{images})\leftarrow\textsc{Env}(a_{t}) 
+ 16: 
+ end for 
+ E.3 Simulated-User Fidelity and Human-User Generalization 
+ Simulated-user answer fidelity. 
+ To verify that the simulated user provides useful but bounded clarifications, we manually evaluate 50 answers generated by the Gemini-driven user module. Among these answers, 47 are accurate and sufficient for progressing toward the target goal, 2 are directionally correct but lack enough detail to fully disambiguate the target, and 1 is incorrect. This evaluation supports the use of the simulated user as a scalable proxy for training and benchmark interaction, while preserving the limitation that simulated answers are not perfectly reliable. 
+ Generalization to real users. 
+ We additionally evaluate the trained agent on a subset of 50 SUL tasks under two user sources: the Gemini simulated user and a real human user. Real-user responses are substantially shorter than simulated responses (4.3 words on average versus 30.2 words), but the agent obtains comparable success counts: 27 successful episodes with the human user versus 29 with Gemini. The small drop occurs primarily when the human response does not fully distinguish the intended target among visual distractors, indicating that the policy can transfer from simulated dialogue to real users but remains sensitive to underspecified feedback. 
+ Appendix F Qualitative Analysis 
+ To complement the quantitative failure taxonomy in the main paper ( Section   5 ), we present step-by-step trajectory visualizations for representative failure and success episodes from our benchmark evaluation.
+Each case traces the agent’s tool calls and ego-centric observations, illustrating both the capabilities and remaining limitations of our agent. 
+ F.1 Failure Case Analysis 
+ We select four failure episodes that cover the dominant failure modes identified in the main-paper analysis ( fig.   3 ): Object Confusion (including wrong object selection and similar furniture confusion), Key Action Missing , and Lost Memory . 
+ Wrong Object Selection. 
+ Figure   F.1 depicts an episode with the instruction: “Retrieve the round, white alarm clock with a classic design, two bells on top, and smooth surface from the table much smaller than another one and deposit it at bed with matte white mattress cover.” 
+The agent navigates to table_2 (Step 0) and invokes show_object_by_category(target_category="clock") (Step 1), which produces two numbered marker overlays on candidate objects—a blue alarm clock and the target white alarm clock.
+Despite the instruction explicitly specifying a white alarm clock, the agent fails to correctly ground the color attribute and ultimately picks the blue alarm clock instead (Steps 2–5). A stale marker ID error also occurs during this process (Step 3), but the fundamental failure is one of visual attribute discrimination: the agent recognizes both objects as clocks yet cannot reliably distinguish them based on the color and appearance attributes specified in the instruction.
+This case exemplifies a limitation in fine-grained visual grounding. The RL reward penalizes the incorrect pick outcome but does not provide explicit supervision on attribute-level object matching, leaving the agent unable to resolve visually similar candidates when the distinguishing features are subtle surface properties such as color. 
+ Figure F.1 : Failure: Wrong object selection. Task: retrieve a white alarm clock from table_2 . After detecting two candidate clocks—one blue and one white (Step 1), the agent fails to ground the color attribute and picks the blue alarm clock instead of the target white one. 
+ Similar Furniture Confusion. 
+ Figure   F.2 illustrates a task with the instruction: “Transport a teddy bear figure with a round body, outstretched arms, light brown color, and smooth texture from the bed with all-white bed sheets to the table for placing my snack while watching TV.” 
+The agent navigates to bed_1 (Step 0), detects three teddy bears via show_object_by_category (Step 1, markers 1–3), approaches marker 1 with gaze_at (Step 2), and successfully picks it (Step 3).
+During the placement phase, the agent navigates to table_2 (Step 4), which appears as an empty white surface. The intended destination is table_2 because it is the table in front of the TV and in the living room. However, the agent fails to semantically ground the destination description and then proceeds to table_1 (Step 5). It calls show_receptacles to label nearby furniture (Step 6), revealing two receptacle markers. The agent places the teddy bear at marker 2 (Step 7), but this corresponds to the wrong table.
+The destination description “the table to place my snack for watching TV” requires commonsense inference that the intended target is the table near the TV area, a level of semantic grounding that the frozen vision encoder does not reliably capture. 
+ Figure F.2 : Failure: Similar furniture confusion. Task: move a teddy bear from a bed to the table for watching TV. The agent correctly picks the target object (Steps 0–3) but navigates between two candidate tables (Steps 4–5) and ultimately places it at the wrong destination (Step 7), yielding failure. 
+ Key Action Missing. 
+ Figure   F.3 shows a task with the instruction: “Get a timekeeping device from white desk with rectangular wooden handles and move it to the table much larger than another one.” 
+The agent navigates to desk_1 (Step 0) and invokes show_object_by_category(target_category="clock") (Step 1), which reveals multiple candidate objects on the desk. The instruction uses the vague term “timekeeping device” rather than specifying a particular object, creating genuine ambiguity about which candidate to retrieve. Instead of invoking the ask tool to query the simulated user for clarification, the agent arbitrarily gazes at one candidate (Step 2) and picks it (Step 3), selecting the wrong object and causing the task to fail.
+This failure belongs to the key action missing category (17% of failures). The ambiguous instruction requires communicative disambiguation that the agent cannot resolve from visual observation alone. Despite RL training with social rewards to encourage proactive querying, the agent defaults to immediate action rather than seeking clarification when faced with underspecified instructions. 
+ Figure F.3 : Failure: Key action missing—no ask . Task: retrieve a “timekeeping device” from a desk with multiple candidate objects. The vague instruction creates ambiguity about which object to pick, but the agent selects one arbitrarily (Steps 1–3) without invoking ask to disambiguate, resulting in picking the wrong object. 
+ Lost Action Memory. 
+ Figure   F.4 presents a long-horizon failure with the instruction: “Retrieve the small white dog figurine, seated, smooth surface, slight texturing, realistic proportions, upright posture from the rounded rectangular table and deposit it at the desk with black handle.” 
+The pick phase completes without issue: the agent navigates to table_2 (Step 0), detects figurines via show_object_by_category(target_category="figurine") (Step 1), gazes at marker 1 (Step 2), and picks it (Step 3).
+However, during the placement phase the agent enters a persistent oscillatory loop: it navigates to desk_1 (Step 4), then desk_2 (Step 5), then back to desk_1 (Step 6), and continues alternating between the two desks through Step 11—eight consecutive nav_to calls without ever invoking show_receptacles , place , or any other tool.
+This behavior instantiates the lost action memory failure mode: the self-summarization mechanism maintains a compact context by design, but the compressed history fails to encode that both desks have already been visited and visually inspected. Without this negative evidence, the agent cannot eliminate candidates or break the decision deadlock, producing an infinite loop that exhausts the step budget. 
+ Figure F.4 : Failure: Lost action memory—infinite navigation loop. Task: deliver a dog figurine to “the desk with black handle.” After picking the figurine (Steps 0–3), the agent alternates between desk_1 and desk_2 for eight steps (Steps 4–11) without placing the object or invoking any non-navigation tool. 
+ F.2 Successful Exploration Cases 
+ We present success cases that highlight the emergent abilities of our agent. 
+ Active Object Discovery via walk_around . 
+ Figure   F.5 shows a task: “Get the sleek black remote control, curved design, glossy surface, colored buttons, ergonomic grip from the table where we have dinner and move it to cabinet with drawers with orange inner backing.” 
+The agent navigates to table_1 (Step 0) and calls show_object_by_category to search for remote controls (Step 1), revealing two visually distinct candidates annotated with markers 1 and 2, respectively.
+Rather than immediately selecting one, the agent invokes walk_around() (Step 2). The scan confirms the presence of all three candidates: “I found the following object(s): 0: a(an) remote control. 1: a(an) remote control. 2: a(an) remote control.” 
+Having verified the inventory, the agent gazes at marker 0 (Step 3)—the sleek black remote matching the instruction—picks it (Step 4), and navigates to cabinet_7 (Step 5) to complete the task.
+This episode illustrates the open-vocabulary exploration capability of our agent and the necessity of the walk_around tool for comprehensive scene exploration.
+The agent can use the multi-viewpoint walk_around tool to discover objects that are invisible from the initial viewpoint. 
+ Figure F.5 : Success: Active object discovery via walk_around . Task: retrieve a black remote control from a table with three differently-colored remotes. The agent detects all three candidates (Step 1), uses walk_around to confirm the full inventory (Step 2), then correctly selects and picks the black remote (Steps 3–4) before delivering it to the target cabinet (Step 5). 
+ Multi-Receptacle Exploration. 
+ Figure   F.6 presents a task with the instruction: “Retrieve the spiral-bound notebook with a textured white cover, red edge, and lined pages with sketches from bed with plain white bedding and deposit it at whole-black cabinet with flat base.” 
+Both the source and destination require visual grounding, as the scene contains multiple beds and multiple cabinets.
+The agent first navigates to bed_2 (Step 0) but observes that the bedding does not match the description. It redirects to bed_1 (Step 1), where it detects the notebook via show_object_by_category (target_category="notebook") (Step 2), gazes at marker 1 (Step 3), and picks it (Step 4).
+During the placement phase, the agent systematically explores four cabinets: cabinet_7 (Step 5), cabinet_9 (Step 6), cabinet_8 (Step 7), and cabinet_10 (Step 8). Upon reaching the last candidate, it invokes show_receptacles (Step 9) to label visible furniture and confirm the correct destination, places the notebook at marker 2 (Step 10), and signals task completion with finish() (Step 11, “Success: True” ).
+This trajectory demonstrates the agent’s ability to execute systematic search across multiple candidate receptacles while maintaining goal persistence.
+Unlike the infinite-loop failure mode, the agent here explores progressively, never revisiting a previously rejected candidate, and commits to a placement once it identifies the matching furniture. 
+ Figure F.6 : Success: Multi-receptacle exploration task. Task: move a notebook from “bed with plain white bedding” to a “whole-black cabinet.” The agent explores two beds to locate the correct source (Steps 0–1) and four cabinets to identify the correct destination (Steps 5–8), completing the 12-step task without revisiting any receptacle. 
+ Appendix G Real-World Deployment Details 
+ To validate the effectiveness of our training pipeline in physical environments, we deploy our REAL -Agent on a real-world mobile manipulator. This section details the hardware setup, the software architecture bridging the VLM to physical execution, and a qualitative walkthrough of a complex long-horizon task. 
+ G.1 Hardware and System Architecture 
+ Hardware Platform. 
+ Real-world experiments are conducted on the ARX LIFT2 , a highly capable dual-arm mobile manipulator. The robot is built upon a three-wheel omnidirectional chassis for agile indoor mobility and features a vertically adjustable torso that freely elevates and lowers the dual-arm platform to expand the operational workspace. For visual perception, it is equipped with three Intel RealSense cameras: one D455 mounted on the head for ego-centric global observations, and two D405 cameras on the wrists for high-resolution, close-up manipulation views. Autonomous navigation is powered by an Odin module on the chassis, which fuses LiDAR and RGB camera data. The robot features an onboard NVIDIA RTX 4070 Ti GPU that runs the low-level controllers and the MCP server in real time. 
+ System Architecture and MCP Server. 
+ To seamlessly connect the high-level cognitive reasoning of the VLM with the low-level hardware controllers, we use the MCP server architecture (as introduced in Section   C.2 ). The VLM policy is deployed on a cloud server for high-performance inference. It takes the head camera’s RGB image and the accumulated history as input and outputs discrete, JSON-formatted tool calls over the network to the robot. 
+ The onboard MCP server acts as the central dispatcher. When the cloud-based VLM issues a navigation command (e.g., nav_to ), the MCP server routes the target coordinates to the Odin navigation module. When a manipulation command is issued (e.g., pick , place , open , close ), the MCP server passes the visual marker ID and the command to a cloud-deployed π 0.5 \pi_{0.5} model running on an RTX 4090. To enable robust physical execution, we collected 980 real-world teleoperation trajectories to fine-tune this Pi-0.5 model, allowing it to reliably translate the wrist cameras’ RGB-D inputs into continuous motor trajectories for the dual arms. If the VLM issues a communicative command (e.g., ask ), the MCP server triggers a text-to-speech/speech-to-text interface to interact with the human user. This modular design ensures that the tool paradigm, which is free of oracle perceptual APIs in simulation, transfers directly to the real world without modification. 
+ G.2 Quantitative Evaluation and Failure Analysis 
+ Quantitative Real-World Evaluation. 
+ We evaluate the physical deployment at three levels: repeatability of navigation and gaze alignment, executability of low-level VLA primitives, and end-to-end task success. As shown in table   G.1 , the robot achieves centimeter-level navigation/gaze repeatability over 30 trials, 85.3% primitive success over 600 executions, and 78.3% full-system success over 60 episodes, with no unrecoverable system crashes.
+The VLM Lat. column reports only the cumulative high-level VLM inference time during an episode. Low-level physical execution has a separate fixed horizon: each Pi-0.5 manipulation primitive runs for 1000 low-level control steps, grouped into 50-step action chunks, and takes approximately 60 s on the physical platform. Thus, the dominant wall-clock deployment cost comes from physical robot execution rather than VLM inference. 
+ Table G.1 : Quantitative real-world evaluation. Odom Err., Yaw Err., and Img. Shift measure repeatability after repeated navigation/gaze commands. Primitive VLA executability is measured over 600 low-level executions. End-to-end episodes use the same high-level policy and MCP tool interface as simulation. 
+ Navigation/gaze repeatability 
+ Target 
+ N trials 
+ Odom Err. 
+ Yaw Err. 
+ Img. Shift 
+ RMSE 
+ All 
+ 30 
+ 1.78 ± 0.40 1.78{\pm}0.40  cm 
+ 0.74 ± 0.57 ∘ 0.74{\pm}0.57^{\circ} 
+ 21.5 ± 10.4 21.5{\pm}10.4  px 
+ 1.96 px 
+ Primitive VLA executability 
+ Skill 
+ N 
+ SR 
+ Skill 
+ N 
+ SR 
+ Open 
+ 120 
+ 63.3% 
+ Close 
+ 120 
+ 100.0% 
+ Pick 
+ 120 
+ 89.2% 
+ Place-desk 
+ 120 
+ 100.0% 
+ Place-micro. 
+ 120 
+ 74.2% 
+ Overall 
+ 600 
+ 85.3% 
+ End-to-end real-world episodes 
+ Task 
+ SR 
+ Steps 
+ SPL 
+ Ask 
+ VLM Lat. 
+ FDO 
+ 80.0% 
+ 12.2 
+ 67.0% 
+ 0.90 
+ 71.1s 
+ FODP 
+ 100.0% 
+ 9.6 
+ 86.9% 
+ 0.70 
+ 53.5s 
+ SUL 
+ 55.0% 
+ 13.0 
+ 35.4% 
+ 0.55 
+ 80.5s 
+ Overall 
+ 78.3% 
+ 11.6 
+ 63.1% 
+ 0.72 
+ 68.4s 
+ Real-World Failure Breakdown. 
+ Among the 60 end-to-end physical episodes, only 2 episodes failed because of high-level visual misunderstanding by the frozen vision encoder. The remaining failures are caused by low-level VLA execution errors, physical timeouts, or missing ask calls under ambiguity. This breakdown indicates that the deployed high-level policy transfers its visual-interactive reasoning to the physical setting, while overall robustness still depends on improving primitive reliability and timely user-query behavior. 
+ G.3 Qualitative Execution Walkthrough 
+ Qualitative Execution Walkthrough (12-Step Task). 
+ As highlighted in the main text ( Section   5 ), we evaluate the agent on a complex, semantically ambiguous task: fetching a specific food item from a bread stand and placing it into a microwave. The execution spans 12 distinct steps, demonstrating the agent’s capabilities: 
+ 1. 
+ Instruction Reception & Predictive Planning: The agent receives the user’s high-level instruction. Instead of immediately searching for the food, the agent exhibits causal reasoning by first navigating to the microwave. 
+ 2. 
+ Preparation (Open): The agent executes the open tool to open the microwave door, preparing the destination receptacle in advance. 
+ 3. 
+ Navigation to Source: The agent navigates across the room to the bread stand. 
+ 4. 
+ Active Exploration: The agent invokes the visual perception tool to scan the bread stand, generating SoM overlays on the observed items. 
+ 5. 
+ Ambiguity Detection: The agent processes the visual observation and realizes there are multiple visually similar food items (distractors) that match the vague instruction. 
+ 6. 
+ Human-Robot Disambiguation (Ask): Rather than guessing, the agent proactively halts physical execution and uses the ask tool to query the user for clarification regarding the specific target. 
+ 7. 
+ User Feedback: The user provides a clarifying response (e.g., specifying the color or exact location of the target item). 
+ 8. 
+ Target Grounding: The agent integrates the user’s feedback with the current visual observation to uniquely identify the correct target ID. 
+ 9. 
+ Precise Manipulation (Pick): The agent executes the pick tool, successfully grasping the disambiguated food item. 
+ 10. 
+ Return Navigation: The agent navigates back to the microwave with the item in hand. 
+ 11. 
+ Task Execution (Place): The agent executes the place tool, carefully depositing the food item inside the open microwave. 
+ 12. 
+ Task Completion: The agent concludes the episode, successfully completing the long-horizon, closed-loop task. 
+ This 12-step trajectory validates that the RL-optimized policy (GSPO) effectively overcomes distribution shifts, enabling adaptive planning, active visual grounding, and proactive social interaction in unstructured physical environments. 
+ The progressive execution of the real-world task, from Step 1 to Step 12, is illustrated in sequence in Figures G.1 – G.4 . 
+ Figure G.1 : Execution sequence of the real-world task (Steps 1–3). 
+ Figure G.2 : Execution sequence of the real-world task (Steps 4–6). 
+ Figure G.3 : Execution sequence of the real-world task (Steps 7–9). 
+ Figure G.4 : Execution sequence of the real-world task (Steps 10–12). 
+ References 
+ [1] 
+ M. Ahn, A. Brohan, N. Brown, Y. Chebotar, O. Cortes, B. David, C. Finn, C. Fu, K. Gopalakrishnan, K. Hausman, A. Herzog, D. Ho, J. Hsu, J. Ibarz, B. Ichter, A. Irpan, E. Jang, R. J. Ruano, K. Jeffrey, S. Jesmonth, N. J. Joshi, R. Julian, D. Kalashnikov, Y. Kuang, K. Lee, S. Levine, Y. Lu, L. Luu, C. Parada, P. Pastor, J. Quiambao, K. Rao, J. Rettinghouse, D. Reyes, P. Sermanet, N. Sievers, C. Tan, A. Toshev, V. Vanhoucke, F. Xia, T. Xiao, P. Xu, S. Xu, M. Yan, and A. Zeng (2023) 
+ Do as i can, not as i say: grounding language in robotic affordances .
+ In CoRL ,
+ PMLR , Vol. 205 , pp. 287–318 .
+ Cited by: §1 ,
+ §2.2 .
+ [2] 
+ Anthropic (2024) 
+ Introducing the model context protocol .
+ Note: Accessed: June 26, 2026 
+ External Links: Link 
+ Cited by: §C.1 .
+ [3] 
+ Anthropic (2025) 
+ Claude haiku 4.5 system card .
+ System Card 
+ Anthropic .
+ Note: Accessed: July 1, 2026 
+ External Links: Link 
+ Cited by: Table 1 .
+ [4] 
+ S. Bai, Y. Cai, R. Chen, K. Chen, X. Chen, Z. Cheng, L. Deng, W. Ding, C. Gao, C. Ge, W. Ge, Z. Guo, Q. Huang, J. Huang, F. Huang, B. Hui, S. Jiang, Z. Li, M. Li, M. Li, K. Li, Z. Lin, J. Lin, X. Liu, J. Liu, C. Liu, Y. Liu, D. Liu, S. Liu, D. Lu, R. Luo, C. Lv, R. Men, L. Meng, X. Ren, X. Ren, S. Song, Y. Sun, J. Tang, J. Tu, J. Wan, P. Wang, P. Wang, Q. Wang, Y. Wang, T. Xie, Y. Xu, H. Xu, J. Xu, Z. Yang, M. Yang, J. Yang, A. Yang, B. Yu, F. Zhang, H. Zhang, X. Zhang, B. Zheng, H. Zhong, J. Zhou, F. Zhou, J. Zhou, Y. Zhu, and K. Zhu (2025) 
+ Qwen3-VL technical report .
+ arXiv preprint arXiv:2511.21631 .
+ External Links: 2511.21631 
+ Cited by: Table 1 ,
+ Table 1 .
+ [5] 
+ A. Brohan, N. Brown, J. Carbajal, Y. Chebotar, J. Dabis, C. Finn, K. Gopalakrishnan, K. Hausman, A. Herzog, J. Hsu, et al. (2023) 
+ RT-1: robotics transformer for real-world control at scale .
+ In RSS ,
+ Cited by: §1 .
+ [6] 
+ M. Chang, G. Chhablani, A. Clegg, M. D. Cote, R. Desai, M. Hlavac, V. Karashchuk, J. Krantz, R. Mottaghi, P. Parashar, S. Patki, I. Prasad, X. Puig, A. Rai, R. Ramrakhya, D. Tran, J. Truong, J. M. Turner, E. Undersander, and T. Yang (2025) 
+ PARTNR: a benchmark for planning and reasoning in embodied multi-agent tasks .
+ In ICLR ,
+ Cited by: §1 ,
+ §2.1 ,
+ §6 .
+ [7] 
+ H. Chen, M. Zhao, R. Yang, Q. Ma, K. Yang, J. Yao, K. Wang, H. Bai, Z. Wang, R. Pan, M. Zhang, J. Barreiros, A. Onol, C. Zhai, H. Ji, M. Li, H. Zhang, and T. Zhang (2025) 
+ ERA: transforming vlms into embodied agents via embodied prior learning and online reinforcement learning .
+ arXiv preprint arXiv:2510.12693 .
+ External Links: 2510.12693 
+ Cited by: §1 ,
+ §2.2 .
+ [8] 
+ J. Chen, H. Liang, L. Du, W. Wang, M. Hu, Y. Mu, W. Wang, J. Dai, P. Luo, W. Shao, and L. Shao (2025) 
+ OWMM-Agent: open world mobile manipulation with multi-modal agentic data synthesis .
+ In NeurIPS ,
+ Cited by: §2.2 .
+ [9] 
+ C. Chi, Z. Xu, S. Feng, E. Cousineau, Y. Du, B. Burchfiel, R. Tedrake, and S. Song (2024) 
+ Diffusion policy: visuomotor policy learning via action diffusion .
+ IJRR , pp. 02783649241273668 .
+ External Links: Document 
+ Cited by: §2.2 .
+ [10] 
+ G. Comanici et al. (2025) 
+ Gemini 2.5: pushing the frontier with advanced reasoning, multimodality, long context, and next generation agentic capabilities .
+ arXiv preprint arXiv:2507.06261 .
+ External Links: 2507.06261 
+ Cited by: Table 1 .
+ [11] 
+ L. Dai, H. Wang, W. Wan, and H. Su (2025) 
+ ManiTaskGen: a comprehensive task generator for benchmarking and improving vision-language agents on embodied decision-making .
+ arXiv preprint arXiv:2505.20726 .
+ External Links: 2505.20726 
+ Cited by: §1 ,
+ §1 ,
+ §2.1 ,
+ §6 .
+ [12] 
+ M. Deitke, E. VanderBilt, A. Herrasti, L. Weihs, K. Ehsani, J. Salvador, W. Han, E. Kolve, A. Kembhavi, and R. Mottaghi (2022) 
+ ProcTHOR: large-scale embodied AI using procedural generation .
+ In NeurIPS , S. Koyejo, S. Mohamed, A. Agarwal, D. Belgrave, K. Cho, and A. Oh (Eds.) ,
+ Vol. 35 , pp. 5982–5994 .
+ Cited by: §2.1 .
+ [13] 
+ D. Driess, F. Xia, M. S. M. Sajjadi, C. Lynch, A. Chowdhery, B. Ichter, A. Wahid, J. Tompson, Q. Vuong, T. Yu, et al. (2023) 
+ PaLM-E: an embodied multimodal language model .
+ In ICML ,
+ pp. 8469–8488 .
+ Cited by: §1 .
+ [14] 
+ C. R. Garrett, R. Chitnis, R. Holladay, B. Kim, T. Silver, L. P. Kaelbling, and T. Lozano-Pérez (2021) 
+ Integrated task and motion planning .
+ Annual Review of Control, Robotics, and Autonomous Systems 4 ( 1 ), pp. 265–293 .
+ External Links: Document 
+ Cited by: §2.2 .
+ [15] 
+ Google DeepMind (2025) 
+ Gemini .
+ Note: https://deepmind.google/models/gemini/ Accessed: June 26, 2026 
+ Cited by: §3.1 ,
+ §4.1 .
+ [16] 
+ Google DeepMind (2026) 
+ Gemini 3 pro model card .
+ Model Card 
+ Google DeepMind .
+ Note: Model release: November 2025; last updated: May 2026. Used to document the Gemini 3 Pro family corresponding to the evaluated gemini-3-pro-preview API identifier. Accessed: July 1, 2026 
+ External Links: Link 
+ Cited by: Table 1 .
+ [17] 
+ Q. Gu, A. Kuwajerwala, S. Morin, K. M. Jatavallabhula, B. Sen, A. Agarwal, C. Rivera, W. Paul, K. Ellis, R. Chellappa, et al. (2024) 
+ ConceptGraphs: open-vocabulary 3D scene graphs for perception and planning .
+ In ICRA ,
+ pp. 5021–5028 .
+ Cited by: §C.2 ,
+ §2.1 .
+ [18] 
+ J. Hao, N. Liang, Z. Luo, X. Xu, W. Zhong, R. Yi, Y. Jin, Z. Lyu, F. Zheng, L. Ma, and J. Pang (2025) 
+ MesaTask: towards task-driven tabletop scene generation via 3D spatial reasoning .
+ In NeurIPS ,
+ Cited by: §A.3 ,
+ §4.1 .
+ [19] 
+ W. Huang, P. Abbeel, D. Pathak, and I. Mordatch (2022) 
+ Language models as zero-shot planners: extracting actionable knowledge for embodied agents .
+ In ICML ,
+ pp. 9118–9147 .
+ Cited by: §1 .
+ [20] 
+ W. Huang, F. Xia, T. Xiao, H. Chan, J. Liang, P. Florence, A. Zeng, J. Tompson, I. Mordatch, Y. Chebotar, et al. (2023) 
+ Inner monologue: embodied reasoning through planning with language models .
+ In CoRL ,
+ pp. 1769–1782 .
+ Cited by: §1 .
+ [21] 
+ W. Huang, S. Zhu, M. Wei, J. Xu, X. Liu, H. Wang, T. Wang, F. Zhao, and J. Pang (2025) 
+ VL-LN bench: towards long-horizon goal-oriented navigation with active dialogs .
+ arXiv preprint arXiv:2512.22342 .
+ External Links: 2512.22342 
+ Cited by: §2.3 .
+ [22] 
+ L. P. Kaelbling and T. Lozano-Pérez (2011) 
+ Hierarchical task and motion planning in the now .
+ In ICRA ,
+ pp. 1470–1477 .
+ External Links: Document 
+ Cited by: §2.2 .
+ [23] 
+ M. J. Kim, K. Pertsch, S. Karamcheti, T. Xiao, A. Balakrishna, S. Nair, R. Rafailov, E. Foster, G. Lam, P. Sanketi, Q. Vuong, T. Kollar, B. Burchfiel, R. Tedrake, D. Sadigh, S. Levine, P. Liang, and C. Finn (2024) 
+ OpenVLA: an open-source vision-language-action model .
+ In CoRL ,
+ Cited by: §2.2 .
+ [24] 
+ E. Kolve, R. Mottaghi, W. Han, E. VanderBilt, L. Weihs, A. Herrasti, M. Deitke, K. Ehsani, D. Gordon, Y. Zhu, A. Kembhavi, A. Gupta, and A. Farhadi (2017) 
+ AI2-THOR: an interactive 3d environment for visual ai .
+ arXiv preprint arXiv:1712.05474 .
+ External Links: 1712.05474 
+ Cited by: §1 ,
+ §2.1 .
+ [25] 
+ Z. Lei, S. Yin, Y. Xiong, Y. Ding, W. Huang, Y. Wei, Q. Xu, Y. Li, W. Li, Y. Wang, and S. Chen (2025) 
+ EmboMatrix: A scalable training-ground for embodied decision-making .
+ arXiv preprint arXiv:2510.12072 .
+ External Links: 2510.12072 
+ Cited by: §2.1 .
+ [26] 
+ C. Li, R. Zhang, J. Wong, C. Gokmen, S. Srivastava, R. Martín-Martín, C. Wang, G. Levine, M. Lingelbach, J. Sun, et al. (2023) 
+ Behavior-1k: a benchmark for embodied ai with 1,000 everyday activities and realistic simulation .
+ In CoRL ,
+ pp. 80–93 .
+ Cited by: §1 ,
+ §2.1 .
+ [27] 
+ D. Li, T. Cai, T. Tang, W. Chai, K. R. Driggs-Campbell, and G. Wang (2025) 
+ EMMOE: a comprehensive benchmark for embodied mobile manipulation in open environments .
+ arXiv preprint arXiv:2503.08604 .
+ External Links: 2503.08604 
+ Cited by: §1 ,
+ §1 ,
+ §2.1 ,
+ §2.2 .
+ [28] 
+ M. Li, S. Zhao, Q. Wang, K. Wang, Y. Zhou, S. Srivastava, C. Gokmen, T. Lee, L. E. Li, R. Zhang, W. Liu, P. Liang, L. Fei-Fei, J. Mao, and J. Wu (2024) 
+ Embodied agent interface: benchmarking LLMs for embodied decision making .
+ In NeurIPS ,
+ Cited by: §1 ,
+ §1 ,
+ §2.1 .
+ [29] 
+ J. Liang, W. Huang, F. Xia, P. Xu, K. Hausman, B. Ichter, P. Florence, and A. Zeng (2023) 
+ Code as policies: language model programs for embodied control .
+ In ICRA ,
+ pp. 9493–9500 .
+ Cited by: §1 .
+ [30] 
+ X. Liu, T. Zhang, Y. Gu, I. L. Iong, S. XiXuan, Y. Xu, S. Zhang, H. Lai, J. Sun, X. Yang, Y. Yang, Z. Qi, S. Yao, X. Sun, S. Cheng, Q. Zheng, H. Yu, H. Zhang, W. Hong, M. Ding, L. Pan, X. Gu, A. Zeng, Z. Du, C. H. Song, Y. Su, Y. Dong, and J. Tang (2025) 
+ VisualAgentBench: towards large multimodal models as visual foundation agents .
+ In ICLR ,
+ Cited by: §2.1 .
+ [31] 
+ S. Nasiriany, F. Xia, W. Yu, T. Xiao, J. Liang, I. Dasgupta, A. Xie, D. Driess, A. Wahid, Z. Xu, Q. Vuong, T. Zhang, T. E. Lee, K. Lee, P. Xu, S. Kirmani, Y. Zhu, A. Zeng, K. Hausman, N. Heess, C. Finn, S. Levine, and B. Ichter (2024) 
+ PIVOT: iterative visual prompting elicits actionable knowledge for VLMs .
+ In ICML ,
+ Cited by: §1 .
+ [32] 
+ OpenAI (2024) 
+ GPT-4o system card .
+ arXiv preprint arXiv:2410.21276 .
+ External Links: 2410.21276 
+ Cited by: Table 1 .
+ [33] 
+ OpenAI (2026) 
+ OpenAI gpt-5 system card .
+ arXiv preprint arXiv:2601.03267 .
+ External Links: 2601.03267 
+ Cited by: Table 1 .
+ [34] 
+ A. Padmakumar, J. Thomason, A. Shrivastava, P. Lange, A. Narayan-Chen, S. Gella, R. Piramuthu, G. Tür, and D. Hakkani-Tür (2022) 
+ TEACh: task-driven embodied agents that chat .
+ In AAAI ,
+ pp. 2017–2025 .
+ External Links: Document 
+ Cited by: §2.3 .
+ [35] 
+ M. Patel, X. Puig, R. Desai, R. Mottaghi, S. Chernova, J. Truong, and A. Rai (2025) 
+ ADAPT: actively discovering and adapting to preferences for any task .
+ In COLM ,
+ Cited by: §1 ,
+ §2.3 .
+ [36] 
+ D. Philipov, V. Dongre, G. Tür, and D. Hakkani-Tür (2024) 
+ Simulating user agents for embodied conversational-ai .
+ arXiv preprint arXiv:2410.23535 .
+ External Links: 2410.23535 
+ Cited by: §1 .
+ [37] 
+ Physical Intelligence, K. Black, N. Brown, J. Darpinian, K. Dhabalia, D. Driess, A. Esmail, M. Equi, C. Finn, N. Fusai, et al. (2025) 
+ π 0.5 \pi_{0.5} : A vision-language-action model with open-world generalization .
+ arXiv preprint arXiv:2504.16054 .
+ External Links: 2504.16054 
+ Cited by: §2.2 ,
+ §5.3 .
+ [38] 
+ X. Puig, K. Ra, M. Boben, F. Li, T. Wang, S. Fidler, and A. Torralba (2018) 
+ VirtualHome: simulating household activities via programs .
+ In CVPR ,
+ pp. 8494–8502 .
+ Cited by: §1 ,
+ §2.1 .
+ [39] 
+ Qwen, A. Yang, B. Yang, B. Zhang, B. Hui, B. Zheng, B. Yu, C. Li, D. Liu, F. Huang, H. Wei, H. Lin, J. Yang, J. Tu, J. Zhang, J. Yang, J. Yang, J. Zhou, J. Lin, K. Dang, K. Lu, et al. (2024) 
+ Qwen2.5 technical report .
+ arXiv preprint arXiv:2412.15115 .
+ External Links: 2412.15115 
+ Cited by: §1 .
+ [40] 
+ A. Z. Ren, J. Clark, A. Dixit, M. Itkina, A. Majumdar, and D. Sadigh (2024) 
+ Explore until confident: efficient exploration for embodied question answering .
+ In RSS ,
+ Cited by: §1 .
+ [41] 
+ A. Z. Ren, A. Dixit, A. Bodrova, S. Singh, S. Tu, N. Brown, P. Xu, L. Takayama, F. Xia, J. Varley, Z. Xu, D. Sadigh, A. Zeng, and A. Majumdar (2023) 
+ Robots that ask for help: uncertainty alignment for large language model planners .
+ In CoRL ,
+ Cited by: §2.2 .
+ [42] 
+ T. Ren, S. Liu, A. Zeng, J. Lin, K. Li, H. Cao, J. Chen, X. Huang, Y. Chen, F. Yan, Z. Zeng, H. Zhang, F. Li, J. Yang, H. Li, Q. Jiang, and L. Zhang (2024) 
+ Grounded sam: assembling open-world models for diverse visual tasks .
+ arXiv preprint arXiv:2401.14159 .
+ External Links: 2401.14159 
+ Cited by: §C.2 ,
+ §C.2 ,
+ §C.2 .
+ [43] 
+ M. Shridhar, J. Thomason, D. Gordon, Y. Bisk, W. Han, R. Mottaghi, L. Zettlemoyer, and D. Fox (2020) 
+ ALFRED: a benchmark for interpreting grounded instructions for everyday tasks .
+ In CVPR ,
+ pp. 10740–10749 .
+ Cited by: §1 .
+ [44] 
+ M. Shridhar, X. Yuan, M. Côté, Y. Bisk, A. Trischler, and M. Hausknecht (2021) 
+ ALFWorld: aligning text and embodied environments for interactive learning .
+ In ICLR ,
+ Cited by: §1 ,
+ §2.1 .
+ [45] 
+ M. Skreta, Z. Zhou, J. L. Yuan, K. Darvish, A. Aspuru-Guzik, and A. Garg (2024) 
+ RePLan: robotic replanning with perception and language models .
+ arXiv preprint arXiv:2401.04157 .
+ External Links: 2401.04157 
+ Cited by: §2.2 .
+ [46] 
+ A. Szot, A. Clegg, E. Undersander, E. Wijmans, Y. Zhao, J. Turner, N. Maestre, M. Mukadam, D. Chaplot, O. Maksymets, A. Gokaslan, V. Vondrus, S. Dharur, F. Meier, W. Galuba, A. Chang, Z. Kira, V. Koltun, J. Malik, M. Savva, and D. Batra (2021) 
+ Habitat 2.0: training home assistants to rearrange their habitat .
+ In NeurIPS ,
+ Cited by: §1 ,
+ §2.1 .
+ [47] 
+ A. Szot, B. Mazoure, O. Attia, A. Timofeev, H. Agrawal, D. Hjelm, Z. Gan, Z. Kira, and A. Toshev (2025) 
+ From multimodal llms to generalist embodied agents: methods and lessons .
+ In CVPR ,
+ pp. 10644–10655 .
+ Cited by: §1 .
+ [48] 
+ A. Szot, M. Schwarzer, H. Agrawal, B. Mazoure, R. Metcalf, W. Talbott, N. Mackraz, R. D. Hjelm, and A. Toshev (2024) 
+ Large language models as generalizable policies for embodied tasks .
+ In ICLR ,
+ Cited by: §1 .
+ [49] 
+ H. Tan, X. Hao, C. Chi, M. Lin, Y. Lyu, M. Cao, D. Liang, Z. Chen, M. Lyu, C. Peng, C. He, Y. Ao, Y. Lin, P. Wang, Z. Wang, and S. Zhang (2025) 
+ RoboOS: a hierarchical embodied framework for cross-embodiment and multi-agent collaboration .
+ arXiv preprint arXiv:2505.03673 .
+ External Links: 2505.03673 ,
+ Document 
+ Cited by: §2.2 .
+ [50] 
+ G. Wang, Y. Xie, Y. Jiang, A. Mandlekar, C. Xiao, Y. Zhu, L. Fan, and A. Anandkumar (2024) 
+ Voyager: an open-ended embodied agent with large language models .
+ TMLR .
+ Cited by: §2.2 .
+ [51] 
+ H. Wang, J. Chen, W. Huang, Q. Ben, T. Wang, B. Mi, T. Huang, S. Zhao, Y. Chen, S. Yang, P. Cao, W. Yu, Z. Ye, J. Li, J. Long, Z. Wang, H. Wang, Y. Zhao, Z. Tu, Y. Qiao, D. Lin, and J. Pang (2024) 
+ GRUtopia: dream general robots in a city at scale .
+ arXiv preprint arXiv:2407.10943 .
+ External Links: 2407.10943 
+ Cited by: §A.1 ,
+ §B.2 ,
+ §3 ,
+ §4.1 .
+ [52] 
+ S. Wang, Z. Fei, Q. Cheng, S. Zhang, P. Cai, J. Fu, and X. Qiu (2025) 
+ World modeling makes a better planner: dual preference optimization for embodied task planning .
+ In ACL ,
+ Vienna, Austria , pp. 21518–21537 .
+ External Links: Document 
+ Cited by: §1 ,
+ §1 ,
+ §1 ,
+ §2.1 ,
+ §2.2 .
+ [53] 
+ Y. Wang, X. Huang, F. Zhong, Y. Yang, Y. Wang, Y. Chen, and H. Dong (2025) 
+ Communication-efficient desire alignment for embodied agent-human adaptation .
+ arXiv preprint arXiv:2505.22503 .
+ External Links: 2505.22503 
+ Cited by: §1 ,
+ §2.3 .
+ [54] 
+ J. Yang, H. Zhang, F. Li, X. Zou, C. Li, and J. Gao (2023) 
+ Set-of-mark prompting unleashes extraordinary visual grounding in GPT-4V .
+ arXiv preprint arXiv:2310.11441 .
+ External Links: 2310.11441 
+ Cited by: §C.2 ,
+ §C.2 ,
+ §3.1 .
+ [55] 
+ R. Yang, H. Chen, J. Zhang, M. Zhao, C. Qian, K. Wang, Q. Wang, T. V. Koripella, M. Movahedi, M. Li, H. Ji, H. Zhang, and T. Zhang (2025) 
+ EmbodiedBench: comprehensive benchmarking multi-modal large language models for vision-driven embodied agents .
+ In ICML ,
+ Cited by: §1 ,
+ §1 ,
+ §2.1 .
+ [56] 
+ Y. Yang, F. Sun, L. Weihs, E. VanderBilt, J. S. Fox, A. Kembhavi, and R. Mottaghi (2024) 
+ Holodeck: language guided generation of 3D embodied AI environments .
+ In CVPR ,
+ Cited by: §2.1 .
+ [57] 
+ H. Yuan, Y. Bai, Y. Fu, B. Zhou, Y. Feng, X. Xu, Y. Zhan, B. F. Karlsson, and Z. Lu (2025) 
+ Being-0: a humanoid robotic agent with vision-language models and modular skills .
+ arXiv preprint arXiv:2503.12533 .
+ External Links: 2503.12533 
+ Cited by: §2.2 .
+ [58] 
+ C. Zheng, S. Liu, M. Li, X. Chen, B. Yu, C. Gao, K. Dang, Y. Liu, R. Men, A. Yang, J. Zhou, and J. Lin (2025) 
+ Group sequence policy optimization .
+ arXiv preprint arXiv:2507.18071 .
+ External Links: 2507.18071 
+ Cited by: §4 .
+ [59] 
+ B. Zitkovich, T. Yu, S. Xu, P. Xu, T. Xiao, F. Xia, J. Wu, P. Wohlhart, S. Welker, A. Wahid, Q. Vuong, V. Vanhoucke, H. Tran, R. Soricut, A. Singh, J. Singh, P. Sermanet, P. R. Sanketi, G. Salazar, M. S. Ryoo, K. Reymann, K. Rao, K. Pertsch, I. Mordatch, H. Michalewski, Y. Lu, S. Levine, L. Lee, T. E. Lee, I. Leal, Y. Kuang, D. Kalashnikov, R. Julian, N. J. Joshi, A. Irpan, B. Ichter, J. Hsu, A. Herzog, K. Hausman, K. Gopalakrishnan, C. Fu, P. Florence, C. Finn, K. A. Dubey, D. Driess, T. Ding, K. M. Choromanski, X. Chen, Y. Chebotar, J. Carbajal, N. Brown, A. Brohan, M. G. Arenas, and K. Han (2023) 
+ RT-2: vision-language-action models transfer web knowledge to robotic control .
+ In CoRL ,
+ PMLR , Vol. 229 , pp. 2165–2183 .
+ Cited by: §1 .
+ Experimental support, please
+ view the build logs 
+ for errors. Generated by
+ L
+ A 
+ T
+ E 
+ xml 
+ .
+ Instructions for reporting errors 
+ We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below: 
+ Click the "Report Issue" ( 
+ ) button, located in the page header. 
+ Tip: You can select the relevant text first, to include it in your report. 
+ Our team has already identified the following issues . We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all. 
+ Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion , and welcome developer contributions . 
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 

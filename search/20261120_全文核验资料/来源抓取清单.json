@@ -1,0 +1,987 @@
+[
+  {
+    "ref": 1,
+    "id": "2306.11565v2",
+    "metadata": {
+      "citation_title": [
+        "HomeRobot: Open-Vocabulary Mobile Manipulation"
+      ],
+      "citation_author": [
+        "Yenamandra, Sriram",
+        "Ramachandran, Arun",
+        "Yadav, Karmesh",
+        "Wang, Austin",
+        "Khanna, Mukul",
+        "Gervet, Theophile",
+        "Yang, Tsung-Yen",
+        "Jain, Vidhi",
+        "Clegg, Alexander William",
+        "Turner, John",
+        "Kira, Zsolt",
+        "Savva, Manolis",
+        "Chang, Angel",
+        "Chaplot, Devendra Singh",
+        "Batra, Dhruv",
+        "Mottaghi, Roozbeh",
+        "Bisk, Yonatan",
+        "Paxton, Chris"
+      ],
+      "citation_date": [
+        "2023/06/20"
+      ],
+      "citation_arxiv_id": [
+        "2306.11565"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2306.11565v2",
+      "length": 5389,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2306.11565v2",
+      "length": 111891,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 2,
+    "id": "2401.12202v2",
+    "metadata": {
+      "citation_title": [
+        "OK-Robot: What Really Matters in Integrating Open-Knowledge Models for Robotics"
+      ],
+      "citation_author": [
+        "Liu, Peiqi",
+        "Orru, Yaswanth",
+        "Vakil, Jay",
+        "Paxton, Chris",
+        "Shafiullah, Nur Muhammad Mahi",
+        "Pinto, Lerrel"
+      ],
+      "citation_date": [
+        "2024/01/22"
+      ],
+      "citation_arxiv_id": [
+        "2401.12202"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2401.12202v2",
+      "length": 5533,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2401.12202v2",
+      "length": 80070,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 3,
+    "id": "2305.05658v2",
+    "metadata": {
+      "citation_title": [
+        "TidyBot: Personalized Robot Assistance with Large Language Models"
+      ],
+      "citation_author": [
+        "Wu, Jimmy",
+        "Antonova, Rika",
+        "Kan, Adam",
+        "Lepert, Marion",
+        "Zeng, Andy",
+        "Song, Shuran",
+        "Bohg, Jeannette",
+        "Rusinkiewicz, Szymon",
+        "Funkhouser, Thomas"
+      ],
+      "citation_date": [
+        "2023/05/09"
+      ],
+      "citation_arxiv_id": [
+        "2305.05658"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2305.05658v2",
+      "length": 5508,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2305.05658v2",
+      "length": 78154,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 4,
+    "id": "2401.02117",
+    "metadata": {
+      "citation_title": [
+        "Mobile ALOHA: Learning Bimanual Mobile Manipulation with Low-Cost Whole-Body Teleoperation"
+      ],
+      "citation_author": [
+        "Fu, Zipeng",
+        "Zhao, Tony Z.",
+        "Finn, Chelsea"
+      ],
+      "citation_date": [
+        "2024/01/04"
+      ],
+      "citation_arxiv_id": [
+        "2401.02117"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2401.02117",
+      "length": 5045,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2401.02117",
+      "length": 75312,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 5,
+    "id": "2204.01691",
+    "metadata": {
+      "citation_title": [
+        "Do As I Can, Not As I Say: Grounding Language in Robotic Affordances"
+      ],
+      "citation_author": [
+        "Ahn, Michael",
+        "Brohan, Anthony",
+        "Brown, Noah",
+        "Chebotar, Yevgen",
+        "Cortes, Omar",
+        "David, Byron",
+        "Finn, Chelsea",
+        "Fu, Chuyuan",
+        "Gopalakrishnan, Keerthana",
+        "Hausman, Karol",
+        "Herzog, Alex",
+        "Ho, Daniel",
+        "Hsu, Jasmine",
+        "Ibarz, Julian",
+        "Ichter, Brian",
+        "Irpan, Alex",
+        "Jang, Eric",
+        "Ruano, Rosario Jauregui",
+        "Jeffrey, Kyle",
+        "Jesmonth, Sally",
+        "Joshi, Nikhil J",
+        "Julian, Ryan",
+        "Kalashnikov, Dmitry",
+        "Kuang, Yuheng",
+        "Lee, Kuang-Huei",
+        "Levine, Sergey",
+        "Lu, Yao",
+        "Luu, Linda",
+        "Parada, Carolina",
+        "Pastor, Peter",
+        "Quiambao, Jornell",
+        "Rao, Kanishka",
+        "Rettinghouse, Jarek",
+        "Reyes, Diego",
+        "Sermanet, Pierre",
+        "Sievers, Nicolas",
+        "Tan, Clayton",
+        "Toshev, Alexander",
+        "Vanhoucke, Vincent",
+        "Xia, Fei",
+        "Xiao, Ted",
+        "Xu, Peng",
+        "Xu, Sichun",
+        "Yan, Mengyuan",
+        "Zeng, Andy"
+      ],
+      "citation_date": [
+        "2022/04/04"
+      ],
+      "citation_arxiv_id": [
+        "2204.01691"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2204.01691",
+      "length": 6472,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2204.01691",
+      "length": 116233,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 6,
+    "id": "2207.05608",
+    "metadata": {
+      "citation_title": [
+        "Inner Monologue: Embodied Reasoning through Planning with Language Models"
+      ],
+      "citation_author": [
+        "Huang, Wenlong",
+        "Xia, Fei",
+        "Xiao, Ted",
+        "Chan, Harris",
+        "Liang, Jacky",
+        "Florence, Pete",
+        "Zeng, Andy",
+        "Tompson, Jonathan",
+        "Mordatch, Igor",
+        "Chebotar, Yevgen",
+        "Sermanet, Pierre",
+        "Brown, Noah",
+        "Jackson, Tomas",
+        "Luu, Linda",
+        "Levine, Sergey",
+        "Hausman, Karol",
+        "Ichter, Brian"
+      ],
+      "citation_date": [
+        "2022/07/12"
+      ],
+      "citation_arxiv_id": [
+        "2207.05608"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2207.05608",
+      "length": 5403,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2207.05608",
+      "length": 97660,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 7,
+    "id": "2502.19417v2",
+    "metadata": {
+      "citation_title": [
+        "Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models"
+      ],
+      "citation_author": [
+        "Shi, Lucy Xiaoyang",
+        "Ichter, Brian",
+        "Equi, Michael",
+        "Ke, Liyiming",
+        "Pertsch, Karl",
+        "Vuong, Quan",
+        "Tanner, James",
+        "Walling, Anna",
+        "Wang, Haohuan",
+        "Fusai, Niccolo",
+        "Li-Bell, Adrian",
+        "Driess, Danny",
+        "Groom, Lachy",
+        "Levine, Sergey",
+        "Finn, Chelsea"
+      ],
+      "citation_date": [
+        "2025/02/26"
+      ],
+      "citation_arxiv_id": [
+        "2502.19417"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2502.19417v2",
+      "length": 5375,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2502.19417v2",
+      "length": 65966,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 8,
+    "id": "2505.03673v2",
+    "metadata": {
+      "citation_title": [
+        "RoboOS: A Hierarchical Embodied Framework for Cross-Embodiment and Multi-Agent Collaboration"
+      ],
+      "citation_author": [
+        "Tan, Huajie",
+        "Hao, Xiaoshuai",
+        "Chi, Cheng",
+        "Lin, Minglan",
+        "Lyu, Yaoxu",
+        "Cao, Mingyu",
+        "Liang, Dong",
+        "Chen, Zhuo",
+        "Lyu, Mengsi",
+        "Peng, Cheng",
+        "He, Chenrui",
+        "Ao, Yulong",
+        "Lin, Yonghua",
+        "Wang, Pengwei",
+        "Wang, Zhongyuan",
+        "Zhang, Shanghang"
+      ],
+      "citation_date": [
+        "2025/05/06"
+      ],
+      "citation_arxiv_id": [
+        "2505.03673"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2505.03673v2",
+      "length": 5829,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2505.03673v2",
+      "length": 66992,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 9,
+    "id": "2607.13653v2",
+    "metadata": {
+      "citation_title": [
+        "Exploratory, Communicative, and Deployable: Vision-Driven Embodied Agents for Open-World Mobile Manipulation"
+      ],
+      "citation_author": [
+        "Mi, Boyu",
+        "Ma, Mengchen",
+        "Yao, Yifei",
+        "Gao, Xing",
+        "Chen, Junting",
+        "Li, Yangzi",
+        "Zhu, Zihou",
+        "Li, Guohao",
+        "Yin, Zhenfei",
+        "Wang, Tai",
+        "Mu, Yao",
+        "Pang, Jiangmiao",
+        "Wang, Hanqing"
+      ],
+      "citation_date": [
+        "2026/07/15"
+      ],
+      "citation_arxiv_id": [
+        "2607.13653"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2607.13653v2",
+      "length": 5774,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2607.13653v2",
+      "length": 142027,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 10,
+    "id": "2510.26536v1",
+    "metadata": {
+      "citation_title": [
+        "RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration"
+      ],
+      "citation_author": [
+        "Tan, Huajie",
+        "Chi, Cheng",
+        "Chen, Xiansheng",
+        "Ji, Yuheng",
+        "Zhao, Zhongxia",
+        "Hao, Xiaoshuai",
+        "Lyu, Yaoxu",
+        "Cao, Mingyu",
+        "Zhao, Junkai",
+        "Lyu, Huaihai",
+        "Zhou, Enshen",
+        "Chen, Ning",
+        "Fu, Yankai",
+        "Peng, Cheng",
+        "Guo, Wei",
+        "Liang, Dong",
+        "Chen, Zhuo",
+        "Lyu, Mengsi",
+        "He, Chenrui",
+        "Ao, Yulong",
+        "Lin, Yonghua",
+        "Wang, Pengwei",
+        "Wang, Zhongyuan",
+        "Zhang, Shanghang"
+      ],
+      "citation_date": [
+        "2025/10/30"
+      ],
+      "citation_arxiv_id": [
+        "2510.26536"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2510.26536v1",
+      "length": 5590,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2510.26536v1",
+      "length": 62257,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 11,
+    "id": "2506.04217v2",
+    "abs": {
+      "url": "https://arxiv.org/abs/2506.04217v2",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2506.04217v2",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    }
+  },
+  {
+    "ref": 12,
+    "id": "2607.18060v3",
+    "metadata": {
+      "citation_title": [
+        "RoboHarness: Memory-Driven Orchestration of Heterogeneous Robot Policies for Long-Horizon Planning"
+      ],
+      "citation_author": [
+        "Huang, Jinbang",
+        "Li, Zhiyuan",
+        "Hu, Yuanzhao",
+        "Qi, Ran",
+        "Xiao, Yixin",
+        "Coates, Mark",
+        "Cao, Tongtong",
+        "Zhang, Zhanguang",
+        "Zhang, Yingxue"
+      ],
+      "citation_date": [
+        "2026/07/20"
+      ],
+      "citation_arxiv_id": [
+        "2607.18060"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2607.18060v3",
+      "length": 5376,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2607.18060v3",
+      "length": 92479,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 13,
+    "id": "2511.00917v3",
+    "metadata": {
+      "citation_title": [
+        "MAESTRO: Orchestrating Robotics Modules with Coding Agents for Zero-Shot Generalist Robots"
+      ],
+      "citation_author": [
+        "Shi, Junyao",
+        "Yang, Rujia",
+        "Chao, Kaitian",
+        "Wan, Selina Bingqing",
+        "Shao, Yifei",
+        "Lei, Jiahui",
+        "Qian, Jianing",
+        "Le, Long",
+        "Chaudhari, Pratik",
+        "Daniilidis, Kostas",
+        "Wen, Chuan",
+        "Jayaraman, Dinesh"
+      ],
+      "citation_date": [
+        "2025/11/02"
+      ],
+      "citation_arxiv_id": [
+        "2511.00917"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2511.00917v3",
+      "length": 5437,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2511.00917v3",
+      "length": 107940,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 14,
+    "id": "2605.13119v2",
+    "metadata": {
+      "citation_title": [
+        "Towards Long-horizon Embodied Agents with Tool-Aligned Vision-Language-Action Models"
+      ],
+      "citation_author": [
+        "Lei, Zixing",
+        "Liu, Changxing",
+        "Xiong, Yichen",
+        "Xiong, Minhao",
+        "Ding, Yuanzhuo",
+        "Zhang, Zhipeng",
+        "Li, Weixin",
+        "Chen, Siheng"
+      ],
+      "citation_date": [
+        "2026/05/13"
+      ],
+      "citation_arxiv_id": [
+        "2605.13119"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2605.13119v2",
+      "length": 5294,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2605.13119v2",
+      "length": 81020,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 15,
+    "id": "2309.16650",
+    "metadata": {
+      "citation_title": [
+        "ConceptGraphs: Open-Vocabulary 3D Scene Graphs for Perception and Planning"
+      ],
+      "citation_author": [
+        "Gu, Qiao",
+        "Kuwajerwala, Alihusein",
+        "Morin, Sacha",
+        "Jatavallabhula, Krishna Murthy",
+        "Sen, Bipasha",
+        "Agarwal, Aditya",
+        "Rivera, Corban",
+        "Paul, William",
+        "Ellis, Kirsty",
+        "Chellappa, Rama",
+        "Gan, Chuang",
+        "de Melo, Celso Miguel",
+        "Tenenbaum, Joshua B.",
+        "Torralba, Antonio",
+        "Shkurti, Florian",
+        "Paull, Liam"
+      ],
+      "citation_date": [
+        "2023/09/28"
+      ],
+      "citation_arxiv_id": [
+        "2309.16650"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2309.16650",
+      "length": 5140,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2309.16650",
+      "length": 68766,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 16,
+    "id": "2511.03165v1",
+    "metadata": {
+      "citation_title": [
+        "SENT Map -- Semantically Enhanced Topological Maps with Foundation Models"
+      ],
+      "citation_author": [
+        "Kathirvel, Raj Surya Rajendran",
+        "Chavis, Zach A",
+        "Guy, Stephen J.",
+        "Desingh, Karthik"
+      ],
+      "citation_date": [
+        "2025/11/05"
+      ],
+      "citation_arxiv_id": [
+        "2511.03165"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2511.03165v1",
+      "length": 4580,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2511.03165v1",
+      "length": 26116,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 17,
+    "id": "2411.04999v2",
+    "metadata": {
+      "citation_title": [
+        "DynaMem: Online Dynamic Spatio-Semantic Memory for Open World Mobile Manipulation"
+      ],
+      "citation_author": [
+        "Liu, Peiqi",
+        "Guo, Zhanqiu",
+        "Warke, Mohit",
+        "Chintala, Soumith",
+        "Paxton, Chris",
+        "Shafiullah, Nur Muhammad Mahi",
+        "Pinto, Lerrel"
+      ],
+      "citation_date": [
+        "2024/11/07"
+      ],
+      "citation_arxiv_id": [
+        "2411.04999"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2411.04999v2",
+      "length": 5385,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2411.04999v2",
+      "length": 54281,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 18,
+    "id": "2501.04279",
+    "metadata": {
+      "citation_title": [
+        "OpenIN: Open-Vocabulary Instance-Oriented Navigation in Dynamic Domestic Environments"
+      ],
+      "citation_author": [
+        "Tang, Yujie",
+        "Wang, Meiling",
+        "Deng, Yinan",
+        "Zheng, Zibo",
+        "Deng, Jingchuan",
+        "Yue, Yufeng"
+      ],
+      "citation_date": [
+        "2025/01/08"
+      ],
+      "citation_arxiv_id": [
+        "2501.04279"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2501.04279",
+      "length": 5192,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2501.04279",
+      "error": "The read operation timed out"
+    }
+  },
+  {
+    "ref": 19,
+    "id": "2606.15476v3",
+    "metadata": {
+      "citation_title": [
+        "FARM: Find Anything using Relational Spatial Memory"
+      ],
+      "citation_author": [
+        "He, Siming",
+        "Huang, Leo",
+        "Lilja, Adam",
+        "Huebel, Fabio",
+        "Frey, Jonas",
+        "Pavone, Marco",
+        "Sastry, S. Shankar",
+        "Malik, Jitendra",
+        "Tomlin, Claire"
+      ],
+      "citation_date": [
+        "2026/06/13"
+      ],
+      "citation_arxiv_id": [
+        "2606.15476"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2606.15476v3",
+      "length": 5146,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2606.15476v3",
+      "error": "<urlopen error [WinError 10054] 远程主机强迫关闭了一个现有的连接。>"
+    }
+  },
+  {
+    "ref": 20,
+    "id": "2610.00330v2",
+    "metadata": {
+      "citation_title": [
+        "Retrospective Open-Vocabulary Memory for Long-Term Object Search"
+      ],
+      "citation_author": [
+        "Wang, Jiaming",
+        "Xue, Zhiwei",
+        "Jizhuo, Chen",
+        "Shiqi, Peng",
+        "Soh, Harold"
+      ],
+      "citation_date": [
+        "2026/09/29"
+      ],
+      "citation_arxiv_id": [
+        "2610.00330"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2610.00330v2",
+      "length": 4776,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2610.00330v2",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    }
+  },
+  {
+    "ref": 21,
+    "id": "2506.01844",
+    "abs": {
+      "url": "https://arxiv.org/abs/2506.01844",
+      "error": "The read operation timed out"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2506.01844",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    }
+  },
+  {
+    "ref": 22,
+    "id": "2609.07398",
+    "abs": {
+      "url": "https://arxiv.org/abs/2609.07398",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2609.07398",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    }
+  },
+  {
+    "ref": 23,
+    "id": "2609.23578v2",
+    "abs": {
+      "url": "https://arxiv.org/abs/2609.23578v2",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2609.23578v2",
+      "length": 55343,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 24,
+    "id": "2403.09227",
+    "abs": {
+      "url": "https://arxiv.org/abs/2403.09227",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2403.09227",
+      "length": 154999,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 25,
+    "id": "2603.04356",
+    "abs": {
+      "url": "https://arxiv.org/abs/2603.04356",
+      "error": "<urlopen error [WinError 10060] 由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。>"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2603.04356",
+      "length": 81633,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 26,
+    "id": "2611.06908v1",
+    "metadata": {
+      "citation_title": [
+        "Perceptive Humanoid Motion from Simulation"
+      ],
+      "citation_author": [
+        "Hu, Siyuan",
+        "Abuduweili, Abulikemu",
+        "Meng, Yue",
+        "Liu, Shipeng",
+        "Leboutet, Quentin",
+        "Chen, Chen",
+        "Müller, Matthias",
+        "Koltun, Vladlen"
+      ],
+      "citation_date": [
+        "2026/11/04"
+      ],
+      "citation_arxiv_id": [
+        "2611.06908"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2611.06908v1",
+      "length": 4895,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2611.06908v1",
+      "length": 104026,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 27,
+    "id": "2607.04434v3",
+    "metadata": {
+      "citation_title": [
+        "RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies"
+      ],
+      "citation_author": [
+        "Chen, Tianxing",
+        "Chen, Yue",
+        "Li, Zixuan",
+        "Tang, Junyuan",
+        "Su, Kailun",
+        "Lu, Haoran",
+        "Wan, Weijie",
+        "Chen, Baijun",
+        "Liu, Songling",
+        "Yan, Haowen",
+        "Su, Honghao",
+        "Dou, Zhiyang",
+        "Wang, Kaixuan",
+        "Zhang, Dandan",
+        "Liu, Yunze",
+        "Qin, Yan",
+        "Liang, Qiwei",
+        "Wu, Qiwei",
+        "Lin, Zijian",
+        "Lin, Wenwei",
+        "Wang, Yuran",
+        "He, Minghua",
+        "Wu, Tianshu",
+        "Wu, Ruihai",
+        "Zhou, Jingquan",
+        "Lei, Kai-Chong",
+        "Yu, Haibao",
+        "Ji, Yuanfeng",
+        "Jin, Weiyang",
+        "Lin, Guanyu",
+        "Li, Xiaofan",
+        "Xiong, Qi",
+        "Xu, Renjing",
+        "Li, Zhongyu",
+        "Chai, Wenhao",
+        "Xie, Enze",
+        "Wang, Ziwei",
+        "Mu, Yao",
+        "Dong, Hao",
+        "Matusik, Wojciech",
+        "Ding, Mingyu",
+        "Ding, Wenbo",
+        "Luo, Ping",
+        "Tomizuka, Masayoshi"
+      ],
+      "citation_date": [
+        "2026/07/05"
+      ],
+      "citation_arxiv_id": [
+        "2607.04434"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2607.04434v3",
+      "length": 6216,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2607.04434v3",
+      "length": 184239,
+      "status": "fetched"
+    }
+  },
+  {
+    "ref": 28,
+    "id": "2610.34649v1",
+    "metadata": {
+      "citation_title": [
+        "RobotAgentBench: Towards Open-world Robot Autonomy"
+      ],
+      "citation_author": [
+        "Mao, Lingjun",
+        "Cao, Jinglin",
+        "He, Lukun",
+        "Xu, Wenpeng",
+        "Yan, Yuchen",
+        "Jin, Hengyu",
+        "Zhang, Zijun",
+        "Tang, Jinzhou",
+        "Jin, Songyao",
+        "Liu, Ziche",
+        "Shao, Yifei",
+        "Huang, Junbo",
+        "Nan, Fang",
+        "Han, Ruobing",
+        "Xi, Ziqiao",
+        "Xu, Ziming",
+        "Liang, Shuang",
+        "Zhu, Sibo",
+        "Wu, Wenyi",
+        "Wang, Xinyue",
+        "Huang, Yiming",
+        "Zou, Xinkai",
+        "Zhu, Gao",
+        "Zhou, Kun",
+        "Huang, Biwei"
+      ],
+      "citation_date": [
+        "2026/10/26"
+      ],
+      "citation_arxiv_id": [
+        "2610.34649"
+      ]
+    },
+    "abs": {
+      "url": "https://arxiv.org/abs/2610.34649v1",
+      "length": 5547,
+      "status": "fetched"
+    },
+    "html": {
+      "url": "https://arxiv.org/html/2610.34649v1",
+      "length": 117049,
+      "status": "fetched"
+    }
+  }
+]

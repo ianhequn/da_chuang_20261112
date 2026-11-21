@@ -1,0 +1,725 @@
+ 
+ RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration 
+ Skip to main content 
+ Report GitHub Issue 
+ × 
+ Title: 
+ Content selection saved. Describe the issue below: 
+ Description: 
+ Submit without GitHub 
+ Submit in GitHub 
+ Why HTML? 
+ Report Issue 
+ Back to Abstract 
+ Download PDF 
+ Contents 
+ Reading mode 
+ Colour theme 
+ Abstract 
+ I INTRODUCTION 
+ II RELATED WORK 
+ II-A Embodied Vision–Language Models 
+ II-B Architectural Paradigms for Embodied Control 
+ II-C Multi-Robot Collaboration 
+ III METHOD 
+ III-A Spatio-Temporal–Embodiment Memory (STEM) 
+ III-B STEM Generation and Lifelong Update 
+ III-C Brain–Cerebellum–Memory Framework 
+ IV Experiments 
+ IV-A Experimental Details 
+ IV-B Lifelong Adaptability (RQ1) 
+ IV-C Collaborative Scalability (RQ2) 
+ IV-D Scheduling Robustness (RQ3) 
+ IV-E Ablation Study (RQ4) 
+ IV-F Failure Analysis (RQ5) 
+ IV-G Demonstrations in Real-World Collaboration 
+ V Conclusions 
+ References 
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2510.26536v1 [cs.RO] 30 Oct 2025 
+ RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration
+ Huajie Tan, Cheng Chi, Xiansheng Chen, Yuheng Ji, Zhongxia Zhao, Xiaoshuai Hao
+ Affiliation:  State Key Laboratory of Multimedia Information Processing, School of Computer Science, Peking University 
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Affiliation:  Institute of Automation, Chinese Academy of Sciences 
+ Yaoxu Lyu, Mingyu Cao, Junkai Zhao, Huaihai Lyu, Enshen Zhou, Ning Chen, Yankai Fu
+ Affiliation:  State Key Laboratory of Multimedia Information Processing, School of Computer Science, Peking University 
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Affiliation:  Institute of Automation, Chinese Academy of Sciences 
+ Affiliation:  Beihang University 
+ Cheng Peng
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Affiliation:  Institute of Automation, Chinese Academy of Sciences 
+ Wei Guo
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Dong Liang
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Zhuo Chen
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Mengsi Lyu
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Chenrui He
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Yulong Ao
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Yonghua Lin
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Pengwei Wang
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Zhongyuan Wang
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Shanghang Zhang
+ Affiliation:  State Key Laboratory of Multimedia Information Processing, School of Computer Science, Peking University 
+ Affiliation:  Beijing Academy of Artificial Intelligence 
+ Abstract 
+ The proliferation of collaborative robots across diverse tasks and embodiments presents a central challenge: achieving lifelong adaptability, scalable coordination, and robust scheduling in multi-agent systems. Existing approaches, from vision-language-action (VLA) models to hierarchical frameworks, fall short due to their reliance on limited or dividual-agent memory. This fundamentally constrains their ability to learn over long horizons, scale to heterogeneous teams, or recover from failures, highlighting the need for a unified memory representation. To address these limitations, we introduce RoboOS-NeXT , a unified memory-based framework for lifelong, scalable, and robust multi-robot collaboration. At the core of RoboOS-NeXT is the novel Spatio-Temporal–Embodiment Memory (STEM) , which integrates spatial scene geometry, temporal event history, and embodiment profiles into a shared representation. This memory-centric design is integrated into a brain-cerebellum framework, where a high-level brain model performs global planning by retrieving and updating STEM, while low-level controllers execute actions locally. This closed loop between cognition, memory, and execution enables dynamic task allocation, fault-tolerant collaboration, and consistent state synchronization. We conduct extensive experiments spanning complex coordination tasks in restaurants, supermarkets, and households. Our results demonstrate that RoboOS-NeXT achieves superior performance across heterogeneous embodiments, validating its effectiveness in enabling lifelong, scalable, and robust multi-robot collaboration. Project website: RoboOS-NeXT . 
+ Fig. 1: 
+ Overview of RoboOS-NeXT. RoboOS-NeXT is a unified memory-based framework for multi-robot collaboration, built around a shared Spatio-Temporal–Embodiment Memory (STEM). STEM provides a unified representation by integrating spatial scene geometry, temporal event history, and embodiment profiles, making it accessible to all robots. Based on the STEM, a brain–cerebellum framework closes the loop between cognition, planning and control, supporting lifelong adaptation, scalable collaboration and robust scheduling.
+ I INTRODUCTION 
+ The vision of a home maintained by autonomous robots, which patrol, detect clutter, and collaboratively restore order, illustrates the promise of embodied intelligence in everyday environments.
+This vision hinges on three fundamental properties of embodied systems:
+ lifelong adaptability for continual accumulation and reuse of prior experience;
+ scalable collaboration for orchestrating collaboration across large and diverse robot collectives;
+and robustness for maintaining stability in dynamic or failure-prone environments  [ 1 , 2 , 3 , 4 , 5 ] .
+Achieving these properties requires systems that can proactively maintain order by leveraging past experience, dynamically orchestrate multiple agents for complex tasks, and reliably recover from unexpected challenges such as hardware malfunctions or ambiguous user commands.
+These three aspects are exemplified by the scenarios of lifelong adaptation, scalable collaboration, and robust scheduling, as illustrated in Fig.  1 . 
+ Despite recent progress, current approaches remain insufficient to realize this vision. End-to-end vision-language-action (VLA) models advance robot learning by directly mapping perception to action  [ 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 ] , but they rely on scarce training data and exhibit low sample efficiency, limiting generalization across embodiments, environments, and tasks.
+Hierarchical frameworks improve controllability through task decomposition and modular reasoning  [ 17 , 18 , 19 , 20 ] , yet they remain individual-agent centric and scale poorly to multi-robot settings, their policies are tightly coupled to specific morphologies and thus fragile under embodiment changes, and they lack persistent memory to support lifelong adaptation. 
+ These limitations highlight the need for embodied systems equipped with memory. While recent studies explore memory via 3D scene graphs  [ 21 , 22 ] , cached states for long-horizon tracking  [ 23 ] , or structured grounding and program synthesis  [ 24 , 25 ] , such approaches provide only incremental improvements, often confined to single robots or short-lived contexts.
+ What is still missing is a unified representation that integrates spatial, temporal, and embodiment memory to enable lifelong, scalable, and robust multi-robot collaboration. 
+ To address these challenges, we propose RoboOS-NeXT , a unified memory-based framework for multi-robot collaboration, built on the Spatio-Temporal–Embodiment Memory (STEM) .
+STEM provides a unified representation of spatial, temporal, and embodiment dimensions, and the interactions within this representation enable lifelong adaptation, scalable collaboration, and robust scheduling:
+ (1) Spatial. STEM encodes multi-view 3D geometry that represents the global scene structure, and dynamic scene graphs that model object–object and object–robot relations.
+ (2) Temporal. It tracks the evolution of system states, including object transitions, task progress with feedback, and operational logs, thereby maintaining execution context.
+ (3) Embodiment. It profiles heterogeneous robots across their lifecycle, encompassing accumulated experience, current perceptual–execution states, and available resources.
+This unified representation enables cross-dimensional interactions: spatio–temporal integration models evolving environments, temporal–embodiment integration facilitates experience sharing across robots, and spatio–embodiment integration ensures consistency in collaboration. Together, these mechanisms establish a continuous, extensible, reliable memory foundation for lifelong adaptation, scalable collaboration, and robust scheduling. 
+ On this basis, RoboOS-NeXT integrates STEM with a brain–cerebellum hierarchical framework to link global reasoning and local execution.
+The brain invokes and updates STEM for high-level reasoning and task decomposition, while the cerebellum performs low-latency actions and local corrections guided by memory.
+This closed loop of cognition, execution, and memory synchronizes states across robots, enables dynamic task allocation, and supports fault-tolerant collaboration, thereby realizing lifelong adaptation, scalable collaboration, and robust scheduling.
+The contributions of this paper are summarized as follows: 
+ • 
+ We present RoboOS-NeXT , a memory-based framework for multi-robot collaboration, built on STEM, which integrates spatial, temporal, and embodiment dimensions into a unified representation; 
+ • 
+ We design a Brain–Cerebellum–Memory hierarchical loop that connects global reasoning with skill execution through STEM, providing a principled basis for multi-robot collaboration; 
+ • 
+ We evaluate RoboOS-NeXT on diverse tasks in restaurants, households, and supermarkets, complemented by real-world demonstrations, demonstrating its effectiveness across heterogeneous embodiments. 
+ II RELATED WORK 
+ II-A Embodied Vision–Language Models 
+ Recent advances in vision–language models (VLMs) have greatly improved perception, grounding, and reasoning across visual and textual modalities  [ 26 , 27 , 28 ] . Closed-source systems such as GPT-4o  [ 29 ] , Claude-3.5  [ 30 ] , and Gemini  [ 31 ] , along with open-source counterparts  [ 32 , 33 , 34 , 35 ] , have achieved strong performance in VQA, captioning, and dialogue understanding. Reasoning-enhanced variants such as GPT-o1  [ 36 ] , DeepSeek-R1  [ 37 ] , and Kimi-1.5  [ 38 ] , as well as reinforcement-tuned models  [ 39 , 40 , 14 ] , further extend multi-step reasoning and cognitive consistency. Building on these developments, embodied VLMs have emerged to integrate such multimodal reasoning into robotics, treating them as “embodied brains.” Early systems such as EmbodiedGPT  [ 41 ] and RoboBrain  [ 42 ] connect language-driven reasoning with robotic perception and control, while recent works including Robix  [ 43 ] , RynnEC  [ 44 ] , Ve-Brain  [ 45 ] , and RoboBrain-2.0  [ 46 ] pursue unified architectures that couple perception, reasoning, and planning within a single model. Recent efforts have also begun emphasizing spatial intelligence, which enables embodied models to reason over 3D geometry, object relations, and scene dynamics for more grounded manipulation and navigation  [ 47 , 48 , 49 , 50 , 51 , 52 , 53 , 54 , 55 , 56 , 57 ] . Despite this progress, these embodied VLMs remain constrained by limited long-term memory, embodiment transferability, and real-time responsiveness, preventing them from achieving lifelong learning, scalable collaboration, and robust execution. In response, RoboOS-NeXT couples a unified memory system with a Brain–Cerebellum–Memory loop, tightening the link between reasoning and control. 
+ II-B Architectural Paradigms for Embodied Control 
+ Research on embodied control has largely followed two architectural paradigms.
+The first is Vision–Language–Action (VLA) models, which map perceptual and linguistic inputs directly to robot actions.
+Progress in this direction has been driven by scaling real-robot demonstrations and coupling them with web-scale vision–language pretraining.
+Representative systems such as the RT series  [ 58 , 59 ] , OpenVLA  [ 6 ] , pi0  [ 8 ] , Gemini Robotics  [ 11 ] , and related efforts  [ 7 , 60 , 42 , 61 , 62 , 63 , 64 , 65 , 66 ] demonstrate the potential of this approach, moving toward more generalist policies.
+Together, these advances position VLAs as a promising paradigm for embodied control, while still being heavily data-hungry, sample-inefficient for long-horizon or contact-rich tasks, and lacking persistent memory or shared context across tasks and agents.
+The second paradigm, hierarchical frameworks, introduces task decomposition and modular reasoning to address some of these limitations.
+Representative examples include VoxPoser  [ 20 ] , which leverages compositional 3D value maps for manipulation, and recent systems that integrate large language models as high-level planners with low-level controllers  [ 17 , 18 , 19 , 67 , 68 ] .
+These designs improve controllability and robustness by isolating subproblems, but they often lack persistent shared memory across tasks, limit coordination to individual agents, and show brittle performance under embodiment changes or long-horizon demands.
+Beyond task decomposition, recent frameworks have begun to incorporate memory to improve embodied control.
+Approaches such as retrieval-augmented agents, snapshot-based 3D scene memories, open-vocabulary scene graphs, and working-memory modules  [ 69 , 70 , 22 , 23 ] demonstrate the benefits of memory augmentation for spatial grounding, temporal consistency, and long-horizon reasoning.
+Yet these remain largely constrained to single-agent or episodic contexts, and what is still missing is a unified memory representation that enables lifelong adaptation, scalable collaboration, and robust scheduling. 
+ II-C Multi-Robot Collaboration 
+ Multi-robot collaboration (MRC) has a long history in robotics, spanning domains such as automated warehousing  [ 71 ] and search and rescue  [ 72 ] .
+Classical approaches focused on coordination protocols, task allocation, and communication strategies  [ 73 , 74 ] , typically assuming homogeneous teams and structured environments.
+Learning-based methods, including multi-agent reinforcement and imitation learning  [ 75 , 76 ] , improved adaptability under uncertainty but continue to struggle with embodiment heterogeneity, dynamic re-planning, and real-time fault tolerance.
+More recent efforts have sought to bridge these gaps through shared memory for cooperative planning, fault-tolerant coordination under sensing or actuation failures, and collaborative manipulation in dynamic environments  [ 77 , 78 , 5 , 79 ] .
+These advances demonstrate the potential of MRC systems to move beyond static protocols and adapt to uncertainty, yet they remain highly task-specific, often confined to navigation or manipulation.
+They rarely integrate high-level semantic reasoning with low-level execution, nor do they offer persistent, shared memory across agents to support long-term adaptation and synchronization.
+Consequently, current embodied control and multi-robot collaboration frameworks remain fragmented and fall short of providing the unified memory representation needed for lifelong adaptability, scalable collaboration, and robust scheduling in open-world environments. 
+ Fig. 2: 
+ Pipeline of RoboOS-NeXT. The RoboOS-NeXT framework implements a workflow pipeline for multi-robot collaboration, consisting of four key phases: (1) global task decomposition, (2) topological subtask allocation, (3) distributed subtask agent, and (4) dynamic memory updating. Together, these phases establish a memory-centric workflow that enables lifelong, scalable, and robust multi-robot collaboration.
+ III METHOD 
+ III-A Spatio-Temporal–Embodiment Memory (STEM) 
+ We introduce STEM as a unified memory representation that couples three complementary facets of task execution. At any time t t , the memory state is defined as, 
+ ℳ ⁡ ( t ) = ( 𝒮 ⁡ ( t ) , 𝒯 ⁡ ( t ) , ℰ ⁡ ( t ) ) , \displaystyle\mathcal{M}(t)=\big(\mathcal{S}(t),\,\mathcal{T}(t),\,\mathcal{E}(t)\big), 
+ (1) 
+ where, ℳ \mathcal{M} is the full memory state; 𝒮 \mathcal{S} is Spatial Memory (spatial geometry and semantics), 𝒯 \mathcal{T} is Temporal Memory (event-level history with tool/feedback traces), and ℰ \mathcal{E} is Embodiment Memory (robot capabilities, resources, and status).
+The state evolves by a left-fold reduction over a time-stamped event stream: 
+ ℳ ⁡ ( t ) = Reduce ⁡ ( 𝒰 , ℳ 0 , { e k } k = 1 t ) , \displaystyle\mathcal{M}(t)=\operatorname{Reduce}\!\big(\mathcal{U},\,\mathcal{M}_{0},\,\{e_{k}\}_{k=1}^{t}\big), 
+ (2) 
+ where Reduce \operatorname{Reduce} applies the deterministic update operator 𝒰 \mathcal{U} to initial state ℳ 0 \mathcal{M}_{0} with a stream of events { e k } k = 1 t \{e_{k}\}_{k=1}^{t} . 
+ Specifically, STEM is organized top–down as a queue–tree–graph–agent structure: (1) the temporal queue 𝒯 \mathcal{T} stores event records ( when ); (2) the spatial tree-graph 𝒮 \mathcal{S} , including scene-level tree 𝒮 T \mathcal{S}_{\mathrm{T}} that captures root/region/carrier hierarchy ( where ) and object-level graphs { 𝒮 G , c } \{\mathcal{S}_{G,c}\} that encode inter-object relations ( what ); (3) the embodied agent ℰ \mathcal{E} maintains robot nodes, their localization, capabilities, resources, sensors, and availability ( who/how ). 
+ Temporal Memory (Queue) . 
+We maintain an append-only, time-ordered list that logs state deltas, staged task context, and tool-call traces: 
+ 𝒯 i = [ ( τ i , Δ 𝒮 i , Δ ℰ i , g , 𝒬 g pre , ℒ cur tool ) ] i : τ i ≤ t , \displaystyle\mathcal{T}_{i}=\big[(\tau_{i},\,\Delta\mathcal{S}_{i},\,\Delta\mathcal{E}_{i},\,g,\,\mathcal{Q}^{\text{pre}}_{g},\,\mathcal{L}^{\text{tool}}_{\text{cur}})\big]_{i:\,\tau_{i}\leq t}, 
+ (3) 
+ where τ i \tau_{i} denotes the event timestamp; Δ ​ 𝒮 i \Delta\mathcal{S}_{i} is the spatial-memory variation at τ i \tau_{i} (e.g., object/relation insert, move, or delete); Δ ​ ℰ i \Delta\mathcal{E}_{i} is the embodiment-memory variation at τ i \tau_{i} (e.g., capability/status/resource updates); g g is the global task identifier associated with this event; 𝒬 g pre \mathcal{Q}^{\text{pre}}_{g} is the pre-subtask queue for g g (pending subtasks that precede or enable the current subtask); and ℒ cur tool \mathcal{L}^{\text{tool}}_{\text{cur}} is the tool-call log attached to the current subtask, which is expressed as follow: 
+ ℒ c ​ u ​ r tool = [ ( tool , args , status ∈ { ok , fail } , feedback ) ] . \mathcal{L}^{\text{tool}}_{cur}=\big[(\text{tool},\,\text{args},\,\text{status}\!\in\!\{\textsc{ok},\textsc{fail}\},\,\text{feedback})\big]. 
+ (4) 
+ Spatial Memory for Hierarchical Scene (Tree) . 
+We model the scene as a rooted, typed, multi-branch tree: 
+ 𝒮 T \displaystyle\mathcal{S}_{\mathrm{T}} 
+ = ( 𝒱 , ℰ , r ) , 𝒱 = 𝒱 root ∪ 𝒱 region ∪ 𝒱 carrier . \displaystyle=(\mathcal{V},\mathcal{E},r),\quad\mathcal{V}=\mathcal{V}^{\mathrm{root}}\!\cup\!\mathcal{V}^{\mathrm{region}}\!\cup\!\mathcal{V}^{\mathrm{carrier}}. 
+ (5) 
+ The root r r is the global scene , maintaining a top-down 3D reconstruction and a 2D SLAM map in node 𝒱 root \mathcal{V}^{\mathrm{root}} . Region nodes 𝒱 region \mathcal{V}^{\mathrm{region}} (e.g., each room in an apartment) store aligned multi-view imagery for specific region. Carrier nodes 𝒱 carrier \mathcal{V}^{\mathrm{carrier}} denote (im)movable supports (e.g., desk, dining table, planter). Each carrier anchors an object-level graph 𝒮 G , c \mathcal{S}_{G,c} , which will be illustrated as follow. 
+ Spatial Memory for Object Relation (Graph) . 
+Each carrier c c hosts 𝒮 G , c = ( V c , E c ) \mathcal{S}_{G,c}=(V_{c},E_{c}) , where each node v ∈ V c v\!\in\!V_{c} represents an object stored in the carrier, and each edge e ∈ E c e\!\in\!E_{c} encodes a spatial relation between two objects. Node v ∈ V c v\!\in\!V_{c} stores 
+ 𝐚 ⁡ ( v ) = ( 𝝅 v , 𝝈 v , 𝐓 v ) , \displaystyle\mathbf{a}(v)=\big(\boldsymbol{\pi}_{v},\;\boldsymbol{\sigma}_{v},\;\mathbf{T}_{v}\big), 
+ (6) 
+ where 𝝅 v \boldsymbol{\pi}_{v} are intrinsic properties (category/size/affordances), 𝝈 v \boldsymbol{\sigma}_{v} dynamic states, and 𝐓 v \mathbf{T}_{v} the pose. Spatial relations use a typed predicate set, 
+ ℛ = { on , in , left , right , front , back , near } , \displaystyle\mathcal{R}=\{\textsc{on},\textsc{in},\textsc{left},\textsc{right},\textsc{front},\textsc{back},\textsc{near}\}, 
+ (7) 
+ with geometric predicates Φ r \Phi_{r} : 
+ E c \displaystyle E_{c} 
+ ⊆ V c × ℛ × V c , \displaystyle\subseteq V_{c}\times\mathcal{R}\times V_{c}, 
+ (8) 
+ ( v 1 , r ​ e ​ l , v 2 ) ∈ E c \displaystyle(v_{1},rel,v_{2})\!\in\!E_{c} 
+ ⇔ Φ r ​ e ​ l ​ ( 𝐓 v 1 , 𝐓 v 2 ) = true . \displaystyle\iff\Phi_{rel}\big(\mathbf{T}_{v_{1}},\mathbf{T}_{v_{2}}\big)=\textsc{true}. 
+ (9) 
+ In each carrier’s local frame, we model objects as nodes with attributes/state/pose and connect them via approximate geometric relations, updating the graph with filtered observations for efficient querying and planning. 
+ Embodiment Memory (Agent) . For each robot r ∈ ℰ ⁡ ( t ) r\!\in\!\mathcal{E}(t) in the scene, we keep a profile 
+ ϕ r ​ ( t ) = ( loc r ​ ( t ) , 𝒞 r , 𝝆 r ​ ( t ) , 𝐬 r ​ ( t ) , α r ​ ( t ) ) , \displaystyle\phi_{r}(t)=\big(\text{loc}_{r}(t),\,\mathcal{C}_{r},\,\boldsymbol{\rho}_{r}(t),\,\mathbf{s}_{r}(t),\,\alpha_{r}(t)\big), 
+ (10) 
+ where loc r \text{loc}_{r} links into the scene tree (region/carrier), 𝒞 r \mathcal{C}_{r} lists skills/tools (navigation, manipulation, special actions), 𝝆 r \boldsymbol{\rho}_{r} denotes resources (battery/CPU/net), 𝐬 r \mathbf{s}_{r} sensor snapshots (vision/tactile), and α r ∈ { idle , busy , offline } \alpha_{r}\!\in\!\{\textsc{idle},\textsc{busy},\textsc{offline}\} indicates availability. Profiles are heartbeat-updated : every Δ H \Delta_{H} the robot emits a status event to refresh ϕ r \phi_{r} . Tools are plug-and-play; capability changes produce typed update events. 
+ III-B STEM Generation and Lifelong Update 
+ (1) Spatial Memory. 
+ Initialization. Given a new scene, we:
+(i) reconstruct a global 3D point cloud and obtain a top-down view;
+(ii) perform semantic segmentation/grounding on the point cloud to obtain carrier/object 3D boxes { ℬ k } \{\mathcal{B}_{k}\} ;
+(iii) instantiate the scene tree 𝒮 T \mathcal{S}_{\mathrm{T}} by placing region and carrier nodes at center ⁡ ( ℬ k ) \mathrm{center}(\mathcal{B}_{k}) (task areas like rooms become region children of the root);
+(iv) for each carrier node c c , run multi-view scanning to detect/localize objects and populate its object-level scene graph 𝒮 G , c \mathcal{S}_{G,c} ;
+(v) perform 𝒱 root \mathcal{V}^{\mathrm{root}} – 𝒱 region \mathcal{V}^{\mathrm{region}} alignment by estimating the rigid transform from reconstruction to SLAM (Eq. ( 11 )) and registering each region’s multi-view to 3D via PnP (Eq. ( 12 )): 
+ T M ← P ⋆ = arg ​ min T ∈ SE ⁡ ( 3 ) ∑ j ∥ Π ℳ ( T 𝐗 j ) − 𝐲 j ∥ 2 2 , T_{M\leftarrow P}^{\star}=\argmin_{T\in SE(3)}\sum_{j}\big\|\Pi_{\mathcal{M}}\!\big(T\mathbf{X}_{j}\big)-\mathbf{y}_{j}\big\|_{2}^{2}, 
+ (11) 
+ ( R k , 𝐭 k ) ⋆ = arg ​ min R ∈ SO ⁡ ( 3 ) , 𝐭 ∈ ℝ 3 ∑ j ∥ 𝐮 k , j − π ( K ( R 𝐗 j + 𝐭 ) ) ∥ 2 2 , (R_{k},\mathbf{t}_{k})^{\star}=\argmin_{R\in SO(3),\,\mathbf{t}\in\mathbb{R}^{3}}\sum_{j}\big\|\mathbf{u}_{k,j}-\pi\!\big(K(R\mathbf{X}_{j}+\mathbf{t})\big)\big\|_{2}^{2}, 
+ (12) 
+ where 𝒫 = { 𝐗 j ∈ ℝ 3 } \mathcal{P}=\{\mathbf{X}_{j}\in\mathbb{R}^{3}\} are 3D points from the reconstruction,
+ ℳ \mathcal{M} is the SLAM map,
+ Π ℳ \Pi_{\mathcal{M}} projects a 3D point into the SLAM/map frame,
+ 𝐲 j \mathbf{y}_{j} are matched 2D map keypoints in ℳ \mathcal{M} ,
+ T M ← P ∈ S ​ E ​ ( 3 ) T_{M\leftarrow P}\!\in\!SE(3) is the rigid transform from reconstruction to SLAM,
+ S ​ E ​ ( 3 ) SE(3) / S ​ O ​ ( 3 ) SO(3) denote the rigid/rotation groups,
+ I k I_{k} is the k k -th image with intrinsics K K ,
+ 𝐮 k , j ∈ ℝ 2 \mathbf{u}_{k,j}\!\in\!\mathbb{R}^{2} are 2D image keypoints,
+ π ⁡ ( ⋅ ) \pi(\cdot) denotes perspective division,
+and ( R k , 𝐭 k ) (R_{k},\mathbf{t}_{k}) is the camera pose of I k I_{k} .
+This yields a consistent mapping: image → \rightarrow 3D → \rightarrow SLAM, enabling semantic localization and cross-view reasoning.
+ Updates (standard primitives). 
+Spatial edits act on 𝒮 T \mathcal{S}_{\mathrm{T}} and { 𝒮 G , c } \{\mathcal{S}_{G,c}\} using Add / Remove / Move primitives; each edit triggers relation re-evaluation locally: 
+ Add ​ ( 𝒮 G , c , v , 𝐚 ) : \displaystyle\textsc{Add}(\mathcal{S}_{G,c},v,\mathbf{a})\!:\; 
+ V c ← V c ∪ { v } , \displaystyle V_{c}\leftarrow V_{c}\cup\{v\}, 
+ (13) 
+ E c ← E c ∪ { ( v i , r , v j ) } Φ r , \displaystyle E_{c}\leftarrow E_{c}\cup\{(v_{i},r,v_{j})\}_{\Phi_{r}}, 
+ (14) 
+ Remove ​ ( 𝒮 G , c , v ) : \displaystyle\textsc{Remove}(\mathcal{S}_{G,c},v)\!:\; 
+ V c ← V c ∖ { v } , \displaystyle V_{c}\leftarrow V_{c}\setminus\{v\}, 
+ (15) 
+ E c ← E c ∖ ( { ( v , ∗ ) } ∪ { ( ∗ , v ) } ) , \displaystyle E_{c}\leftarrow E_{c}\setminus\!\big(\{(v,*)\}\cup\{(*,v)\}\big), 
+ (16) 
+ Move ​ ( 𝒮 G , c , v , Δ ​ 𝐓 ) : \displaystyle\textsc{Move}(\mathcal{S}_{G,c},v,\Delta\mathbf{T})\!:\; 
+ 𝐓 v ← Δ ​ 𝐓 ∘ 𝐓 v , \displaystyle\mathbf{T}_{v}\leftarrow\Delta\mathbf{T}\circ\mathbf{T}_{v}, 
+ (17) 
+ E c ← re-evaluate by  ​ Φ r . \displaystyle E_{c}\leftarrow\text{re-evaluate by }\Phi_{r}. 
+ (18) 
+ where 𝐚 \mathbf{a} initializes the attributes of v v in Eq. 6 ; 
+ Δ ​ 𝐓 ∈ S ​ E ​ ( 3 ) \Delta\mathbf{T}\!\in\!SE(3) is an incremental rigid transform; 
+ ∘ \circ denotes transform composition (left action); 
+the subscript Φ r {\Phi_{r}} indicates edges are recomputed via the predicate Φ r \Phi_{r} ; 
+and ∗ * is a wildcard, so { ( v , ∗ ) } ∪ { ( ∗ , v ) } \{(v,*)\}\cup\{(*,v)\} removes all edges incident to v v . 
+ (2) Temporal Memory. 
+We start with an empty, append-only, time-ordered queue 𝒯 ⁡ ( 0 ) = [ ] \mathcal{T}(0)=\,[\,] .
+Every spatial edit or embodiment change emits an event into 𝒯 \mathcal{T} .
+The queue evolves by append: 
+ 𝒯 ⁡ ( t + 1 ) = 𝒯 ⁡ ( t ) | 𝒯 i , \displaystyle\mathcal{T}(t{+}1)=\mathcal{T}(t)\ \|\ \mathcal{T}_{i}, 
+ (19) 
+ where 𝒯 i \mathcal{T}_{i} has been defined in Eq.  3 for event information. 
+ (3) Embodiment Memory. 
+For each robot r ∈ ℰ r\in\mathcal{E} in the scene, we register a profile ϕ r ​ ( 0 ) \phi_{r}(0) .
+Embodiment memory is heartbeat-updated: every Δ H \Delta_{H} , robot r r emits a status event to refresh ϕ r ​ ( t ) \phi_{r}(t) (Eq.  10 ); sensor snapshots may update region multi-views and the SLAM map, and tool hot-plugging updates 𝒞 r \mathcal{C}_{r} . During execution, l ​ o ​ c r ​ ( t ) {loc}_{r}(t) snaps to the nearest region/carrier node (topological proximity in 𝒮 T \mathcal{S}_{\mathrm{T}} ), biasing allocation to the nearest capable robot. 
+ III-C Brain–Cerebellum–Memory Framework 
+ The proposed RoboOS-NeXT demonstrates high task concurrency and flexibility in multi-robot task allocation. To clarify the overall workflow pipeline of RoboOS-NeXT, we use a single global task for detailed elaboration, as shown in Fig. 2 . 
+ Step 1: Global Task Decomposition Upon receiving the global task instruction T global T_{\text{global}} , RoboOS-NeXT initiates a Retrieval-Augmented Generation (RAG) process via brain model to query the shared spatial memory, extracting environment-relevant information M s M_{s} . This is integrated with (i) state feedback M t M_{t} from prior task executions (stored in shared temporal memory), (ii) the robots’ status-and-tool profile M r M_{r} (stored in shared embodiment memory), (iii) global task instruction T global T_{\text{global}} . Brain model processes these inputs to generate a structured reasoning trace ℛ \mathcal{R} and a workflow graph 𝒢 \mathcal{G} , which can be formalized as: 
+ ( ℛ , 𝒢 ) = BrainModel ​ ( M s ⊕ M t ⊕ M r ⊕ T global ) , (\mathcal{R},\mathcal{G})=\text{BrainModel}\big(M_{s}\oplus M_{t}\oplus M_{r}\oplus T_{\text{global}}\big), 
+ (20) 
+ where ⊕ \oplus denotes the concatenation or fusion of multimodal inputs, and 𝒢 \mathcal{G} can be expressed as follow: 
+ 𝒢 = { [ s i , d i , R i ] } i = 1 n , \mathcal{G}=\{[\text{s}_{i},\text{d}_{i},\text{R}_{i}]\}_{i=1}^{n}, 
+ (21) 
+ where n n is the number of subtasks in the workflow, s i \text{s}_{i} denotes the text description of i t ​ h i^{th} subtask, R i ⊆ ℰ \text{R}_{i}\!\subseteq\!\mathcal{E} is the assigned agent from the robot team, and d i ∈ { 0 , 1 , 2 , … } \text{d}_{i}\!\in\!\{0,1,2,\dots\} is the depth index (triples sharing the same order run in parallel, and batches are dispatched non-decreasingly). 
+ Step 2: Topological Subtask Allocation 
+The Monitor dynamically schedules and allocates subtasks in parallel based on the topological dependencies encoded in the directed acyclic graph 𝒢 \mathcal{G} .
+Each subtask in 𝒢 \mathcal{G} is classified into two types: (1) Single-Robot Subtask ( s , d , r p ) (s,d,r_{p}) , executed autonomously by robot r p r_{p} at topological depth d d ; and (2) Collaboration Subtask ( s , d , r p : q ) (s,d,r_{p:q}) , requiring coordinated execution among multiple robots { r p , … , r q } \{r_{p},\dots,r_{q}\} at depth d d .
+To enforce dependency constraints, the Monitor employs Parallel Allocation —executing independent subtasks concurrently at the same depth ( e.g. , ( s 1 , 1 , r 1 ) (s_{1},1,r_{1}) and ( s 2 , 1 , r 2 ) (s_{2},1,r_{2}) in Fig. 2 )—and Sequential Allocation , where subtask ( s k , d k , r k ) (s_{k},d_{k},r_{k}) is blocked until all prerequisites at depth d k − 1 d_{k-1} are fulfilled ( e.g. , ( s 3 , 2 , r 1 : 2 ) (s_{3},2,r_{1:2}) allocated after ( s 1 , 1 , r 1 ) (s_{1},1,r_{1}) and ( s 2 , 1 , r 2 ) (s_{2},1,r_{2}) ).
+In practice, the system supports concurrent management of workflow graphs { 𝒢 1 , 𝒢 2 , … , 𝒢 m } \{\mathcal{G}_{1},\mathcal{G}_{2},\dots,\mathcal{G}_{m}\} for multiple global tasks, ensuring real-time adaptability to dynamic robot states and evolving task dependencies. 
+ Step 3: Distributed Subtask Agent 
+For each subtask, RoboOS-NeXT deploys a dedicated Robotic Agent to manage execution. The Agent autonomously orchestrates tool selection from the Cerebellum Skill Library based on: (1) feedback from prior executions, (2) tool-calling history from temporal memory, and (3) robot-centric relation information ( i.e. , nearby nodes) from spatial memory of the scene. This closed-loop tool-calling facilitates dynamic error recovery.
+For example (Fig. 2 ), when robot are allocated with subtask ( “Search for some eggs and place on the kitchen table” ), the Agent sequentially invokes tools ( e.g., “detect an egg” ). If the search fails ( e.g., no egg detected in the dinning table ), the Agent uses spatial memory to infer potential locations ( e.g., “the fridge” ) and selects the navigation tool to “move to fridge” , showcasing adaptive recovery through iterative tool refinement. 
+ Step 4: Dynamic Memory Updating 
+Temporal memory and spatial memory are updated incrementally as robots perceive and act during subtask proceeding. Please also refer to subsec. III-B for more details. 
+ IV Experiments 
+ We design a comprehensive set of experiments to answer the following key research questions: 
+ • 
+ RQ1 on Lifelong Adaptability: How does RoboOS-NeXT’s performance scale when faced with long-horizon, sequential tasks? 
+ • 
+ RQ2 on Collaborative Scalability: How effectively does RoboOS-NeXT coordinate across an increasing number and diversity of robot embodiments? 
+ • 
+ RQ3 on Scheduling Robustness: How robust is RoboOS-NeXT when facing environmental uncertainties and system faults? 
+ • 
+ RQ4 on Ablation: What are the individual contributions of RoboOS-NeXT’s core architectural components? 
+ • 
+ RQ5 on Failure Analysis: What are the system’s primary failure modes, and where do they occur in the execution pipeline? 
+ TABLE I: Evaluation of lifelong adaptability across varying sequence lengths (SQ = 1, 3, 5) and difficulty levels (L1–L3). Results are reported using MSR and AEST. Values in parentheses indicate relative change compared with the baseline. 
+ Difficulty 
+ SQ 
+ Restaurant 
+ Supermarket 
+ Household 
+ MSR(%) ↑ \uparrow 
+ AEST(#) ↓ \downarrow 
+ MSR(%) ↑ \uparrow 
+ AEST(#) ↓ \downarrow 
+ MSR(%) ↑ \uparrow 
+ AEST(#) ↓ \downarrow 
+ Baseline 
+ RoboOS-NeXT 
+ Baseline 
+ RoboOS-NeXT 
+ Baseline 
+ RoboOS-NeXT 
+ Baseline 
+ RoboOS-NeXT 
+ Baseline 
+ RoboOS-NeXT 
+ Baseline 
+ RoboOS-NeXT 
+ L1 (Simple) 
+ 1 
+ 76.6 
+ 80.8 (+4.2%) 
+ 19.2 
+ 14.3 (-26%) 
+ 66.7 
+ 76.7 (+10.0%) 
+ 15.2 
+ 11.0 (-28%) 
+ 81.6 
+ 89.2 (+7.6%) 
+ 18.3 
+ 11.6 (-37%) 
+ 3 
+ 22.5 
+ 77.5 (+55.0%) 
+ 18.8 
+ 14.7 (-22%) 
+ 27.5 
+ 75.0 (+47.5%) 
+ 14.8 
+ 10.7 (-28%) 
+ 27.5 
+ 90.0 (+62.5%) 
+ 19.1 
+ 11.1 (-42%) 
+ 5 
+ 0.0 
+ 79.2 (+79.2%) 
+ 18.4 
+ 13.8 (-25%) 
+ 0.0 
+ 75.0 (+75.0%) 
+ 14.6 
+ 11.3 (-23%) 
+ 4.2 
+ 87.5 (+83.3%) 
+ 17.5 
+ 11.9 (-32%) 
+ L2 (Medium) 
+ 1 
+ 17.5 
+ 73.3 (+55.8%) 
+ 33.9 
+ 17.6 (-48%) 
+ 19.2 
+ 73.3 (+54.1%) 
+ 26.1 
+ 13.6 (-48%) 
+ 0.0 
+ 81.7 (+81.7%) 
+ 41.4 
+ 16.3 (-61%) 
+ 3 
+ 7.5 
+ 72.5 (+65.0%) 
+ 32.2 
+ 18.0 (-44%) 
+ 5.0 
+ 70.0 (+65.0%) 
+ 25.0 
+ 13.0 (-48%) 
+ 0.0 
+ 75.0 (+75.0%) 
+ 42.9 
+ 15.9 (-63%) 
+ 5 
+ 0.0 
+ 75.0 (+75.0%) 
+ 34.6 
+ 18.3 (-47%) 
+ 0.0 
+ 66.7 (+66.7%) 
+ 29.6 
+ 14.2 (-51%) 
+ 0.0 
+ 79.2 (+79.2%) 
+ 39.6 
+ 15.5 (-61%) 
+ L3 (Complex) 
+ 1 
+ 0.0 
+ 67.5 (+67.5%) 
+ 99.7 
+ 27.1 (-73%) 
+ 0.0 
+ 69.2 (+69.2%) 
+ 71.1 
+ 20.9 (-71%) 
+ 0.0 
+ 60.0 (+60.0%) 
+ 82.1 
+ 24.3 (-70%) 
+ 3 
+ 0.0 
+ 62.5 (+62.5%) 
+ 96.5 
+ 28.1 (-71%) 
+ 0.0 
+ 65.0 (+65.0%) 
+ 74.0 
+ 20.1 (-73%) 
+ 0.0 
+ 55.0 (+55.0%) 
+ 84.4 
+ 23.3 (-72%) 
+ 5 
+ 0.0 
+ 66.7 (+66.7%) 
+ 102.1 
+ 27.8 (-73%) 
+ 0.0 
+ 63.5 (+63.5%) 
+ 68.6 
+ 20.4 (-70%) 
+ 0.0 
+ 58.3 (+58.3%) 
+ 79.9 
+ 23.2 (-71%) 
+ IV-A Experimental Details 
+ Scenario Setup. 
+To evaluate RoboOS-NeXT at scale, we conduct experiments in a mock setting that abstracts away physical uncertainties and focuses on system effectiveness. The evaluation covers three domains: restaurants, supermarkets, and households, with 200 tasks instantiated in each. This setup enables controlled large-scale assessment of RoboOS-NeXT’s memory support and coordination capabilities, while complementary real-robot demonstrations serve as qualitative case studies in embodied environments. 
+ Evaluation Metrics. 
+To comprehensively evaluate RoboOS-NeXT, we report a set of complementary metrics that jointly reflect effectiveness, efficiency, and robustness across different experimental settings: 
+ • 
+ Success Rate (SR, %) ↑ \uparrow : The proportion of tasks successfully completed within the step budget. This serves as the primary measure of overall effectiveness and is reported in scalability, robustness, and ablations. 
+ • 
+ Marginal Success Rate (MSR, %) ↑ \uparrow : The success rate measured on the final task of each lifelong or curriculum sequence. Unlike SR, which averages across all tasks, MSR reflects the ability to maintain stable performance across extended horizons without resets, and is thus critical for evaluating lifelong adaptation. 
+ • 
+ Average Execution Steps per Task (AEST, #) ↓ \downarrow : The average number of steps required to complete a task. Lower values indicate higher execution efficiency, and reductions in AEST across sequence lengths serve as evidence of experience reuse and adaptive learning. 
+ • 
+ Success per Step (SS, %/#) ↑ \uparrow : Defined as the ratio between task success rate and the average number of steps, SS reflects the average accuracy achieved per step . It provides a normalized measure that captures how effectively each action contributes to overall success. 
+ TABLE II: Scalability evaluation across different team compositions (SQ=1).
+We report AEST (lower is better) and SR/SS (higher is better).
+Wheel. denotes wheeled robots, Hum. denotes humanoids, and Quad. denotes quadrupeds. 
+ Metric 
+ Homogeneous Scaling 
+ Heterogeneous Collaboration 
+ Wheeled × \times 1 
+ Wheeled × \times 3 
+ Wheeled × \times 5 
+ Hum. × \times 1+Wheel. × \times 2 
+ Quad. × \times 1+Wheel. × \times 2 
+ Hum. × \times 1+Quad. × \times 1 
+ Hum. × \times 2+Quad. × \times 2 
+ AEST (#) ↓ \downarrow 
+ 34.8 
+ 14.7 (-58%) 
+ 8.5 (-76%) 
+ 16.2 (-53%) 
+ 19.5 (-44%) 
+ 23.0 (-34%) 
+ 10.5 (-70%) 
+ SR (%) ↑ \uparrow 
+ 76.6 
+ 71.7 (-6%) 
+ 69.7 (-9%) 
+ 72.5 (-5%) 
+ 71.3 (-7%) 
+ 73.3 (-4%) 
+ 70.7 (-8%) 
+ SS (%/#) ↑ \uparrow 
+ 2.20 
+ 4.88 (+122%) 
+ 8.20 (+373%) 
+ 4.48 (+103%) 
+ 3.66 (+66%) 
+ 3.19 (+45%) 
+ 6.73 (+206%) 
+ Implementation Details. 
+The high-level reasoning in RoboOS-NeXT is driven by the Brain Model, implemented with RoboBrain-2.0  [ 46 ] , a multimodal large language model enhanced for spatio-temporal reasoning. It performs global task decomposition, dynamic re-planning, and interaction with STEM. Low-level execution is handled by the Cerebellum Skill Library, which runs on individual robot terminals to translate abstract reasoning into executable actions. In our real-robot demonstrations, this skill library incorporates navigation modules based on SLAM techniques and manipulation modules based on diffusion-policy  [ 80 ] methods, enabling reliable mobility and contact-rich interaction. 
+ IV-B Lifelong Adaptability (RQ1) 
+ To systematically evaluate lifelong adaptability, we categorize tasks across restaurant, supermarket, and household into three levels.
+ Level 1 (Simple) : directly grounded instructions, local perception, short linear actions, basic skills.
+ Level 2 (Medium) : local state reasoning, longer sequences with conditionals, coordinated basic or parameterized composite skills.
+ Level 3 (Complex) : global perception, aggregated reasoning, compound planning with iterative perception–reasoning–action loops.
+In addition to these qualitative distinctions, the levels also differ quantitatively in the number of tree/graph nodes (corresponding to region/carrier nodes in the scene tree, and object nodes in relation graphs): simple tasks typically involve fewer than 20 nodes, medium tasks 20–30 nodes, and complex tasks 40–50 nodes. 
+ We compare RoboOS-NeXT with a memory-less baseline that perceives only the current room state, without structured representation or memory updates. Tab.  I summarizes results across sequence lengths (SQ) and difficulty levels.
+ (1) Consistent MSR gains. RoboOS-NeXT outperforms the baseline across all domains/levels; under long sequences (SQ=5) the baseline collapses (e.g., Restaurant L2: 0.0% vs. 75.0%), indicating memory preserves competence over extended horizons.
+ (2) Efficiency improves with experience. AEST is reduced by 20–70% versus the baseline; e.g., Household L2 at SQ=5 drops from 41.4 (Baseline) to 15.5 (RoboOS-NeXT, -63%), showing faster execution as experience accumulates.
+ (3) Robust at high complexity. Gains persist on L3 tasks (e.g., Supermarket, MSR +63.5%; Household, +58.3%) with more than 70% AEST reductions, demonstrating generalization to global, composite skills.
+Overall, RoboOS-NeXT exhibits lifelong adaptability: it maintains stable success while shortening execution across longer sequences and increasing task complexity. 
+ IV-C Collaborative Scalability (RQ2) 
+ To assess scalability, we evaluate RoboOS-NeXT across homogeneous and heterogeneous team compositions (Tab.  II ). Three findings emerge. (1) More agents improve efficiency. In homogeneous teams, scaling from 1 → \rightarrow 3 → \rightarrow 5 wheeled robots reduces AEST by -58% and -76% relative to the single-robot baseline, showing near-monotonic efficiency gains from parallelism. (2) Reliability remains stable. Despite increased coordination load, SR decreases only modestly in homogeneous scaling (-6%, -9%) and in heterogeneous teams (Hum. × \times 1 + Wheel. × \times 2: -5%). (3) Memory sustains scalability. By maintaining shared task context, RoboOS-NeXT converts larger teams into large reductions in execution steps while keeping SR degradation minor, validating that efficiency improvements do not come at the cost of reliability. 
+ IV-D Scheduling Robustness (RQ3) 
+ We assess robustness under common error modes spanning three cases:
+E1— Robot Offline (disconnection/non-responsiveness),
+E2— Tool Failure (loss or malfunction of a capability, e.g., grasping),
+E3— Brain Model Hallucination (instructions/decompositions misaligned with the environment).
+RoboOS-NeXT is compared to a memory-less baseline that perceives only the current room state without structured representation or memory updates.
+As shown in Tab.  III , three findings emerge.
+ (1) Memory is critical. RoboOS-NeXT sustains high SR under both No Error and all common error modes by re-planning and re-allocating resources.
+ (2) The baseline collapses under errors. Without memory, SR drops sharply across error types (e.g., E2 to 23.5%), lacking the context needed for recovery.
+ (3) Memory-centric design enables fault tolerance. Persisting task context and state yields large gains over the baseline (e.g., E2 +203%, E3 +153%), confirming memory as the key enabler of resilient operation. 
+ TABLE III: SR (%) under common error modes in Household (L1, SQ=1). Performance of RoboOS-NeXT is compared against a memory-less baseline. 
+ Settings 
+ No Error 
+ E1 
+ E2 
+ E3 
+ Baseline 
+ 81.6 
+ 44.5 
+ 23.5 
+ 31.0 
+ RoboOS-NeXT 
+ 89.2 (+9%) 
+ 87.6 (+97%) 
+ 71.3 (+203%) 
+ 78.5 (+153%) 
+ TABLE IV: Ablation study of STEM components in Household (L1, SQ=1). Results report AEST, SR and SS. 
+ System Configuration 
+ AEST(#) ↓ \downarrow 
+ SR(%) ↑ \uparrow 
+ SS(%/#) ↑ \uparrow 
+ RoboOS-NeXT (Full System) 
+ 11.6 
+ 89.2 
+ 7.69 
+ RoboOS-NeXT w/o Spatial Memory 
+ 58.1 
+ 24.2 
+ 0.42 
+ RoboOS-NeXT w/o Temporal Memory 
+ 8.7 
+ 38.3 
+ 4.40 
+ RoboOS-NeXT w/o Embodiment Memory 
+ – 
+ 0.0 
+ – 
+ IV-E Ablation Study (RQ4) 
+ To examine the contributions of different memory dimensions in STEM, we performed an ablation study by disabling Spatial, Temporal, or Embodiment memory modules in turn and measuring their impact on task execution. As shown in Tab.  IV , three conclusions emerge: (1) Spatial memory is essential for efficient exploration. Without spatial memory, the system cannot recall previously mapped locations and must repeatedly explore, leading to excessive steps (AEST 58.1) and low success (24.2%). (2) Temporal memory underpins long-horizon reasoning. Without temporal memory, the system loses awareness of prior actions and effectively operates in an open-loop manner; this explains the shorter paths (AEST 8.7) but also the sharp drop in SR (38.3%). (3) Embodiment memory is indispensable for multi-robot coordination. Without embodiment-level awareness, the system cannot ground actions to specific robots or synchronize their roles, resulting in complete task failure (SR 0.0). These confirm that the synergy of spatial, temporal, and embodiment memory is crucial for RoboOS-NeXT’s overall capability. 
+ Fig. 3: Failure distribution in the restaurant scenario. Most errors arise from tool invocation and memory operations, with additional sensitivity in subtask generation. 
+ IV-F Failure Analysis (RQ5) 
+ We analyzed 53 failures across 200 trials in the restaurant scenario (Fig.  3 ) and identified three dominant sources as follow. (1) Subtask generation error (24.5%). Complex or ambiguous task graphs induce misordered dependencies and coarse decompositions, revealing sensitivity to structural priors. (2) Tool invocation error (45.3%). Errors are dominated by brittle parameter binding (e.g., navigation/grasp targets drifting to nearby objects), indicating insufficient semantic alignment between memory, perception, and control. (3) Memory operation error (30.2%). Over long horizons, noise in update/selection accumulates, degrading temporal consistency.
+Overall, failures cluster around structured reasoning and long-horizon consistency rather than missing primitives. Strengthening task-graph regularization, improving grounding for parameterized tools, and refining memory update/retrieval mechanisms are promising directions for enhancing RoboOS-NeXT robustness. 
+ IV-G Demonstrations in Real-World Collaboration 
+ We validate RoboOS-NeXT in three real-world collaboration scenarios: restaurant, household, and supermarket. In the restaurant setting (Fig.  4  (a)), a Unitree G1 humanoid and an Agilex dual-arm robot respond to the request, “I’m hungry and order a normal burger.” The robotic brain model decomposes this instruction into subtasks for burger preparation and delivery, assigning roles to each robot. In the household setting (Fig.  4  (b)), a Realman single-arm and an Agilex dual-arm robot jointly fetch items such as “an orange and a knife,” handling both parallel and sequential dependencies. In the supermarket (Fig.  4  (c)), RoboOS-NeXT supports gift selection and packaging: the brain model reasons about dimensions and bag compatibility, the Agilex opens the bag, and the Realman places the gift inside. These demonstrations highlight RoboOS-NeXT’s ability to bridge high-level reasoning and low-level execution in heterogeneous teams, and point toward extensions to more complex multi-robot collaborations. 
+ Fig. 4: 
+ Real-world RoboOS-NeXT Demonstrations. 
+We showcase multi-robot collaboration in three types of scenarios:
+(a) Restaurant,
+(b) Household and
+(c) Supermarket.
+ V Conclusions 
+ In this paper, we introduced RoboOS-NeXT , a memory-based framework for multi-robot collaboration. At its core is the Spatio-Temporal–Embodiment Memory (STEM), which unifies spatial, temporal, and embodiment information into a shared representation. Coupled with a brain–cerebellum framework, RoboOS-NeXT forms a closed loop between reasoning and execution, enabling synchronized coordination and fault-tolerant operation.
+Our evaluation across diverse tasks and embodiments demonstrates that RoboOS-NeXT provides a principled foundation for lifelong adaptability , scalable collaboration , and robust scheduling , marking a step toward more general and reliable embodied intelligence. 
+ References 
+ [1] 
+T. Greenawalt, “Amazon has more than 750,000 robots that sort, lift, and carry packages—see them in action,” Amazon News, Mar. 2025, last updated: March 03, 2025. [Online]. Available: https://www.aboutamazon.com/news/operations/amazon-robotics-delivering-the-future 
+ [2] 
+Z. Mandi et al. , “Roco: Dialectic multi-robot collaboration with large language models,” in 2024 IEEE International Conference on Robotics and Automation (ICRA) . IEEE, 2024, pp. 286–299.
+ [3] 
+X. An, C. Wu et al. , “Multi-robot systems and cooperative object transport: Communications, platforms, and challenges,” IEEE Open Journal of the Computer Society , vol. 4, pp. 23–36, 2023.
+ [4] 
+K. Liu, Z. Tang et al. , “Coherent: Collaboration of heterogeneous multi-robot system with large language models,” arXiv preprint arXiv:2409.15146 , 2024.
+ [5] 
+H. Tan, X. Hao, C. Chi, M. Lin, Y. Lyu, M. Cao, D. Liang, Z. Chen, M. Lyu, C. Peng et al. , “Roboos: A hierarchical embodied framework for cross-embodiment and multi-agent collaboration,” arXiv preprint arXiv:2505.03673 , 2025.
+ [6] 
+M. J. Kim, K. Pertsch et al. , “Openvla: An open-source vision-language-action model,” arXiv preprint arXiv:2406.09246 , 2024.
+ [7] 
+S. Liu, L. Wu et al. , “Rdt-1b: a diffusion foundation model for bimanual manipulation,” arXiv preprint arXiv:2410.07864 , 2024.
+ [8] 
+K. Black, N. Brown et al. , “ π ​ _ ​ 0 \pi\_0 : A vision-language-action flow model for general robot control,” arXiv preprint arXiv:2410.24164 , 2024.
+ [9] 
+Figure AI, “Helix: A vision-language-action model for generalist humanoid control,” https://www.figure.ai/news/helix , 2025, accessed: 2025-04-18.
+ [10] 
+C. Cui, P. Ding, W. Song, S. Bai, X. Tong, Z. Ge, R. Suo, W. Zhou, Y. Liu, B. Jia et al. , “Openhelix: A short survey, empirical analysis, and open-source dual-system vla model for robotic manipulation,” arXiv preprint arXiv:2505.03912 , 2025.
+ [11] 
+G. R. Team, S. Abeyruwan et al. , “Gemini robotics: Bringing ai into the physical world,” arXiv preprint arXiv:2503.20020 , 2025.
+ [12] 
+J. Bjorck et al. , “Gr00t n1: An open foundation model for generalist humanoid robots,” arXiv preprint arXiv:2503.14734 , 2025.
+ [13] 
+J. Liu, M. Liu, Z. Wang, L. Lee, K. Zhou, P. An, S. Yang, R. Zhang, Y. Guo, and S. Zhang, “Robomamba: Multimodal state space model for efficient robot reasoning and manipulation,” arXiv e-prints , pp. arXiv–2406, 2024.
+ [14] 
+Z. Li, C. Chi, Y. Wei, B. Zhu, Y. Peng, T. Huang, P. Wang, Z. Wang, S. Zhang, and C. Xu, “From language to locomotion: Retargeting-free humanoid control via motion latent guidance,” arXiv preprint arXiv:2510.14952 , 2025.
+ [15] 
+Z. Li, W. Yuan, Y. He, L. Qiu, S. Zhu, X. Gu, W. Shen, Y. Dong, Z. Dong, and L. T. Yang, “Lamp: Language-motion pretraining for motion generation, retrieval, and captioning,” arXiv preprint arXiv:2410.07093 , 2024.
+ [16] 
+Z. Li, W. Yuan, W. Shen, S. Zhu, Z. Dong, and C. Xu, “Omnimotion: Multimodal motion generation with continuous masked autoregression,” arXiv preprint arXiv:2510.14954 , 2025.
+ [17] 
+S. H. Vemprala, R. Bonatti et al. , “Chatgpt for robotics: Design principles and model abilities,” Ieee Access , vol. 12, pp. 55 682–55 696, 2024.
+ [18] 
+L. X. Shi, B. Ichter et al. , “Hi robot: Open-ended instruction following with hierarchical vision-language-action models,” arXiv preprint arXiv:2502.19417 , 2025.
+ [19] 
+Physical Intelligence, “ π \pi 0.5: A vision-language-action model with open-world generalization,” https://www.physicalintelligence.company/blog/pi05 , 2025, accessed: 2025-04-25.
+ [20] 
+W. Huang, C. Wang et al. , “Voxposer: Composable 3d value maps for robotic manipulation with language models,” in Conference on Robot Learning . PMLR, 2023, pp. 540–562.
+ [21] 
+M. Hu, T. Chen et al. , “Hiagent: Hierarchical working memory management for solving long-horizon agent tasks with large language model,” arXiv preprint arXiv:2408.09559 , 2024.
+ [22] 
+Q. Gu et al. , “Conceptgraphs: Open-vocabulary 3d scene graphs for perception and planning,” in 2024 IEEE International Conference on Robotics and Automation (ICRA) . IEEE, 2024, pp. 5021–5028.
+ [23] 
+Y. Fan, X. Ma et al. , “Embodied videoagent: Persistent memory from egocentric videos and embodied sensors enables dynamic scene understanding,” arXiv preprint arXiv:2501.00358 , 2024.
+ [24] 
+M. Ahn et al. , “Do as i can, not as i say: Grounding language in robotic affordances,” arXiv preprint arXiv:2204.01691 , 2022.
+ [25] 
+J. Liang et al. , “Code as policies: Language model programs for embodied control,” arXiv preprint arXiv:2209.07753 , 2022.
+ [26] 
+E. Zhou, J. An, C. Chi, Y. Han, S. Rong, C. Zhang, P. Wang, Z. Wang, T. Huang, L. Sheng et al. , “Roborefer: Towards spatial referring with reasoning in vision-language models for robotics,” arXiv preprint arXiv:2506.04308 , 2025.
+ [27] 
+Y. Han, C. Chi, E. Zhou, S. Rong, J. An, P. Wang, Z. Wang, L. Sheng, and S. Zhang, “Tiger: Tool-integrated geometric reasoning in vision-language models for robotics,” arXiv preprint arXiv:2510.07181 , 2025.
+ [28] 
+Y. Luo, C.-K. Fan, M. Dong, J. Shi, M. Zhao, B.-W. Zhang, C. Chi, J. Liu, G. Dai, R. Zhang et al. , “Robobench: A comprehensive evaluation benchmark for multimodal large language models as embodied brain,” arXiv preprint arXiv:2510.17801 , 2025.
+ [29] 
+A. Hurst, A. Lerer et al. , “Gpt-4o system card,” arXiv preprint arXiv:2410.21276 , 2024.
+ [30] 
+Anthropic, “Introducing claude 3.5 sonnet,” https://www.anthropic.com/news/claude-3-5-sonnet , 2024, accessed: 2025-04-02.
+ [31] 
+Google, “Introducing gemini: Our largest and most capable ai model,” https://blog.google/technology/ai/ , 2023, accessed: 2025-04-02.
+ [32] 
+S. Bai, K. Chen et al. , “Qwen2.5-vl technical report,” arXiv preprint arXiv:2502.13923 , 2025.
+ [33] 
+Z. Chen, J. Wu et al. , “Internvl: Scaling up vision foundation models and aligning for generic visual-linguistic tasks,” in IEEE/CVF conference on computer vision and pattern recognition , 2024, pp. 24 185–24 198.
+ [34] 
+B. Li, Y. Zhang et al. , “Llava-onevision: Easy visual task transfer,” arXiv preprint arXiv:2408.03326 , 2024.
+ [35] 
+X. An, Y. Xie, K. Yang, W. Zhang, X. Zhao, Z. Cheng, Y. Wang, S. Xu, C. Chen, C. Wu et al. , “Llava-onevision-1.5: Fully open framework for democratized multimodal training,” arXiv preprint arXiv:2509.23661 , 2025.
+ [36] 
+OpenAI, “Learning to reason with llms,” https://openai.com/index/learning-to-reason-with-llms/ , 2024, accessed: 2025-03-02.
+ [37] 
+D. Guo, D. Yang et al. , “Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning,” arXiv preprint arXiv:2501.12948 , 2025.
+ [38] 
+K. Team, A. Du, B. Gao et al. , “Kimi k1. 5: Scaling reinforcement learning with llms,” arXiv preprint arXiv:2501.12599 , 2025.
+ [39] 
+H. Tan, Y. Ji, X. Hao, M. Lin, P. Wang, Z. Wang, and S. Zhang, “Reason-rft: Reinforcement fine-tuning for visual reasoning,” arXiv preprint arXiv:2503.20752 , 2025.
+ [40] 
+W. Huang, B. Jia et al. , “Vision-r1: Incentivizing reasoning capability in multimodal large language models,” arXiv preprint arXiv:2503.06749 , 2025.
+ [41] 
+Y. Mu, Q. Zhang et al. , “Embodiedgpt: Vision-language pre-training via embodied chain of thought,” Advances in Neural Information Processing Systems , vol. 36, pp. 25 081–25 094, 2023.
+ [42] 
+Y. Ji, H. Tan, J. Shi, X. Hao, Y. Zhang, H. Zhang, P. Wang, M. Zhao, Y. Mu, P. An et al. , “Robobrain: A unified brain model for robotic manipulation from abstract to concrete,” in Proceedings of the Computer Vision and Pattern Recognition Conference , 2025, pp. 1724–1734.
+ [43] 
+H. Fang, M. Zhang et al. , “Robix: A unified model for robot interaction, reasoning and planning,” arXiv preprint arXiv:2509.01106 , 2025.
+ [44] 
+R. Dang, Y. Yuan et al. , “Rynnec: Bringing mllms into embodied world,” arXiv preprint arXiv:2508.14160 , 2025.
+ [45] 
+G. Luo, G. Yang et al. , “Visual embodied brain: Let multimodal large language models see, think, and control in spaces,” arXiv preprint arXiv:2506.00123 , 2025.
+ [46] 
+B. R. Team, M. Cao, H. Tan, Y. Ji, X. Chen, M. Lin, Z. Li, Z. Cao, P. Wang, E. Zhou et al. , “Robobrain 2.0 technical report,” arXiv preprint arXiv:2507.02029 , 2025.
+ [47] 
+S. Bai, W. Song, J. Chen, Y. Ji, Z. Zhong, J. Yang, H. Zhao, W. Zhou, W. Zhao, Z. Li et al. , “Towards a unified understanding of robot manipulation: A comprehensive survey,” arXiv preprint arXiv:2510.10903 , 2025.
+ [48] 
+H. Lyu, C. Chen, Y. Ji, and C. Xu, “Egoprompt: Prompt learning for egocentric action recognition,” arXiv preprint arXiv:2508.03266 , 2025.
+ [49] 
+Y. Ji, Y. Wang, Y. Liu, X. Hao, Y. Liu, Y. Zhao, H. Lyu, and X. Zheng, “Visualtrans: A benchmark for real-world visual transformation reasoning,” arXiv preprint arXiv:2508.04043 , 2025.
+ [50] 
+Z. Li, L. T. Yang, B. Ren, X. Nie, Z. Gao, C. Tan, and S. Z. Li, “Mlip: Enhancing medical visual representation with divergence encoder and knowledge-guided contrastive learning,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 11 704–11 714.
+ [51] 
+Z. Song, G. Ouyang, M. Li, Y. Ji, C. Wang, Z. Xu, Z. Zhang, X. Zhang, Q. Jiang, Z. Chen et al. , “Maniplvm-r1: Reinforcement learning for reasoning in embodied manipulation with large vision-language models,” arXiv preprint arXiv:2505.16517 , 2025.
+ [52] 
+Y. Ji, Y. Liu, Z. Zhang, Z. Zhang, Y. Zhao, X. Hao, G. Zhou, X. Zhang, and X. Zheng, “Enhancing adversarial robustness of vision-language models through low-rank adaptation,” in Proceedings of the 2025 International Conference on Multimedia Retrieval , 2025, pp. 550–559.
+ [53] 
+H. Zhang, S. Bai, W. Zhou, Y. Zhang, Q. Zhang, P. Ding, C. Chi, D. Wang, and B. Chen, “Vcot-grasp: Grasp foundation models with visual chain-of-thought reasoning for language-driven grasp generation,” arXiv preprint arXiv:2510.05827 , 2025.
+ [54] 
+Z. Li, Y. He, L. Zhong, W. Shen, Q. Zuo, L. Qiu, Z. Dong, L. T. Yang, and W. Yuan, “Mulsmo: Multimodal stylized motion generation by bidirectional control flow,” arXiv preprint arXiv:2412.09901 , 2024.
+ [55] 
+Y. Li, X. Wei, X. Chi, Y. Li, Z. Zhao, H. Wang, N. Ma, M. Lu, and S. Zhang, “Manipdreamer3d: Synthesizing plausible robotic manipulation video with occupancy-aware 3d trajectory,” arXiv preprint arXiv:2509.05314 , 2025.
+ [56] 
+M. Liu, M. Wang, H. Ding, Y. Xu, Y. Zhao, and Y. Wei, “Segment anything with precise interaction,” in Proceedings of the 32nd ACM International Conference on Multimedia , 2024, pp. 3790–3799.
+ [57] 
+Q. Zhang, M. Liu, L. Li, M. Lu, Y. Zhang, J. Pan, Q. She, and S. Zhang, “Beyond attention or similarity: Maximizing conditional diversity for token pruning in mllms,” arXiv preprint arXiv:2506.10967 , 2025.
+ [58] 
+A. Brohan, N. Brown et al. , “Rt-2: Vision-language-action models transfer web knowledge to robotic control,” arXiv preprint arXiv:2307.15818 , 2023.
+ [59] 
+B. Zitkovich, T. Yu et al. , “Rt-2: Vision-language-action models transfer web knowledge to robotic control,” in Conference on Robot Learning . PMLR, 2023, pp. 2165–2183.
+ [60] 
+J. Liu, M. Liu et al. , “Robomamba: Multimodal state space model for efficient robot reasoning and manipulation,” arXiv preprint arXiv:2406.04339 , 2024.
+ [61] 
+S. Bai, W. Zhou, P. Ding, W. Zhao, D. Wang, and B. Chen, “Rethinking latent redundancy in behavior cloning: An information bottleneck approach for robot manipulation,” in Forty-second International Conference on Machine Learning , 2025.
+ [62] 
+Y. Fan, S. Bai, X. Tong, P. Ding, Y. Zhu, H. Lu, F. Dai, W. Zhao, Y. Liu, S. Huang et al. , “Long-vla: Unleashing long-horizon capability of vision language action model for robot manipulation,” in Conference on Robot Learning . PMLR, 2025, pp. 2018–2037.
+ [63] 
+Z. Li, L. T. Yang, X. Nie, B. Ren, and X. Deng, “Enhancing sentence representation with visually-supervised multimodal pre-training,” in Proceedings of the 31st ACM International Conference on Multimedia , 2023, pp. 5686–5695.
+ [64] 
+Z. Li, Z. Gao, C. Tan, S. Z. Li, and L. T. Yang, “General point model with autoencoding and autoregressive,” arXiv preprint arXiv:2310.16861 , 2023.
+ [65] 
+K. Wu, C. Hou, J. Liu, Z. Che, X. Ju, Z. Yang, M. Li, Y. Zhao, Z. Xu, G. Yang et al. , “Robomind: Benchmark on multi-embodiment intelligence normative data for robot manipulation,” arXiv preprint arXiv:2412.13877 , 2024.
+ [66] 
+C. Yuan, R. Zhou, M. Liu, Y. Hu, S. Wang, L. Yi, C. Wen, S. Zhang, and Y. Gao, “Motiontrans: Human vr data enable motion-level learning for robotic manipulation policies,” arXiv preprint arXiv:2509.17759 , 2025.
+ [67] 
+E. Zhou, Q. Su et al. , “Code-as-monitor: Constraint-aware visual programming for reactive and proactive robotic failure detection,” in Proceedings of the Computer Vision and Pattern Recognition Conference , 2025, pp. 6919–6929.
+ [68] 
+W. Huang, C. Wang et al. , “Rekep: Spatio-temporal reasoning of relational keypoint constraints for robotic manipulation,” in Conference on Robot Learning . PMLR, 2025, pp. 4573–4602.
+ [69] 
+Y. Zhu, Z. Ou et al. , “Retrieval-augmented embodied agents,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 17 985–17 995.
+ [70] 
+Y. Yang, H. Yang et al. , “Snapmem: Snapshot-based 3d scene memory for embodied exploration and reasoning.”
+ [71] 
+A. Agrawal, A. S. Bedi, and D. Manocha, “Rtaw: An attention inspired reinforcement learning method for multi-robot task allocation in warehouse environments,” in 2023 IEEE International Conference on Robotics and Automation (ICRA) . IEEE, 2023, pp. 1393–1399.
+ [72] 
+H. Guo, Z. Liu et al. , “Cross-entropy regularized policy gradient for multirobot nonadversarial moving target search,” IEEE Transactions on Robotics , vol. 39, no. 4, pp. 2569–2584, 2023.
+ [73] 
+Y. Rizk, M. Awad, and E. W. Tunstel, “Cooperative heterogeneous multi-robot systems: A survey,” ACM Computing Surveys (CSUR) , vol. 52, no. 2, pp. 1–31, 2019.
+ [74] 
+R. Fierro, L. Chaimowicz, and V. Kumar, “Multi-robot cooperation,” in Autonomous Mobile Robots . CRC Press, 2018, pp. 417–460.
+ [75] 
+D. Patiño, S. Mayya et al. , “Learning to navigate in turbulent flows with aerial robot swarms: A cooperative deep reinforcement learning approach,” IEEE Robotics and Automation Letters , vol. 8, no. 7, pp. 4219–4226, 2023.
+ [76] 
+X.-H. Liu, F. Xu et al. , “How to guide your learner: Imitation learning with active adaptive expert involvement,” arXiv preprint arXiv:2303.02073 , 2023.
+ [77] 
+A. Sagirova et al. , “Srmt: shared memory for multi-agent lifelong pathfinding,” arXiv preprint arXiv:2501.13200 , 2025.
+ [78] 
+K. O. Aina, H. Bagheri, and D. I. Goldman, “Fault-tolerant multi-robot coordination with limited sensing within confined environments,” arXiv preprint arXiv:2505.15036 , 2025.
+ [79] 
+A. A. Adil, S. Sakhrieh et al. , “A multi-robot collaborative manipulation framework for dynamic and obstacle-dense environments: integration of deep learning for real-time task execution,” Frontiers in Robotics and AI , vol. 12, p. 1585544, 2025.
+ [80] 
+C. Chi, Z. Xu et al. , “Diffusion policy: Visuomotor policy learning via action diffusion,” The International Journal of Robotics Research , p. 02783649241273668, 2023.
+ Experimental support, please
+ view the build logs 
+ for errors. Generated by
+ L
+ A 
+ T
+ E 
+ xml 
+ .
+ Instructions for reporting errors 
+ We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below: 
+ Click the "Report Issue" ( 
+ ) button, located in the page header. 
+ Tip: You can select the relevant text first, to include it in your report. 
+ Our team has already identified the following issues . We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all. 
+ Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion , and welcome developer contributions . 
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 

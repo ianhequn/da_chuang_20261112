@@ -1,0 +1,917 @@
+ 
+ Towards Long-horizon Embodied Agents with Tool-Aligned Vision-Language-Action Models 
+ Skip to main content 
+ Report GitHub Issue 
+ × 
+ Title: 
+ Content selection saved. Describe the issue below: 
+ Description: 
+ Submit without GitHub 
+ Submit in GitHub 
+ Why HTML? 
+ Report Issue 
+ Back to Abstract 
+ Download PDF 
+ Contents 
+ Reading mode 
+ Colour theme 
+ Abstract 
+ 1 Introduction 
+ 2 Related Work 
+ VLA Tool Interfaces for Agentic Embodied Control. 
+ Embodied Agentic Systems 
+ 3 Formalizing VLAs as Callable Tools 
+ 4 Methods 
+ 4.1 Bidirectional Agent–Tool Interaction via a VLA Tool-Family Interface 
+ 4.1.1 Invocation Messages 𝒞 \mathcal{C} 
+ 4.1.2 Feedback Messages ℛ \mathcal{R} 
+ 4.2 Improving VLA Tool Usability with Tool-Aligned Post-Training 
+ 4.2.1 Invocation-Aligned Training Units 
+ 4.2.2 Tool-Family Residual Parameterization 
+ 4.2.3 Tool-Aligned Post-Training Objective 
+ 5 Experiment 
+ 5.1 Experimental Setup 
+ 5.2 Can the VLAs-as-tools Strategy Improve Long-Horizon Embodied Performance? 
+ Supervised downstream adaptation. 
+ Reinforcement learning in the target domain. 
+ 5.3 Do the Gains Extend to Modern Long-Horizon Benchmarks? 
+ 5.4 Can VLAs-as-Tools Improve Real-World Long-Horizon Manipulation? 
+ 5.5 Does TAPT Make VLA Execution More Faithful to Agent Invocations? 
+ 5.6 Core Design Ablation 
+ 5.7 Qualitative Analysis 
+ 5.8 Additional Results in the Appendix 
+ 6 Conclusion 
+ References 
+ A Progress Supervision and Feedback 
+ Supervision and prediction. 
+ Runtime semantics and control. 
+ B Automatic Labeling Pipeline 
+ Global video understanding. 
+ State-change-based segmentation. 
+ Definition-conditioned tool-family labeling. 
+ Signal use and consistency checks. 
+ C Tool-Family Taxonomy and Extensibility 
+ C.1 Taxonomy Granularity 
+ C.2 Incremental Tool-Family Expansion 
+ D Additional Details for Tool-Aligned Post-Training 
+ Completion predicates in RLinf. 
+ Reset-state pool refresh. 
+ E Additional Adaptation and Planner Robustness Results 
+ E.1 Tool-Family Adapter Cost 
+ E.2 Agent Planning Efficiency 
+ F Real-World Evaluation Details 
+ Robot and sensing setup. 
+ Training protocol. 
+ Evaluation protocol. 
+ Simple. 
+ Conditioned. 
+ Long. 
+ G Evaluation Protocol Details 
+ LIBERO-Long. 
+ RoboTwin-SA. 
+ CALVIN. 
+ RoboMemArena. 
+ LIBERO-IF. 
+ RoboLab-120. 
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2605.13119v2 [cs.RO] 12 Oct 2026 
+ Towards Long-horizon Embodied Agents with Tool-Aligned Vision-Language-Action Models 
+ Zixing Lei
+ † † thanks: Equal contribution 
+ Affiliation:  Shanghai Jiao Tong University
+ Affiliation:  Zhongguancun Academy
+ Changxing Liu 1 1 footnotemark: 
+ 1 
+ Affiliation:  Shanghai Jiao Tong University
+ Yichen Xiong
+ Affiliation:  Shanghai Jiao Tong University
+ Minhao Xiong
+ Affiliation:  Shanghai Jiao Tong University
+ Yuanzhuo Ding
+ Affiliation:  Shanghai Jiao Tong University
+ Zhipeng Zhang
+ Affiliation:  Shanghai Jiao Tong University
+ Weixin Li
+ Affiliation:  Zhongguancun Academy
+ Affiliation:  Beihang University chezacarss@sjtu.edu.cn  cx-liu@sjtu.edu.cn  sihengc@sjtu.edu.cn 
+ Siheng Chen
+ † † thanks: Corresponding author 
+ Affiliation:  Shanghai Jiao Tong University
+ Abstract 
+ Vision-language-action (VLA) models are effective robot action executors, but they remain limited on long-horizon tasks due to the dual burden of extended closed-loop planning and diverse physical operations. We therefore propose VLAs-as-Tools , a strategy that distributes this burden across a high-level vision language model (VLM) agent for temporal reasoning and a family of specialized VLA tools for diverse local physical operations. The VLM handles scene analysis, global planning, and recovery, while each VLA tool executes a bounded subtask. To tightly couple agent planning with VLA tool execution in long-horizon tasks, we introduce a VLA tool-family interface that exposes explicit tool selection and in-execution progress feedback, enabling efficient event-triggered agent replanning without continuous agent polling. To obtain diverse specialized VLA tools that faithfully follow agent invocations, we further propose Tool-Aligned Post-Training (TAPT), which constructs invocation-aligned training units for instruction following and adopts tool-family residual adapters for efficient tool specialization. Across five simulated benchmarks, VLAs-as-Tools improves the success rate of π 0.5 \pi_{0.5} by 8.9 percentage points on average and enhances invocation fidelity by 15.0 points in Non-biased Rate. On three real-world Franka tasks, it improves success rate from 16.7% to 58.3% under matched data and compute. Code will be released. 
+ 1 Introduction 
+ Recent end-to-end vision-language-action (VLA) models, including OpenVLA-OFT and GR00T N1.6, have advanced general-purpose robot control and cross-embodiment generalization  ( Kim et al., 2025 ; NVIDIA GEAR Team, 2025 ) . Yet they are typically deployed as single embodied controllers, requiring one policy to interpret goals, perceive scenes, predict actions, and coordinate multi-step execution. This setting is difficult for current VLAs: long-horizon tasks require decomposition, progress tracking, failure recovery, and skill composition, while embodied data remains limited and model scale still constrains planning and understanding. As a result, VLAs provide powerful language-conditioned robot-control capabilities, but remain limited as standalone long-horizon agents. 
+ There are two routes toward long-horizon embodied tasks. One direction keeps planning inside end-to-end VLA policies, where models such as π 0.5 \pi_{0.5} introduce semantic subtask prediction and task-level planning tokens within the VLA backbone  ( Physical Intelligence et al., 2025 ) . Another direction, represented by SayCan and Code as Policies, adopts an agentic formulation in which language models select skills, compose programs, or invoke robot APIs  ( Ahn et al., 2022 ; Liang et al., 2022 ) . This follows the successful paradigm of digital agents, where high-capacity LLMs handle goal decomposition, state tracking, replanning, and error recovery, while tools provide bounded, observable, and reliable execution interfaces  ( Yao et al., 2022 ; Schick et al., 2023 ; Yang et al., 2024 ) . However, existing embodied tools are often manually specified and task-specific, giving them weaker physical execution capabilities than modern VLAs. This leaves embodied AI with a complementary gap: end-to-end VLAs provide stronger physical execution but weaker long-horizon reasoning, whereas existing embodied agents provide stronger planning but rely on weaker physical tools. 
+ Figure 1: VLAs-as-Tools closes the complementary gap between end-to-end VLAs, which execute well but reason poorly over long horizons, and agent systems, which plan well but rely on weak rigid skills. It couples a planning VLM with TAPT-specialized VLA tools through explicit tool calls, progress feedback, and event-triggered replanning for reliable long-horizon execution. 
+ As illustrated in Figure  1 , we propose VLAs-as-Tools , a strategy for solving long-horizon embodied tasks by enabling a planning-capable VLM agent to invoke bounded VLA executions as physical tools. This strategy addresses the limitations of individual VLAs by distributing the burden across time length and task breadth: the VLM extends execution over long horizons through planning, state tracking, and recovery, while multiple specialized VLA tools cover diverse bounded subtasks. Each VLA therefore operates within a focused execution scope, where it can be efficiently adapted from task-specific demonstrations and reliably map visual-language inputs to continuous robot actions. However, standalone VLAs are not readily tool-usable, since their execution can be biased by scene priors, demonstration regularities, or visual context rather than the invoked instruction  ( Zhang et al., 2026b ; Fang et al., 2026 ) , and task-specific adaptation can degrade pretrained semantic understanding and generalization  ( Hancock et al., 2025 ; Liu et al., 2026 ) . Thus, realizing VLAs-as-Tools requires addressing two core challenges: how to make VLAs callable and reliable physical tools, and how to integrate them effectively into an embodied agentic system. 
+ We address these two challenges with two complementary components. To make VLAs tool-usable, we introduce Tool-Aligned Post-Training (TAPT), which pairs bounded subtasks with precise language instructions so that each VLA tool learns a clear correspondence between the agent’s invocation and the intended physical behavior, and adopts tool-family residual adapters to parameter-efficiently create many specialized VLA tools on a shared backbone while mitigating degradation of pretrained semantic generalization. To integrate these tools into the agentic system, we design a VLA tool-family interface with two typed message sets: agent-to-tool invocations that specify bounded subtasks and route them to the appropriate VLA tool, and tool-to-agent feedback that returns in-execution state signals. The former grounds planned subtask sequences in the correct physical executor, while the latter exposes timely intervention points, enabling low-frequency but responsive replanning. 
+ We evaluate three VLA backbones—OpenVLA, OpenVLA-OFT, and π 0.5 \pi_{0.5} —on six benchmarks: LIBERO-Long, RoboTwin-SA, CALVIN, RoboMemArena, RoboLab-120, and LIBERO-IF, plus three real-world Franka tasks. Across the five simulated task-success benchmarks with directly matched π 0.5 \pi_{0.5} baselines, VLAs-as-Tools improves average success by 8.9 points. It also improves invocation fidelity by 15.0 points in Non-biased Rate and raises real-world macro-average success from 16.7% to 58.3%. 
+ 2 Related Work 
+ VLA Tool Interfaces for Agentic Embodied Control. 
+ Recent progress in embodied foundation models has been driven by Vision-Language-Action (VLA) policies, which map visual observations and language instructions to robot actions with large pretrained vision-language backbones  ( Brohan and others, 2023 ; Octo Model Team et al., 2024 ; Kim et al., 2024 ; Black et al., 2024 ; Physical Intelligence et al., 2025 ) . While these models achieve strong full-task performance, studies show that VLAs do not always ground their behavior in the language command, instead following visual priors and training-set regularities  ( Jang et al., 2022 ; Mees et al., 2022 ; Glossop et al., 2025 ; Fei et al., 2025 ) ; counterfactual evaluations further show visual cues overriding the specified instruction  ( Fang et al., 2026 ) . This makes standalone VLAs unreliable as agentic execution interfaces, where the planner needs each invocation to have stable, instruction-faithful semantics that can be monitored and composed. We address this by aligning VLA post-training with the agent’s invocation interface, using subtask-centric data, invocation-aligned training, and tool-family residual adapters to bind each command and tool-family label to a bounded execution behavior. 
+ Embodied Agentic Systems 
+ Recent embodied AI advances have increasingly focused on agentic systems, particularly in language-conditioned and long-horizon tasks  ( Salimpour et al., 2025 ; Liang et al., 2025 ) . Hierarchical embodied systems commonly address such tasks by decomposing high-level goals into task-level decisions and executable low-level skills  ( Ahn et al., 2022 ; Huang et al., 2022 ; Belkhale et al., 2024 ; Shi et al., 2025 ) , but they often rely on hand-engineered skills, affordance models, latent options
+or jointly trained executors. Recent systems further scale this paradigm with learned skill libraries and agentic execution loops: AtomicVLA builds a planning-and-execution framework around atomic skill abstractions and skill-guided expert specialization  ( Zhang et al., 2026a ) , while RoboClaw uses a VLM-driven controller to orchestrate learned policy primitives for long-horizon tasks and autonomous data collection  ( Li et al., 2026 ) . These works validate skill decomposition and policy composition but their low-level skills are often system-internal primitives rather than explicit agent-visible tool invocations. In contrast, we expose the VLA as a reusable embodied tool whose agent-visible invocations pair bounded language instructions with tool-family labels, enabling more inspectable and composable execution. 
+ 3 Formalizing VLAs as Callable Tools 
+ This section formalizes the VLAs-as-tools strategy: a VLA is not used as a monolithic long-horizon policy, but as a family of bounded, callable executors inside an embodied agentic control loop. The connection between the high-level agent and the VLA tools is an interface ℐ = ( 𝒞 , ℛ ) , \mathcal{I}=(\mathcal{C},\mathcal{R}), 
+where 𝒞 \mathcal{C} is the set of agent-to-tool invocation messages and ℛ \mathcal{R} is the set of tool-to-agent feedback messages. Given a user goal q q , a high-level agent Π ϕ \Pi_{\phi} tracks an agent-side state s k s_{k} over observations, past calls, and returned feedback. At step k k , the agent sends an invocation message via the interface, 
+ c k = Π ϕ ​ ( q , s k ) , c k = ( g k , z k ) ∈ 𝒞 = 𝒢 × 𝒵 , c_{k}=\Pi_{\phi}(q,s_{k}),\qquad c_{k}=(g_{k},z_{k})\in\mathcal{C}=\mathcal{G}\times\mathcal{Z}, 
+ (1) 
+ where g k g_{k} is a discrete tool-family label, such as reach , grasp , or pull , and z k z_{k} is a scene-grounded subtask instruction. The tool-family label g k g_{k} selects a member of the VLA tool family, 𝒯 = { T g } g ∈ 𝒢 , \mathcal{T}=\{T_{g}\}_{g\in\mathcal{G}}, 
+where each T g T_{g} is a callable VLA tool for one tool family. The instruction z k z_{k} grounds it in the current scene by specifying the object, relation, and desired local effect. 
+ The selected tool T g k T_{g_{k}} executes the call over a bounded low-level horizon. Given robot observations o t o_{t} , it produces actions and a bounded trajectory 
+ a t ∼ T g k ( ⋅ ∣ o t , z k , h t ) , τ k = ( o t k : t k + H k , a t k : t k + H k − 1 ) , a_{t}\sim T_{g_{k}}(\cdot\mid o_{t},z_{k},h_{t}),\qquad\tau_{k}=(o_{t_{k}:t_{k}+H_{k}},a_{t_{k}:t_{k}+H_{k}-1}), 
+ (2) 
+ where h t h_{t} denotes an optional short execution history and H k H_{k} is the call horizon. After or during execution, the selected tool returns feedback r k r_{k} such as progress or completion information. The agent state is then updated as 
+ s k + 1 = U ⁡ ( s k , c k , τ k , r k ) , r k ∈ ℛ , s_{k+1}=U(s_{k},c_{k},\tau_{k},r_{k}),\qquad r_{k}\in\mathcal{R}, 
+ (3) 
+ and the loop repeats until the task terminates. Thus, the interface defines both directions of communication: 𝒞 \mathcal{C} tells the selected tool what to execute, and ℛ \mathcal{R} tells the agent what happened during execution. The invocation message set 𝒞 = 𝒢 × 𝒵 \mathcal{C}=\mathcal{G}\times\mathcal{Z} is bounded and agent-visible: g k g_{k} chooses the tool family, while z k z_{k} grounds the selected tool family into a concrete scene-level subtask. This formalization turns long-horizon robot control into repeated bounded tool invocations, where the key methodological question is how to construct a VLA tool family 𝒯 \mathcal{T} whose members can be reliably invoked, monitored, and composed by the high-level agent. 
+ Figure 2: Overview of the closed-loop system with the VLAs-as-Tools strategy. A VLM agent performs high-level, long-horizon planning, while the VLA tool-family interface guides explicit tool calls and provides feedback for low-frequency agent intervention. VLAs become callable tools that faithfully execute invocations, with a parameter-efficient tool family generated via residual adapters. 
+ 4 Methods 
+ We instantiate the formal strategy above with two concrete design choices. First, we make a VLA callable through a VLA tool-family interface: the agent selects a tool family, provides a scene-grounded local instruction, and invokes the VLA for a bounded execution window. The VLA tool is therefore not a standalone task policy, but a bounded executor that receives an agent-specified invocation and returns progress feedback. Second, we train the VLA to follow this interface through Tool-Aligned Post-Training (TAPT), which aligns the training data, adapter structure, and optimization objectives with the same invocation unit used at test time. 
+ 4.1 Bidirectional Agent–Tool Interaction via a VLA Tool-Family Interface 
+ Section  3 formulates the agent–tool interface as
+ ℐ = ( 𝒞 , ℛ ) \mathcal{I}=(\mathcal{C},\mathcal{R}) . We instantiate this interface
+for VLAs-as-tools through two typed message sets:
+ 𝒞 \mathcal{C} contains invocation messages sent by the high-level agent to a selected VLA
+tool, and ℛ \mathcal{R} contains feedback messages returned by the tool for monitoring. 
+ 4.1.1 Invocation Messages 𝒞 \mathcal{C} 
+ Each VLA tool call has two fields: a tool-family label and a scene-grounded instruction. The tool-family label g k ∈ 𝒢 g_{k}\in\mathcal{G} , such as reach , grasp , or pull , selects one callable member from the VLA tool family 𝒯 = { T g } g ∈ 𝒢 \mathcal{T}=\{T_{g}\}_{g\in\mathcal{G}} . The taxonomy 𝒢 \mathcal{G} is data-driven: following primitive-level formulations  ( Chen et al., 2025 ) , it separates free-space motion from contact interaction, yielding 11 families on DROID, 7 of which are used in each of LIBERO and RoboTwin (Appendix  C ). The instruction z k ∈ 𝒵 z_{k}\in\mathcal{Z} then grounds the selected tool family in the current scene by specifying the object, relation, and desired local effect. Together, these two fields form the invocation message c k = ( g k , z k ) c_{k}=(g_{k},z_{k}) , so 𝒞 = 𝒢 × 𝒵 \mathcal{C}=\mathcal{G}\times\mathcal{Z} . 
+ This factorization makes the agent’s request inspectable. The tool-family label g k g_{k} selects the tool family, while z k z_{k} grounds that tool family in the current scene. This is useful because visually similar instructions may require different tool families: grasp , pull , and push can involve overlapping objects but differ in action distributions and termination conditions. The explicit tool-family label also gives TAPT a stable signal for organizing data and parameters, around tool-family specialization. 
+ 4.1.2 Feedback Messages ℛ \mathcal{R} 
+ Feedback messages specify what the selected VLA tool reports while it is executing an invocation. We use a continuous progress signal p t ∈ [ 0 , 1 ] p_{t}\in[0,1] as the main feedback message, where values near 0 0 indicate little progress and values near 1 1 indicate that the current invocation is nearly complete. This signal is local to the bounded call c k = ( g k , z k ) c_{k}=(g_{k},z_{k}) : it measures progress on the selected tool invocation, not success of the full long-horizon task.
+Progress feedback is useful because the agent needs timely information before a subtask fully succeeds or fails. Repeatedly querying a large VLM to inspect execution is costly, while a binary completion signal can delay recovery. In contrast, a tool-side progress signal exposes intermediate execution states, such as stagnation or deviation, without requiring the agent to reason over every low-level action. In the interface, temporal progress is stored in the progress chunk, while a threshold-based monitor determines whether to advance, replan, or continue the current invocation.
+The VLA predicts progress with an auxiliary head p ^ t = ψ ω ​ ( b t ) \hat{p}_{t}=\psi_{\omega}(b_{t}) attached to the backbone feature b t b_{t} , with supervision described in Section  4.2 and implementation details in Appendix  A . 
+ 4.2 Improving VLA Tool Usability with Tool-Aligned Post-Training 
+ Building on the VLA tool-family interface in Section  4.1 , this section describes how we train a base VLA to behave like a reliable callable tool. TAPT follows the same pipeline as the agent–tool loop. First, it rewrites both imitation and reinforcement-learning supervision around bounded invocations: demonstrations are segmented into invocation-labeled action windows, and RL rollouts are initialized and rewarded at the same subtask level. Second, it makes the tool-family label executable by routing each invocation through tool-family residual adapters on top of a shared VLA backbone. Third, it post-trains the resulting model to both execute the requested local behavior and predict progress feedback for that invocation. Standard downstream SFT and RL are then used as optimization settings for adapting and evaluating the same invocation-aligned tool family. 
+ 4.2.1 Invocation-Aligned Training Units 
+ TAPT first rewrites imitation learning around the unit the agent calls at inference time. Instead of training only on full-task trajectories, we segment demonstrations into bounded windows and annotate each window with an invocation c = ( g , z ) c=(g,z) , where g ∈ 𝒢 g\in\mathcal{G} identifies the tool family and z ∈ 𝒵 z\in\mathcal{Z} describes the local scene effect. Each imitation unit is x IL = ( o 1 : T , z , g , a 1 : T , p 1 : T ⋆ ) x_{\mathrm{IL}}=(o_{1:T},z,g,a_{1:T},p_{1:T}^{\star}) , where o 1 : T o_{1:T} and a 1 : T a_{1:T} are the observations and actions inside the window, and p 1 : T ⋆ p_{1:T}^{\star} is a progress target or proxy. Segments are obtained from task annotations, state changes, contact events, and automatic multimodal labeling; the labeler assigns g g using operational definitions based on contact pattern, force direction, and object motion. Detailed in Appendix  B . 
+ The same invocation view is used for reinforcement learning. For each call ( g , z ) (g,z) , we build a bounded subtask rollout rather than starting from the original full-task initial state. The rollout starts from states where that invocation should begin, obtained from demonstration boundaries or successful executions of preceding subtasks. It is evaluated with a local completion predicate ψ z , g ​ ( s ) \psi_{z,g}(s) , such as contact, containment, relative pose, joint displacement, or object-on-surface relations. The rollout receives reward 1 1 if this predicate becomes true within horizon H H , and 0 0 otherwise; the episode ends when the predicate is satisfied or the horizon is reached. 
+ Thus IL and RL share the same target: reliable execution of the current bounded invocation. IL teaches the actions and progress for a call, while RL tests whether the same call can be completed from states where the agent would invoke it. 
+ 4.2.2 Tool-Family Residual Parameterization 
+ The tool-family label g g should control the VLA’s execution path, not merely appear as an extra language token. Tool families such as grasping, releasing, pulling, and rotating may share the same scene context, but they require different action distributions, termination conditions, and progress semantics. We therefore implement the VLA tool family with a shared pretrained backbone and deterministic tool-family residual adapters selected by g g . 
+ Concretely, let f Θ f_{\Theta} be a pretrained VLA backbone. For each selected linear layer W ∈ ℝ d out × d in W\in\mathbb{R}^{d_{\mathrm{out}}\times d_{\mathrm{in}}} , we add a bank of low-rank residual adapters { Δ ​ W g } g ∈ 𝒢 \{\Delta W_{g}\}_{g\in\mathcal{G}} , with one adapter per tool family: 
+ Δ ​ W g = B g ​ A g , rank ⁡ ( Δ ​ W g ) ≤ r ≪ min ⁡ ( d in , d out ) . \Delta W_{g}=B_{g}A_{g},\qquad\mathrm{rank}(\Delta W_{g})\leq r\ll\min(d_{\mathrm{in}},d_{\mathrm{out}}). 
+ (4) 
+ Given hidden activation x x and selected family g g , the adapted layer computes y = W ​ x + Δ ​ W g ​ x y=Wx+\Delta W_{g}x . Thus g g deterministically routes the call to a lightweight LoRA residual  ( Hu et al., 2021 ) . 
+ At inference time, the agent provides c k = ( g k , z k ) c_{k}=(g_{k},z_{k}) . The selected residual path remains active for the duration of the bounded invocation, and actions are produced as 
+ a t ∼ π θ , ϕ g k ( ⋅ ∣ o t , z k , h t ) , a_{t}\sim\pi_{\theta,\phi_{g_{k}}}(\cdot\mid o_{t},z_{k},h_{t}), 
+ (5) 
+ where ϕ g k \phi_{g_{k}} denotes the residual-adapter parameters for family g k g_{k} . The same backbone features are also used by the progress head defined in Section  4.1 . The adapters give each tool family a distinct execution path while preserving shared visual-language representations. Because each adapter is low-rank, adding tool families introduces only a small parameter overhead. A new family can also be added by training only its adapter while freezing the backbone and prior adapters, which retains previously learned skills far better than end-to-end sequential fine-tuning (Appendix  C.2 ). 
+ 4.2.3 Tool-Aligned Post-Training Objective 
+ TAPT post-trains the parameterization above on a broad invocation-aligned corpus 𝒟 mid inv \mathcal{D}_{\mathrm{mid}}^{\mathrm{inv}} before benchmark-specific adaptation. The goal is to establish reusable semantics for the interface call c = ( g , z ) c=(g,z) : g g selects an execution path, z z grounds that path in the scene, and the progress target teaches the feedback signal returned to the agent. 
+ For imitation learning, TAPT combines two supervised signals. The action-cloning term trains the selected residual path ϕ g \phi_{g} to reproduce the actions for the invocation, while the progress term trains the feedback head to predict invocation progress: 
+ ℒ TAPT = 𝔼 ( o , z , g , a , p ⋆ ) ∼ 𝒟 mid inv [ − ∑ t = 1 T log π θ , ϕ g ( a t ∣ o t , z , h t ) + λ prog T ∑ t = 1 T ‖ p ^ t − p t ⋆ ‖ 2 2 ] . \mathcal{L}_{\mathrm{TAPT}}=\mathbb{E}_{(o,z,g,a,p^{\star})\sim\mathcal{D}_{\mathrm{mid}}^{\mathrm{inv}}}\left[-\sum_{t=1}^{T}\log\pi_{\theta,\phi_{g}}(a_{t}\mid o_{t},z,h_{t})+\frac{\lambda_{\mathrm{prog}}}{T}\sum_{t=1}^{T}\left\|\hat{p}_{t}-p_{t}^{\star}\right\|_{2}^{2}\right]. 
+ (6) 
+ Table 1: Main results under imitation learning. We report success rate (SR) on each benchmark; red values in parentheses indicate the absolute improvement over the corresponding single-model SFT baseline with the same VLA backbone. TAPT denotes Tool-Aligned Post-Training. 
+ Base Model 
+ Adaptation 
+ Deployment mode 
+ LIBERO-Long SR ↑ \uparrow 
+ RoboTwin-SA SR ↑ \uparrow 
+ SFT 
+ Standalone 
+ 77.2 77.2 
+ 1.88 1.88 
+ SFT 
+ Direct planner 
+ 77.0 77.0 
+ 13.80 13.80 
+ OpenVLA 
+ TAPT 
+ VLA tool-family interface 
+ 82.4 82.4 
+ ( ↑ \uparrow 5.2) 
+ 5.00 5.00 
+ ( ↑ \uparrow 3.12) 
+ SFT 
+ Standalone 
+ 92.0 92.0 
+ 16.88 16.88 
+ SFT 
+ Direct planner 
+ 80.2 80.2 
+ 18.80 18.80 
+ OpenVLA-OFT 
+ TAPT 
+ VLA tool-family interface 
+ 95.6 95.6 
+ ( ↑ \uparrow 3.6) 
+ 48.75 48.75 
+ ( ↑ \uparrow 31.87) 
+ SFT 
+ Standalone 
+ 92.4 92.4 
+ 39.38 39.38 
+ SFT 
+ Direct planner 
+ 80.4 80.4 
+ 30.00 30.00 
+ π 0.5 \pi_{0.5} 
+ TAPT 
+ VLA tool-family interface 
+ 97.2 97.2 
+ ( ↑ \uparrow 4.8) 
+ 62.50 62.50 
+ ( ↑ \uparrow 23.12) 
+ Table 2: Results on modern long-horizon manipulation benchmarks. RoboMemArena is evaluated on 26 tasks × \times 10 seeds, and RoboLab-120 on 120 tasks × \times 5 seeds. “Partial progress” measures fine-grained task progress based on subtask completion. 
+ Benchmark 
+ Deployment 
+ Full-task SR ↑ \uparrow 
+ Partial progress ↑ \uparrow 
+ Standard π 0.5 \pi_{0.5} 
+ 26.15 26.15 
+ 48.99 48.99 
+ RoboMemArena  ( Lei et al., 2026 ) 
+ VLAs-as-Tools 
+ 30.00 
+ ( ↑ \uparrow 3.85) 
+ 58.16 
+ ( ↑ \uparrow 9.17) 
+ Standard π 0.5 \pi_{0.5} 
+ 28.5 28.5 
+ 36.7 36.7 
+ RoboLab-120  ( Yang et al., 2026 ) 
+ VLAs-as-Tools 
+ 34.8 
+ ( ↑ \uparrow 6.3) 
+ 42.8 
+ ( ↑ \uparrow 6.1) 
+ This objective jointly updates the tool-family residual adapters and progress head, so the resulting VLA learns both sides of the interface: executing the invocation and returning progress feedback. 
+ For reinforcement learning, TAPT keeps the same invocation unit and optimizes the bounded subtask reward defined above. The reward evaluates only whether the current invocation is completed, rather than whether the full long-horizon task succeeds. In experiments we instantiate this RL stage with GRPO  ( Shao et al., 2024 ) ; implementation details are provided in Appendix  D . Downstream SFT and RL reuse the same interface and objectives, replacing 𝒟 mid inv \mathcal{D}_{\mathrm{mid}}^{\mathrm{inv}} with benchmark-specific invocation-aligned data or environments. The result is a VLA tool family 𝒯 θ , Φ = { T g } g ∈ 𝒢 \mathcal{T}_{\theta,\Phi}=\{T_{g}\}_{g\in\mathcal{G}} that accepts c = ( g , z ) c=(g,z) , executes the selected tool, and returns progress feedback. 
+ 5 Experiment 
+ 5.1 Experimental Setup 
+ Our experiments ask whether VLAs-as-tools improves long-horizon performance in simulation and the real world, whether TAPT makes VLA execution more faithful to agent invocations, and which components drive the gains; Section  5.8 points to further analyses in the appendix. 
+ We evaluate our method mainly with two representative VLA backbones, OpenVLA-OFT and π 0.5 \pi_{0.5} , and include OpenVLA as an additional supervised-adaptation baseline when useful  ( Kim et al., 2024 ; Kim et al., 2025 ; Physical Intelligence et al., 2025 ) . Experiments are conducted on LIBERO  ( Liu et al., 2023 ) , RoboTwin  ( Mu et al., 2025 ) , and CALVIN  ( Mees et al., 2021 ) , with additional long-horizon evaluation on RoboMemArena  ( Lei et al., 2026 ) and RoboLab-120  ( Yang et al., 2026 ) . For LIBERO, we use LIBERO-Long to highlight performance on long-horizon tasks. Since our data-splitting pipeline targets single-arm manipulation, RoboTwin evaluation uses 8 single-arm-executable tasks with a Franka embodiment, denoted RoboTwin-SA; the task list and selection rule are provided in Appendix  G . For CALVIN, we use CALVIN_D with an 80%/20% train-test episode split, treating it as a complementary testbed with existing subtask-level structure. TAPT includes two invocation-aligned (IA) stages: IA Post-train , an intermediate post-training stage on DROID-split, and IA SFT , downstream supervised adaptation on benchmark-specific datasets such as LIBERO-Long-split and RoboTwin-split. The “-split” suffix denotes demonstrations processed by our data-splitting pipeline into invocation-aligned subtasks. In the IL training of both OpenVLA-OFT and π 0.5 \pi_{0.5} , IA Post-train is conducted for 1 epoch; during IA SFT, LIBERO is trained for 150K/30K steps and RoboTwin for 60K/30K steps, respectively, with batch sizes of 8/256 following the official configurations. All RL experiments are implemented with RLinf, with implementation details provided in Appendix  D . Success rate denotes task-level success with evaluation protocol details provided in Appendix  G . 
+ 5.2 Can the VLAs-as-tools Strategy Improve Long-Horizon Embodied Performance? 
+ (a) LIBERO-Long 
+ Base model 
+ Adaptation type 
+ Success Rate ↑ \uparrow 
+ Standard RL 
+ 78.8 78.8 
+ Invocation-aligned RL 
+ 79.0 79.0 
+ TAPT 
+ 80.0 80.0 
+ OpenVLA-OFT 
+ TAPT + VLA tool-family interface 
+ 82.6 
+ Standard RL 
+ 80.0 80.0 
+ Invocation-aligned RL 
+ 89.0 89.0 
+ TAPT 
+ 89.2 89.2 
+ π 0.5 \pi_{0.5} 
+ TAPT + VLA tool-family interface 
+ 91.2 
+ (b) CALVIN 
+ Figure 3: Main reinforcement-learning results on LIBERO-Long and CALVIN. LIBERO-Long evaluates standard RL, TAPT, and VLA tool-family interface deployment; CALVIN tests whether the gains persist under the benchmark’s native subtask structure rather than our split construction. 
+ Table 3: Invocation fidelity on LIBERO-IF benchmark under TAPT component ablations. Faithful Rate (%) measures completion of the invoked counterfactual goal, while Non-biased Rate (%) measures avoidance of the original LIBERO-10 source-task bias. 
+ TAPT components 
+ OpenVLA-OFT 
+ 𝝅 0.5 \pi_{0.5} 
+ IA SFT 
+ IA Post-train 
+ Residual adapters 
+ Faithful ↑ \uparrow 
+ Non-biased ↑ \uparrow 
+ Faithful ↑ \uparrow 
+ Non-biased ↑ \uparrow 
+ 19.4 19.4 
+ 31.2 31.2 
+ 24.8 24.8 
+ 39.6 39.6 
+ ✓ 
+ 30.4 30.4 
+ 38.8 38.8 
+ 36.6 36.6 
+ 43.2 43.2 
+ ✓ 
+ ✓ 
+ 40.6 40.6 
+ 39.2 39.2 
+ 38.2 38.2 
+ 46.6 46.6 
+ ✓ 
+ ✓ 
+ ✓ 
+ 54.0 
+ 47.4 
+ 54.8 
+ 54.6 
+ Table 4: Core ablation of TAPT and the VLA tool-family interface on LIBERO-Long with OpenVLA-OFT and π 0.5 \pi_{0.5} ; TAPT includes IA SFT/Post-train and tool-family residual adapters. 
+ Components 
+ Success Rate (%) ↑ \uparrow 
+ IA SFT 
+ IA Post-train 
+ Tool-family residual adapters 
+ VLA tool-family interface 
+ OpenVLA-OFT 
+ π 0.5 \pi_{0.5} 
+ 92.0 92.0 
+ 92.4 92.4 
+ ✓ 
+ 93.0 93.0 
+ 93.4 93.4 
+ ✓ 
+ ✓ 
+ 94.2 94.2 
+ 91.2 91.2 
+ ✓ 
+ ✓ 
+ ✓ 
+ 94.8 94.8 
+ 96.0 96.0 
+ ✓ 
+ 80.2 80.2 
+ 80.4 80.4 
+ ✓ 
+ ✓ 
+ ✓ 
+ ✓ 
+ 95.6 
+ 97.2 
+ Supervised downstream adaptation. 
+ We first evaluate imitation-learning adaptation when downstream demonstrations are available. Table  1 compares three deployment modes: a standalone SFT-trained VLA, a standard SFT-trained VLA with a direct planner, and our TAPT-trained VLA with the VLA tool-family interface. Deployment mode denotes how the trained VLA is used at evaluation time: Standalone executes the VLA as a single task policy, Direct planner lets a high-level planner periodically issue language instructions, and the VLA tool-family interface establishes a tightly coupled bidirectional interaction between the agent planner and VLA tools. The results show that simply placing a standard SFT policy inside an agent loop is insufficient: on LIBERO-Long, direct planner deployment changes performance by − 0.2 -0.2 , − 11.8 -11.8 , and − 12.0 -12.0 points for OpenVLA, OpenVLA-OFT, and π 0.5 \pi_{0.5} , respectively. In contrast, TAPT with the VLA tool-family interface consistently improves over the corresponding standalone SFT baselines, with gains of up to + 5.2 +5.2 points on LIBERO-Long and + 31.87 +31.87 points on RoboTwin-SA. These results indicate that the main benefit does not come from wrapping a VLA with a planner alone, but from making the VLA executor tool-aligned and reliable under agent–tool interaction. 
+ Reinforcement learning in the target domain. 
+ We next evaluate whether VLAs-as-Tools remains effective when VLAs are improved through target-domain RL. Figure  3 (a) compares Standard RL, IA RL, TAPT, and TAPT with the VLA tool-family interface on LIBERO-Long. Here, Standard RL denotes full-task RL that optimizes the original long-horizon task success without IA units. The full configuration outperforms Standard RL by + 3.8 +3.8 and + 11.2 +11.2 points for OpenVLA-OFT and π 0.5 \pi_{0.5} , respectively. The VLA tool-family interface further adds + 2.6 +2.6 and + 2.0 +2.0 points over TAPT alone, showing the benefit of high-level planning and agent–tool interaction.
+Figure  3 (b) evaluates CALVIN under its native subtask structure, where success also increases from 76.0 76.0 to 78.8 78.8 with Invocation-aligned RL and further to 82.3 82.3 with full TAPT. These results show that the proposed strategy also benefits RL-based training, and that the gains are not tied to our own split construction. 
+ 5.3 Do the Gains Extend to Modern Long-Horizon Benchmarks? 
+ RoboMemArena tests memory-dependent multi-stage execution, while RoboLab-120 tests visual, relational, and procedural generalization  ( Lei et al., 2026 ; Yang et al., 2026 ) . Under a uniform 2,500-step budget, Table  2 shows that VLAs-as-Tools improves RoboMemArena full-task SR by 3.85 points and partial progress by 9.17 points, and improves RoboLab-120 by 6.3 and 6.1 points, respectively. In a representative RoboMemArena recovery, nominal tool calls terminate before the physical goal is satisfied; the agent detects the mismatch, regenerates the remaining suffix, and re-invokes the failed pick-and-place to complete the task. 
+ 5.4 Can VLAs-as-Tools Improve Real-World Long-Horizon Manipulation? 
+ Table 5: Real-world successes and success rates (%) over 20 trials per task. 
+ Task 
+ Fine-tuned π 0.5 \pi_{0.5} 
+ Ours 
+ Simple 
+ 4/20 
+ (20.0) 
+ 13/20 
+ (65.0) 
+ Conditioned 
+ 1/20 
+ (5.0) 
+ 13/20 
+ (65.0) 
+ Long 
+ 5/20 
+ (25.0) 
+ 9/20 
+ (45.0) 
+ Avg. 
+ 10/60 
+ (16.7) 
+ 35/60 
+ (58.3) 
+ We compare a fine-tuned π 0.5 \pi_{0.5} baseline with VLAs-as-Tools on a Franka Research 3 using one fixed front-view RealSense D435. Both use 30 demonstrations per task, 30K training steps on eight A100s, one RTX 4090 at inference, and the same 20 marked initial configurations. Success is judged by the final physical state (Appendix  F ). We evaluate three real-world tasks— Simple , Conditioned , and Long —as illustrated in Figure  4 . 
+ Figure 4: Stage-by-stage real-world task progression. Top: Task1 (Simple) and Task2 (Conditioned); bottom: Task3 (Long). Each square crop shows a completed physical stage; Task2 marks its repeated physical configuration as “Same scene.” 
+ Table  5 shows that average success rises from 16.7% to 58.3%. Conditioned provides the clearest evidence, improving from 5.0% to 65.0%: the same visual input can occur at different task stages that require different next actions. Lacking explicit task state, the end-to-end policy cannot reliably disambiguate these aliased states or choose the action that advances execution. Our planner resolves this ambiguity by tracking completed stages and invoking the appropriate tool. Appendix Figure  8 visualizes this stage-tracking failure. 
+ 5.5 Does TAPT Make VLA Execution More Faithful to Agent Invocations? 
+ Long-horizon success alone does not show whether a VLA has become a more reliable tool for an agent. We thus evaluate invocation fidelity on LIBERO-Instruction Following (LIBERO-IF), a counterfactual suite built on familiar LIBERO-10 scenes. LIBERO-IF follows LIBERO-CF  ( Fang et al., 2026 ) but focuses on our agent–tool setting: each task changes the invoked goal—for example, the target object, spatial relation, or stopping point—with the high-level plan fixed, varying only the executor by progressively enabling TAPT components. Detailed settings are provided in Appendix  G . 
+ Faithful Rate measures completion of the invoked counterfactual goal. Biased Rate measures whether execution instead pursues the original source-task goal, and Non-biased Rate is 100 % − Biased Rate 100\%-\text{Biased Rate} . Table  3 shows that full TAPT improves Faithful/Non-biased Rate by + 34.6 / + 16.2 +34.6/+16.2 points for OpenVLA-OFT and + 30.0 / + 15.0 +30.0/+15.0 points for π 0.5 \pi_{0.5} . Thus, TAPT not only raises success but also strengthens the invocation–behavior binding needed for reliable tool use: the executor follows the requested call more often and is less likely to revert to its training-task sequence. 
+ 5.6 Core Design Ablation 
+ Table  4 separates the effects of executor alignment and agent–tool interaction. Invocation-aligned SFT adds 1.0 point for both backbones. Further post-training improves OpenVLA-OFT to 94.2%, but reduces π 0.5 \pi_{0.5} from 93.4% to 91.2%, likely because the open-source post-training data is less matched to the high-quality training distribution of π 0.5 \pi_{0.5} . Tool-family residual adapters then raise OpenVLA-OFT to 94.8% and recover the backbone-specific drop in π 0.5 \pi_{0.5} , raising its success rate to 96.0%. The interface alone reaches only 80.2%/80.4%, showing that planner wrapping cannot make an unaligned executor reliable; combining TAPT with the interface instead achieves the best 95.6%/97.2%. These results confirm that invocation-aligned execution and bidirectional agent–tool interaction are complementary. 
+ Figure 5: 
+Qualitative comparison of long-horizon failure recovery. Our method prevents cascading failures through progress feedback and replanning, turning local errors into recoverable transitions.
+ 5.7 Qualitative Analysis 
+ Figure  5 illustrates how the agent–tool loop prevents a local execution error from cascading through a long-horizon task. After dropping the left moka pot, the baseline continues the nominal trajectory from an invalid state and ultimately fails, exposing the inability of a monolithic rollout to revise later actions after an early state change. In contrast, our agent detects the failed grasp through progress feedback, withdraws from the failed interaction, and re-invokes the corresponding VLA tool before proceeding to the next pot. The system thus resolves the error as a bounded local correction rather than requiring the executor to recover the entire task within one uninterrupted rollout. 
+ 5.8 Additional Results in the Appendix 
+ The appendix further reports few-shot adaptation (up to + 11.5 +11.5 points; Table  12 ), planner robustness across four VLMs (Table  13 ), planning efficiency of progress-triggered replanning (Table  14 ), tool-family extensibility (Appendix  C ), and adapter cost (only + 9 % +9\% parameters; Appendix  E.1 ). 
+ 6 Conclusion 
+ We presented VLAs-as-Tools , a framework that treats VLA models as callable, specialized executors under a planning-capable multimodal agent. By separating high-level decomposition, progress monitoring, and recovery from bounded robot-control execution, the framework makes VLA policies more composable for long-horizon embodied tasks. We further introduced Tool-Aligned Post-Training to improve invocation fidelity and specialize VLA tools without discarding their pretrained semantic capabilities. Experiments in simulation and on a real Franka robot show gains in task success, instruction alignment, few-shot adaptation, and planner robustness. The real-world study covers one robot, one camera, and three tabletop tasks, and primitives absent from pretraining and adaptation data still require new demonstrations; broader settings remain future work. 
+ References 
+ Ahn et al. (2022) 
+ M. Ahn, A. Brohan, N. Brown, et al. 
+ Do as I can, not as I say: grounding language in robotic affordances .
+ arXiv preprint arXiv:2204.01691 .
+ Cited by: §1 ,
+ §2 .
+ Belkhale et al. (2024) 
+ S. Belkhale, T. Ding, T. Xiao, et al. 
+ RT-H: action hierarchies using language .
+ arXiv preprint arXiv:2403.01823 .
+ Cited by: §2 .
+ Black et al. (2024) 
+ K. Black, N. Brown, D. Driess, et al. 
+ π 0 \pi_{0} : A vision-language-action flow model for general robot control .
+ arXiv preprint arXiv:2410.24164 .
+ Cited by: §2 .
+ Brohan et al. (2023) 
+ A. Brohan et al. 
+ RT-2: vision-language-action models transfer web knowledge to robotic control .
+ arXiv preprint arXiv:2307.15818 .
+ Cited by: §2 .
+ Chen et al. (2025) 
+ Z. Chen, Z. Shi, X. Lu, L. He, S. Qian, E. Zhou, Z. Yin, W. Ouyang, J. Shao, Y. Qiao, C. Lu, and L. Sheng 
+ RH20T-P: a primitive-level robotic manipulation dataset towards composable generalization agents in real-world scenarios .
+ In IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) ,
+ pp. 20532–20539 .
+ External Links: Document 
+ Cited by: Appendix C ,
+ §4.1.1 .
+ Fang et al. (2026) 
+ Y. Fang, Y. Feng, D. Jing, J. Liu, Y. Yang, Z. Wei, D. Szafir, and M. Ding 
+ When vision overrides language: evaluating and mitigating counterfactual failures in VLAs .
+ arXiv preprint arXiv:2602.17659 .
+ Cited by: Appendix G ,
+ §1 ,
+ §2 ,
+ §5.5 .
+ Fei et al. (2025) 
+ S. Fei, S. Wang, J. Shi, Z. Dai, J. Cai, P. Qian, L. Ji, X. He, S. Zhang, Z. Fei, J. Fu, J. Gong, and X. Qiu 
+ LIBERO-plus: in-depth robustness analysis of vision-language-action models .
+ arXiv preprint arXiv:2510.13626 .
+ Cited by: §2 .
+ Glossop et al. (2025) 
+ C. Glossop, W. Chen, A. Bhorkar, D. Shah, and S. Levine 
+ CAST: counterfactual labels improve instruction following in vision-language-action models .
+ External Links: 2508.13446 
+ Cited by: §2 .
+ Hancock et al. (2025) 
+ A. J. Hancock, X. Wu, L. Zha, O. Russakovsky, and A. Majumdar 
+ Actions as language: fine-tuning VLMs into VLAs without catastrophic forgetting .
+ arXiv preprint arXiv:2509.22195 .
+ Cited by: §1 .
+ Hu et al. (2021) 
+ E. J. Hu, Y. Shen, P. Wallis, Z. Allen-Zhu, Y. Li, S. Wang, L. Wang, and W. Chen 
+ LoRA: low-rank adaptation of large language models .
+ arXiv preprint arXiv:2106.09685 .
+ Cited by: §4.2.2 .
+ Huang et al. (2022) 
+ W. Huang, F. Xia, T. Xiao, et al. 
+ Inner monologue: embodied reasoning through planning with language models .
+ arXiv preprint arXiv:2207.05608 .
+ Cited by: §2 .
+ Jang et al. (2022) 
+ E. Jang, A. Irpan, M. Khansari, et al. 
+ BC-Z: zero-shot task generalization with robotic imitation learning .
+ arXiv preprint arXiv:2202.02005 .
+ Cited by: §2 .
+ Khazatsky et al. (2024) 
+ A. Khazatsky, K. Pertsch, S. Nair, A. Balakrishna, S. Dasari, S. Karamcheti, S. Nasiriany, M. K. Srirama, L. Y. Chen, K. Ellis, et al. 
+ DROID: a large-scale in-the-wild robot manipulation dataset .
+ External Links: 2403.12945 ,
+ Link 
+ Cited by: Appendix B .
+ Kim et al. (2025) 
+ M. J. Kim, C. Finn, and P. Liang 
+ Fine-tuning vision-language-action models: optimizing speed and success .
+ arXiv preprint arXiv:2502.19645 .
+ Cited by: §1 ,
+ §5.1 .
+ Kim et al. (2024) 
+ M. J. Kim, K. Pertsch, S. Karamcheti, et al. 
+ OpenVLA: an open-source vision-language-action model .
+ arXiv preprint arXiv:2406.09246 .
+ Cited by: §2 ,
+ §5.1 .
+ Lei et al. (2026) 
+ H. Lei, W. Song, H. Zhang, J. Pei, J. Chen, H. Yan, H. Zhao, P. Ding, Z. Zhang, L. Huang, D. Wang, Y. Wang, and H. Li 
+ RoboMemArena: a comprehensive and challenging robotic memory benchmark .
+ External Links: 2605.10921 ,
+ Link 
+ Cited by: Appendix G ,
+ Table 2 ,
+ §5.1 ,
+ §5.3 .
+ Li et al. (2026) 
+ R. Li, Y. Zhou, Y. Zhu, K. Chen, J. Wang, S. Wang, K. Hu, M. Yu, B. Jiang, Z. Su, J. Ma, X. He, Y. Shen, Y. Yang, G. Ren, M. Yao, W. Wang, and Y. Mu 
+ RoboClaw: an agentic framework for scalable long-horizon robotic tasks .
+ External Links: 2603.11558 
+ Cited by: §2 .
+ Liang et al. (2022) 
+ J. Liang, W. Huang, F. Xia, et al. 
+ Code as policies: language model programs for embodied control .
+ arXiv preprint arXiv:2209.07753 .
+ Cited by: §1 .
+ Liang et al. (2025) 
+ W. Liang, R. Zhou, Y. Ma, B. Zhang, S. Li, Y. Liao, and P. Kuang 
+ Large model empowered embodied ai: a survey on decision-making and embodied learning .
+ External Links: 2508.10399 
+ Cited by: §2 .
+ Liu et al. (2023) 
+ B. Liu, Y. Zhu, C. Gao, et al. 
+ LIBERO: benchmarking knowledge transfer for lifelong robot learning .
+ arXiv preprint arXiv:2306.03310 .
+ Cited by: §5.1 .
+ Liu et al. (2026) 
+ Y. Liu, H. Li, S. Tian, Y. Qin, Y. Chen, Y. Zheng, Y. Huang, and D. Zhao 
+ Towards long-lived robots: continual learning VLA models via reinforcement fine-tuning .
+ arXiv preprint arXiv:2602.10503 .
+ Cited by: §1 .
+ Liu et al. (2024) 
+ Z. Liu, J. Zhang, K. Asadi, Y. Liu, D. Zhao, S. Sabach, and R. Fakoor 
+ TAIL: task-specific adapters for imitation learning with large pretrained models .
+ In International Conference on Learning Representations (ICLR) ,
+ Cited by: §C.2 .
+ Mees et al. (2022) 
+ O. Mees, L. Hermann, and W. Burgard 
+ What matters in language conditioned robotic imitation learning over unstructured data .
+ arXiv preprint arXiv:2204.06252 .
+ Cited by: §2 .
+ Mees et al. (2021) 
+ O. Mees, L. Hermann, E. Rosete-Beas, and W. Burgard 
+ CALVIN: a benchmark for language-conditioned policy learning for long-horizon robot manipulation tasks .
+ arXiv preprint arXiv:2112.03227 .
+ Cited by: §5.1 .
+ Mu et al. (2025) 
+ Y. Mu, T. Chen, Z. Chen, et al. 
+ RoboTwin: dual-arm robot benchmark with generative digital twins .
+ arXiv preprint arXiv:2504.13059 .
+ Cited by: §5.1 .
+ NVIDIA GEAR Team (2025) 
+ NVIDIA GEAR Team 
+ GR00T N1.6: an improved open foundation model for generalist humanoid robots .
+ Note: NVIDIA Research 
+ External Links: Link 
+ Cited by: §1 .
+ Octo Model Team et al. (2024) 
+ Octo Model Team, D. Ghosh, H. Walke, et al. 
+ Octo: an open-source generalist robot policy .
+ arXiv preprint arXiv:2405.12213 .
+ Cited by: §2 .
+ Open X-Embodiment Collaboration et al. (2023) 
+ Open X-Embodiment Collaboration, A. O’Neill, A. Rehman, A. Gupta, et al. 
+ Open X-Embodiment: robotic learning datasets and RT-X models .
+ arXiv preprint arXiv:2310.08864 .
+ Cited by: Appendix B .
+ Physical Intelligence et al. (2025) 
+ Physical Intelligence, K. Black, N. Brown, et al. 
+ π 0.5 \pi_{0.5} : A vision-language-action model with open-world generalization .
+ arXiv preprint arXiv:2504.16054 .
+ Cited by: §1 ,
+ §2 ,
+ §5.1 .
+ Römer et al. (2026) 
+ R. Römer, Y. Zhang, Y. Li, and A. P. Schoellig 
+ CLARE: continual learning for vision-language-action models via autonomous adapter routing and expansion .
+ IEEE Robotics and Automation Letters .
+ Cited by: §C.2 .
+ Salimpour et al. (2025) 
+ S. Salimpour, L. Fu, K. Rachwał, P. Bertrand, K. O’Sullivan, R. Jakob, F. Keramat, L. Militano, G. Toffetti, H. Edelman, and J. Peña Queralta 
+ Towards embodied agentic ai: review and classification of llm- and vlm-driven robot autonomy and interaction .
+ External Links: 2508.05294 
+ Cited by: §2 .
+ Schick et al. (2023) 
+ T. Schick, J. Dwivedi-Yu, R. Dessì, et al. 
+ Toolformer: language models can teach themselves to use tools .
+ arXiv preprint arXiv:2302.04761 .
+ Cited by: §1 .
+ Shao et al. (2024) 
+ Z. Shao, P. Wang, Q. Zhu, R. Xu, J. Song, X. Bi, H. Zhang, M. Zhang, Y.K. Li, Y. Wu, et al. 
+ DeepSeekMath: pushing the limits of mathematical reasoning in open language models .
+ arXiv preprint arXiv:2402.03300 .
+ Cited by: §4.2.3 .
+ Shi et al. (2025) 
+ L. X. Shi, B. Ichter, M. Equi, et al. 
+ Hi Robot: open-ended instruction following with hierarchical vision-language-action models .
+ arXiv preprint arXiv:2502.19417 .
+ Cited by: §2 .
+ Walke et al. (2023) 
+ H. R. Walke, K. Black, T. Z. Zhao, Q. Vuong, C. Zheng, P. Hansen-Estruch, A. W. He, V. Myers, M. J. Kim, M. Du, A. Lee, K. Fang, C. Finn, and S. Levine 
+ BridgeData V2: a dataset for robot learning at scale .
+ In Proceedings of the 7th Conference on Robot Learning ,
+ Proceedings of Machine Learning Research , Vol. 229 , pp. 1723–1736 .
+ External Links: Link 
+ Cited by: Appendix B .
+ Yang et al. (2026) 
+ J. X. Yang, R. Dagli, A. Zook, H. Hadfield, A. Goyal, S. Birchfield, F. Ramos, and J. Tremblay 
+ RoboLab: a high-fidelity simulation benchmark for analysis of task generalist policies .
+ External Links: 2604.09860 ,
+ Link 
+ Cited by: Appendix G ,
+ Table 2 ,
+ §5.1 ,
+ §5.3 .
+ Yang et al. (2024) 
+ J. Yang, C. E. Jimenez, A. Wettig, et al. 
+ SWE-agent: agent-computer interfaces enable automated software engineering .
+ arXiv preprint arXiv:2405.15793 .
+ Cited by: §1 .
+ Yao et al. (2022) 
+ S. Yao, J. Zhao, D. Yu, et al. 
+ ReAct: synergizing reasoning and acting in language models .
+ arXiv preprint arXiv:2210.03629 .
+ Cited by: §1 .
+ Yuan et al. (2026) 
+ H. Yuan et al. 
+ Qwen-RobotManip technical report: alignment unlocks scale for robotic manipulation foundation models .
+ arXiv preprint arXiv:2606.17846 .
+ Cited by: §C.2 .
+ Zhang et al. (2026a) 
+ L. Zhang, T. Tang, Z. Zhan, X. Chen, Z. Chen, J. Han, J. Zhu, P. Xu, H. Xu, H. Wu, L. Lin, and X. Liang 
+ AtomicVLA: unlocking the potential of atomic skill learning in robots .
+ arXiv preprint arXiv:2603.07648 .
+ Cited by: §2 .
+ Zhang et al. (2026b) 
+ N. Zhang, B. Zhu, S. Zhou, and J. Chen 
+ Restoring linguistic grounding in VLA models via train-free attention recalibration .
+ arXiv preprint arXiv:2603.06001 .
+ Cited by: §1 .
+ Appendix 
+ Appendix A Progress Supervision and Feedback 
+ Supervision and prediction. 
+ For each bounded subtask invocation, we supervise a scalar progress signal using a normalized temporal proxy. For an automatically segmented execution window of length T T , the frame-level target is p t ⋆ = ( t − 1 ) / ( T − 1 ) p_{t}^{\star}=(t-1)/(T-1) , increasing linearly from 0 0 at the first frame to 1 1 at the last. The progress head pools the final-layer backbone feature and passes it through a lightweight D → → → 1 D\!\rightarrow\!1024\!\rightarrow\!256\!\rightarrow\!1 MLP followed by a sigmoid. It is jointly optimized with the action objective using mean-squared error and λ prog = 0.1 \lambda_{\mathrm{prog}}=0.1 . At runtime, each 2 Hz VLA inference jointly predicts an action chunk and its aligned progress feedback, requiring no separate perception pass or model call. 
+ Runtime semantics and control. 
+ Progress is local to the currently active subtask invocation rather than a global task-completion percentage. The VLM planner instead maintains global execution state from the plan, current observations, completed calls, and execution history. This separation avoids requiring the low-level executor to infer an ambiguous global completion state while exposing intervention points before failure or timeout. A runtime monitor combines a completion threshold with consecutive-sample smoothing and lookback-based progress gains to decide whether to continue the current call, advance to the next tool, or invoke replanning after stagnation. Figure  6 illustrates these outcomes for the same pick invocation: progress crosses the completion threshold after a successful grasp but plateaus when the grasp is missed. Because supervision comes from temporal position within segmented windows, the prediction is a learned temporal completion proxy correlated with physical execution state, not a perfectly calibrated estimate of semantic task completion. 
+ Figure 6: Local progress feedback for the same bounded pick invocation. In the successful rollout (top), predicted progress rises as the grasp develops and crosses the completion threshold τ = 0.90 \tau=0.90 , triggering a transition to the next tool. In the failed rollout (bottom), the missed grasp causes progress to plateau, allowing the runtime monitor to identify stagnation and request replanning. 
+ Appendix B Automatic Labeling Pipeline 
+ We convert raw robot trajectories into invocation-aligned training examples in three stages: global video understanding, state-change-based segmentation, and definition-conditioned tool-family labeling. Unlike trajectory-level captioning used in large robot datasets  ( Walke et al., 2023 ; Khazatsky et al., 2024 ; Open X-Embodiment Collaboration et al., 2023 ) , our pipeline assigns each bounded segment an operational label defined by its contact pattern, motion, physical effect, and termination condition. Figure  7 summarizes the resulting clips, labels, and normalized progress annotations. 
+ Figure 7: 
+Visualization of the automatic labeling pipeline output. Raw robot trajectories are segmented into bounded manipulation clips and assigned invocation-aligned tool-family labels with normalized progress annotations, providing structured examples for Tool-Aligned Post-Training and downstream split adaptation.
+ Global video understanding. 
+ For each trajectory, a multimodal model summarizes the manipulated objects, task intent, spatial relations, and major contact events. This global context disambiguates short local clips during segmentation and labeling. 
+ State-change-based segmentation. 
+ We split trajectories at gripper open–close transitions and motion changes. Gripper transitions provide explicit boundaries for grasp and release, while relative translational and angular velocities between the end-effector and object provide supporting cues for push, pull, flip, rotate, insert, press, and strike. These cues propose boundaries but do not determine labels by themselves. 
+ Definition-conditioned tool-family labeling. 
+ For each candidate segment, the model receives the local video, global summary, state-change cues, and the operational definitions in Table  6 . It selects the family that best matches the observed contact, motion direction, object displacement, and termination condition. 
+ Table 6: Operational definitions used by the automatic labeling pipeline. Arguments indicate the manipulated object, target object or target position, and geometric parameter when applicable. 
+ Tool family 
+ Definition 
+ reach(obj) 
+ The arm moves toward the object while the gripper state remains unchanged. The segment ends before grasping, contact-driven translation, or another object-changing interaction begins. 
+ grasp(obj) 
+ The gripper closes on the object after the end-effector is positioned around it, establishing a stable hold. The segment ends when the gripper closure completes and the object moves with the end-effector. 
+ move(pos, obj2) 
+ The arm translates toward a target position while the gripper state remains unchanged. Here obj2 denotes the reference object or target area and pos denotes the target position relative to it. 
+ release(obj) 
+ The gripper opens to detach the held object at its current location. The segment ends when the gripper is open and the object no longer moves with the end-effector. 
+ flip(obj, angle) 
+ The robot rotates the object, typically around a horizontal axis, so that its vertical orientation is inverted or the opposite side is exposed. 
+ rotate(obj, angle) 
+ The robot adjusts the object’s 3D pose or orientation without vertical inversion, or manipulates an articulated mechanism through a rotational joint. 
+ push(obj, pos) 
+ The end-effector contacts the object and translates while applying forward force, causing the object to move toward the target position. The action ends when object motion stops and contact is released. 
+ pull(obj, pos) 
+ The end-effector establishes a pulling contact and translates backward, causing the object to move toward the target position. 
+ insert(obj1, obj2) 
+ obj1 is aligned with an opening, slot, or receptacle of obj2 , then translated along the insertion axis until it is partially or fully seated. 
+ press(obj) 
+ The end-effector moves downward to contact the object and applies sustained normal force, usually with limited tangential motion. 
+ strike(obj1, obj2, pos) 
+ obj1 , the end-effector, or another held item is moved rapidly to impact obj2 or a specified location pos . 
+ Signal use and consistency checks. 
+ Gripper transitions determine candidate interaction boundaries; motion cues then distinguish families with similar gripper states. If local evidence conflicts with the global context or a family definition, the pipeline lowers confidence or sends the segment for manual review rather than forcing a label. The final examples are x IL = ( o 1 : T , z , g , a 1 : T , p 1 : T ⋆ ) x_{\mathrm{IL}}=(o_{1:T},z,g,a_{1:T},p_{1:T}^{\star}) , where z z is the local invocation instruction, g g is the tool-family label, and p 1 : T ⋆ p_{1:T}^{\star} is normalized within-segment progress. 
+ Appendix C Tool-Family Taxonomy and Extensibility 
+ Our tool-family taxonomy is data-driven. Following prior primitive-level formulations  ( Chen et al., 2025 ) , we distinguish free-space motion primitives from interaction primitives that involve physical contact. Applying the labeling pipeline in Appendix  B to broad-coverage datasets such as DROID yields 11 fundamental tool families (Table  6 ), 7 of which are used in each of LIBERO and RoboTwin. 
+ C.1 Taxonomy Granularity 
+ To test whether performance depends on the exact granularity of the taxonomy, we compare the current tool families with a coarser, task-level taxonomy on LIBERO-Long using π 0.5 \pi_{0.5} (Table  7 ). The modest gap indicates that performance is not overly sensitive to the exact taxonomy: our data-derived tool families work without benchmark-specific or exhaustive manual design, while separating motion and contact primitives provides a useful inductive bias. 
+ Table 7: Effect of tool-family granularity on LIBERO-Long with π 0.5 \pi_{0.5} . 
+ Taxonomy 
+ Tool families 
+ LIBERO-Long SR ↑ \uparrow 
+ Coarse 
+ pick, place, open, close, rotate 
+ 96.6 96.6 
+ Current 
+ reach, grasp, move, release, pull, push, rotate 
+ 97.2 
+ C.2 Incremental Tool-Family Expansion 
+ We distinguish recombinations of existing primitives from genuinely new physical primitives. If a task can be expressed as a new sequence of registered families, the high-level planner can solve it by composing existing tools with scene-grounded instructions. However, if it requires a primitive absent from both the pretrained VLA and the adaptation data, no data-driven VLA, whether end-to-end or tool-based, can be expected to execute it reliably zero-shot. This is a general coverage limit of data-driven robot policies  ( Yuan and others, 2026 ) , not of our taxonomy. 
+ VLAs-as-Tools becomes advantageous once demonstrations of the new primitive become available. Instead of updating the full policy, we add a lightweight family-specific adapter while freezing the shared backbone and all prior adapters. This isolates the update, reduces interference with existing families, and avoids data replay. We test this property in a three-stage LIBERO-Long experiment: 
+ 1. 
+ Stage 1 (initial registry): learn reach, grasp, move, release, and rotate. 
+ 2. 
+ Stage 2 (add pull): add opening tasks that need a new pull primitive; train only its adapter. 
+ 3. 
+ Stage 3 (add push): add closing tasks that need a new push primitive; train only its adapter. 
+ At Stages 2 and 3, the backbone and prior adapters stay frozen, with no data replay. We compare this modular strategy with end-to-end sequential fine-tuning, which updates the shared policy whenever a new primitive is added. We report five metrics: S2 New , the success of the new pull family after Stage 2; S2 Ret. , the retention of the five Stage 1 families; S3 New , the success of the new push family after Stage 3; S3 Ret. , the retention of all previously learned families; and Final , the LIBERO-Long success rate with all seven families. 
+ Table 8: Incremental tool-family expansion on LIBERO-Long. New families are added in two stages without data replay. 
+ Method 
+ S2 New 
+ S2 Ret. 
+ S3 New 
+ S3 Ret. 
+ Final 
+ End-to-end sequential FT 
+ 98.6 
+ 91.4 91.4 
+ 98.8 
+ 86.4 86.4 
+ 82.4 82.4 
+ Family-specific LoRA expansion (ours) 
+ 98.4 98.4 
+ 99.0 
+ 98.8 
+ 97.6 
+ 95.0 
+ Table  8 shows that both methods learn pull and push, confirming that new operations require training data. The key difference is prior-skill retention: after Stage 3, end-to-end fine-tuning retains 86.4% of prior skills, while ours retains 97.6% and achieves 95.0% final LIBERO-Long success, consistent with prior adapter-based continual learning  ( Liu et al., 2024 ; Römer et al., 2026 ) . 
+ Appendix D Additional Details for Tool-Aligned Post-Training 
+ This appendix records the formal details that are omitted from the main Method section for readability. For reinforcement learning, each invocation ( z , g ) (z,g) defines a bounded subtask MDP whose reset distribution starts from states where that invocation should begin. Let 𝒮 z , g 0 \mathcal{S}^{0}_{z,g} be the pool of such states, obtained from demonstration boundaries or successful executions of preceding subtasks. We sample 
+ ρ z , g ​ ( s ) = 1 | 𝒮 z , g 0 | ​ ∑ s ¯ ∈ 𝒮 z , g 0 δ ⁡ ( s = s ¯ ) , s 0 ∼ ρ z , g . \rho_{z,g}(s)=\frac{1}{|\mathcal{S}^{0}_{z,g}|}\sum_{\bar{s}\in\mathcal{S}^{0}_{z,g}}\delta(s=\bar{s}),\qquad s_{0}\sim\rho_{z,g}. 
+ (7) 
+ Each invocation has a state-based completion predicate ψ z , g ​ ( s ) ∈ { 0 , 1 } \psi_{z,g}(s)\in\{0,1\} . For a bounded rollout τ = ( s 0 , a 0 , … , s H ) \tau=(s_{0},a_{0},\ldots,s_{H}) , the invocation-level reward is 
+ R ( τ ; z , g ) = [ max 0 ≤ t ≤ H ψ z , g ( s t ) = 1 ] . R(\tau;z,g)=\mathbf{1}\!\left[\max_{0\leq t\leq H}\psi_{z,g}(s_{t})=1\right]. 
+ (8) 
+ Thus the RL stage optimizes the expected completion of the current invocation, 
+ max θ , Φ 𝔼 ( z , g ) , τ ∼ π θ , ϕ g ( ⋅ ∣ z ) , ℳ z , g [ R ( τ ; z , g ) ] , \max_{\theta,\Phi}\mathbb{E}_{(z,g),\,\tau\sim\pi_{\theta,\phi_{g}}(\cdot\mid z),\,\mathcal{M}_{z,g}}\left[R(\tau;z,g)\right], 
+ (9) 
+ which we instantiate with GRPO in our experiments. 
+ Completion predicates in RLinf. 
+ We instantiate ψ z , g \psi_{z,g} using simulator-state predicates.
+For spatial relations that are already part of the LIBERO benchmark definition, such as placing an object in a receptacle or on a target surface, we reuse LIBERO’s native success predicates.
+For intermediate invocations that are not exposed as standalone LIBERO task goals, such as reaching or grasping, we add lightweight predicates over robot and object state.
+This keeps the final task relations aligned with LIBERO while still allowing RL to optimize bounded intermediate tool calls. 
+ Table 9: Completion predicates used to instantiate ψ z , g \psi_{z,g} in RLinf. We reuse LIBERO native predicates for benchmark-defined spatial relations and add state-based predicates for intermediate tool invocations. 
+ Invocation family g g 
+ Predicate source 
+ Success condition for ψ z , g \psi_{z,g} 
+ Reach 
+ Added state predicate 
+ The end-effector is within a task-specific distance threshold of the target object, handle, drawer, or knob. 
+ Grasp 
+ Added state predicate 
+ The target object is held by the gripper, verified using contact and gripper-state information. 
+ Move 
+ LIBERO native predicate 
+ The target object satisfies LIBERO’s native containment predicate with the target receptacle or on-top predicate with the target surface. 
+ Release 
+ Added state predicate 
+ The gripper is open and the object is no longer held; for placement subtasks, the required spatial relation must remain satisfied. 
+ Rotate 
+ Added state predicate 
+ The relevant articulated state, such as a stove-knob angle, crosses the task-specific threshold. 
+ Push 
+ Added state predicate 
+ The object is displaced into the target region or satisfies the corresponding scene-state condition. 
+ Reset-state pool refresh. 
+ The choice of 𝒮 z , g 0 \mathcal{S}^{0}_{z,g} is important for composing independently trained subtask policies.
+In the first round of subtask RL, we collect reset states using the initial policy or demonstration boundaries.
+This provides valid states for training individual subtasks, but it can become stale after policy improvement: once a preceding subtask policy is updated, it may end with different gripper poses, object contacts, approach directions, or small object displacements than those in the original pool.
+Consequently, a downstream subtask may be trained on a reset distribution that no longer matches the states produced by the learned composed policy.
+In our experiments, this mismatch can make individually improved subtasks compose worse, sometimes reducing full-task success. 
+ To reduce this distribution shift, we refresh the reset-state pools after one round of subtask RL.
+We deploy the trained tool-family subtask policy, save boundary states whenever the preceding invocation succeeds, and use these refreshed states as 𝒮 z , g 0 \mathcal{S}^{0}_{z,g} for the next round of subtask training.
+The refreshed pool therefore matches the state distribution induced by the current composed policy, improving the handoff between neighboring invocations.
+Empirically, this refresh step recovers full-task performance gains that are not obtained from stale initial-policy pools alone. 
+ Table 10: Reset-state pool choices in RLinf. Refreshing 𝒮 z , g 0 \mathcal{S}^{0}_{z,g} with the trained tool-family policy reduces the distribution shift introduced when subtask RL changes the states passed between invocations. 
+ Reset-state pool 𝒮 z , g 0 \mathcal{S}^{0}_{z,g} 
+ What it matches 
+ Observed effect 
+ Original task resets 
+ The benchmark initial state distribution 
+ Appropriate for the first invocation, but unsuitable for later subtasks because the policy must implicitly reproduce the task prefix. 
+ Initial-policy or demonstration boundary pool 
+ States where each subtask should begin before subtask RL changes the policy 
+ Enables first-round subtask RL, but can become mismatched after upstream subtasks are updated. 
+ Refreshed tool-family boundary pool 
+ Boundary states produced by the trained composed subtask policy 
+ Improves subtask handoff and increases full-task success by aligning training resets with deployment states. 
+ For the tool-family residual parameterization, each selected linear layer W ∈ ℝ d out × d in W\in\mathbb{R}^{d_{\mathrm{out}}\times d_{\mathrm{in}}} receives a family-specific LoRA residual Δ ​ W g = B g ​ A g \Delta W_{g}=B_{g}A_{g} , where A g ∈ ℝ r × d in A_{g}\in\mathbb{R}^{r\times d_{\mathrm{in}}} , B g ∈ ℝ d out × r B_{g}\in\mathbb{R}^{d_{\mathrm{out}}\times r} , and r ≪ min ⁡ ( d in , d out ) r\ll\min(d_{\mathrm{in}},d_{\mathrm{out}}) .
+Given hidden activation x x , the adapted layer computes y = W ​ x + Δ ​ W g ​ x y=Wx+\Delta W_{g}x .
+For selected layers ℒ \mathcal{L} and K = | 𝒢 | K=|\mathcal{G}| tool families, this adds 𝒪 ⁡ ( | ℒ | ​ K ​ r ​ ( d in + d out ) ) \mathcal{O}(|\mathcal{L}|Kr(d_{\mathrm{in}}+d_{\mathrm{out}})) parameters while keeping the pretrained VLA backbone shared across families. 
+ Appendix E Additional Adaptation and Planner Robustness Results 
+ E.1 Tool-Family Adapter Cost 
+ Table  11 reports the normalized parameter and inference cost of tool-family specialization, which is lightweight. Adapters add only 9% parameters and 7% inference time to OpenVLA-OFT; adapted π 0.5 \pi_{0.5} remains at 0.50 × \times the OpenVLA-OFT parameter baseline despite higher latency, avoiding a separate full VLA per tool family. 
+ Table 11: Normalized model size and inference time on LIBERO-Long. Values are normalized to OpenVLA-OFT without tool-family adapters. 
+ Model 
+ Parameters 
+ Inference time 
+ OpenVLA-OFT 
+ 1.00 × \times 
+ 1.00 × \times 
+ OpenVLA-OFT + tool families 
+ 1.09 × \times 
+ 1.07 × \times 
+ π 0.5 \pi_{0.5} 
+ 0.44 × \times 
+ 1.26 × \times 
+ π 0.5 \pi_{0.5} + tool families 
+ 0.50 × \times 
+ 1.34 × \times 
+ A central purpose of Tool-Aligned Post-Training is to make the VLA interface easier to adapt to a downstream benchmark. We therefore evaluate few-shot invocation-aligned SFT on LIBERO-Long under limited downstream demonstrations. If the invocation-aligned post-training stage has established reusable invocation semantics, the model should require substantially fewer downstream demonstrations to recover strong downstream performance. Table  12 shows that TAPT improves downstream sample efficiency, with the largest gain in the most data-limited OpenVLA-OFT 10-shot setting ( + 11.5 +11.5 points) and consistent gains for π 0.5 \pi_{0.5} under both 10-shot and 20-shot adaptation ( + 6.4 +6.4 and + 5.6 +5.6 points). 
+ Table 12: Few-shot downstream adaptation on LIBERO-Long. Results report success rate under limited SFT demonstrations. 
+ Base model 
+ Method 
+ 10-shot 
+ 20-shot 
+ Baseline 
+ 8.0 8.0 
+ 33.8 33.8 
+ OpenVLA-OFT 
+ VLAs-as-Tools 
+ 19.5 19.5 
+ 36.4 36.4 
+ Baseline 
+ 43.4 43.4 
+ 60.0 60.0 
+ π 0.5 \pi_{0.5} 
+ VLAs-as-Tools 
+ 49.8 49.8 
+ 65.6 65.6 
+ We additionally test whether the agent–tool interface depends on a particular large VLM planner. In this experiment, the OpenVLA-OFT VLA tool families are fixed and only the high-level VLM is changed. Table  13 shows that the interface is not tied to a single high-level planner: across four strong VLM planners, LIBERO-Long success varies by only 0.6 0.6 points. 
+ Table 13: High-level VLM planner ablation on LIBERO-Long under the OpenVLA-OFT VLA tool families. 
+ Model type 
+ Large VLM 
+ Success Rate ↑ \uparrow 
+ Closed-source 
+ Gemini 3 Flash 
+ 95.6 95.6 
+ GPT 5.4 
+ 95.4 95.4 
+ Open-source 
+ Qwen3.5-397B-A17B 
+ 95.4 95.4 
+ Qwen3VL-235B-A22B 
+ 95.0 95.0 
+ E.2 Agent Planning Efficiency 
+ Table  14 compares progress-triggered replanning with direct VLM monitoring every five steps. The call counts measure VLM requests during execution and exclude initial plan construction: the tool-family interface counts replanning requests, while direct monitoring counts periodic VLM queries. For OpenVLA, OpenVLA-OFT, and π 0.5 \pi_{0.5} , the average runtime calls decrease from 109.5 / 58.2 / 57.2 109.5/58.2/57.2 to 1.988 / 0.304 / 0.228 1.988/0.304/0.228 per episode. Intervention frequency is the fraction of episodes with at least one replanning request; replan success rate is the fraction of these intervened episodes that ultimately succeed. The corresponding replan success rates of 47.1 % / 34.4 % / 61.4 % 47.1\%/34.4\%/61.4\% show that structured progress feedback supports recovery with few runtime VLM queries. 
+ Table 14: 
+Ablation of agent-level replanning on LIBERO-Long. Calls are averaged over evaluation episodes and count runtime replanning or monitoring requests; initial plan construction is excluded.
+ with VLA tool-family interface 
+ Direct VLM monitoring 
+ Model 
+ Intervene Freq. (%) 
+ Replan SR (%) 
+ Avg. Runtime 
+ Calls 
+ Avg. Runtime 
+ Calls 
+ OpenVLA 
+ 40.8 40.8 
+ 47.1 47.1 
+ 1.988 1.988 
+ 109.5 109.5 
+ OpenVLA-OFT 
+ 12.2 12.2 
+ 34.4 34.4 
+ 0.304 0.304 
+ 58.2 58.2 
+ π 0.5 \pi_{0.5} 
+ 11.4 11.4 
+ 61.4 61.4 
+ 0.228 0.228 
+ 57.2 57.2 
+ Appendix F Real-World Evaluation Details 
+ Robot and sensing setup. 
+ We use a Franka Research 3 robot and a single Intel RealSense D435 RGB-D camera, with no wrist-mounted camera. The camera is placed opposite the robot and angled downward to cover an approximately 40 × 40 40\times 40  cm workspace on a white tabletop against a black background. 
+ Training protocol. 
+ Human experts collect 30 demonstrations per task using a 3D mouse, producing three task-specific datasets. For each task, the fine-tuned π 0.5 \pi_{0.5} baseline and VLAs-as-Tools are trained separately on the same 30 demonstrations for 30K steps using eight A100 GPUs. Both methods run inference on a single NVIDIA RTX 4090. Thus, the comparison controls the real-robot data, training budget, and inference hardware. 
+ Evaluation protocol. 
+ Each method is evaluated over 20 rollouts per task. We pre-sample and physically mark 20 randomized initial object configurations, and use the same configurations for both methods. Object positions vary within the camera view while preserving the approximate left-to-right ordering required by each task. The maximum execution time is 60 seconds for Simple and Conditioned and 120 seconds for Long. Success is determined using the task-specific completion criteria below. 
+ Simple. 
+ Red and yellow cubes are placed in front of the robot, with two bowls farther away. The robot must place the red cube into the left bowl and then the yellow cube into the right bowl. A rollout succeeds only if both cubes remain stably inside their designated bowls. This task evaluates multi-stage decomposition and execution stability. 
+ Conditioned. 
+ Red and yellow cubes are initially placed on the left and right. The robot must stack the left red cube on the right yellow cube, remove it to restore the initial layout, and then stack the right yellow cube on the left red cube. The scene therefore returns to a visually similar state while requiring a different subsequent action. A rollout succeeds only if both stacks are completed stably. This task evaluates instruction following and resistance to scene-conditioned visual shortcuts. 
+ Long. 
+ Blue, red, and yellow cubes are placed from left to right, with two bowls farther away. The robot must (1) stack blue on red; (2) move the left bowl to the blue cube’s original position; (3) place blue into that bowl; (4) stack yellow on red; (5) move the right bowl to the yellow cube’s original position; and (6) place yellow into the right bowl. The task comprises 24 sequential tool invocations. A rollout succeeds only if both bowls reach their designated positions and the blue and yellow cubes remain stably inside them. This task evaluates extended planning, tool composition, and recovery. 
+ Figure 8: Conditioned-task rollouts. After the layout is restored, the repeated observation leaves the fine-tuned VLA without an explicit task-stage cue. VLAs-as-Tools tracks progress in the high-level agent and issues the correct stage-specific VLA invocation. 
+ Figure  8 illustrates the largest real-world gain: the monolithic baseline repeats the wrong stage after the scene recurs, whereas the agent remembers the completed prefix and instructs the VLA to execute the opposite stack. 
+ Appendix G Evaluation Protocol Details 
+ This appendix summarizes the evaluation protocol used for the task-level success rates reported in the main experiments. Unless otherwise specified, all methods compared within the same benchmark use the same held-out tasks, initial-state files, rollout horizons, random seeds, and success predicates. Success rate is computed as the fraction of evaluation episodes that satisfy the benchmark-defined task predicate before timeout.
+The trial counts for individual benchmarks are specified below. 
+ LIBERO-Long. 
+ For task-level success evaluation, each policy is evaluated over 50 trials per task from the held-out LIBERO-Long initial states and is counted as successful if the native LIBERO task predicate is satisfied within the simulator’s standard rollout horizon. The same task split and initial-state set are used for standalone VLA policies, direct-planner deployment, and VLA tool-family interface deployment. 
+ RoboTwin-SA. 
+ Because our demonstration-splitting pipeline targets single-arm manipulation, we evaluate on RoboTwin-SA (Single-Arm), the subset of 8 RoboTwin tasks that can be executed with a single Franka arm. A task is included if its successful demonstrations do not require bimanual coordination and can be segmented into the tool-family invocation types used in our interface. The selected tasks are: 
+ adjust_bottle ,
+ click_alarmclock ,
+ move_stapler_pad ,
+ press_stapler ,
+ beat_block_hammer ,
+ click_bell ,
+ place_empty_cup ,
+ place_shoe .
+ RoboTwin-SA evaluations are configured for 20 trials per task, or 160 planned rollouts per configuration. Success is measured by the benchmark task predicate at the end of each rollout or when the task terminates successfully. 
+ CALVIN. 
+ For CALVIN, we use CALVIN_D and split episodes into 80% training and 20% testing. The evaluation follows the benchmark’s native subtask structure: a rollout is successful if it completes the required long-horizon instruction sequence under CALVIN’s state-based success checks. In the RL experiments, the native subtask annotations are also used to define invocation-aligned resets and rewards, which lets us evaluate the proposed strategy without relying on our own split construction. 
+ RoboMemArena. 
+ RoboMemArena  ( Lei et al., 2026 ) contains 26 long-horizon manipulation tasks that test temporal memory through multi-object counting, occlusion, ordered execution, and transferring; its trajectories average more than 1,000 environment steps. We evaluate all 26 simulated tasks with 10 seeded rollouts per task and a maximum horizon of 2,500 steps, using the same initial seeds and budget for the standard π 0.5 \pi_{0.5} baseline and VLAs-as-Tools . Full-task success requires every reference stage of an episode to be completed, while partial progress is the mean fraction of required stages completed before termination. We report both metrics averaged over all 260 episodes. 
+ LIBERO-IF. 
+ LIBERO-Instruction Following (LIBERO-IF) evaluates invocation fidelity rather than only task success. Drawing on the counterfactual evaluation of LIBERO-CF  ( Fang et al., 2026 ) , we build our own instruction-following benchmark tailored to our agent–tool setting, where the high-level plan is fixed and only the invoked VLA executor varies. Specifically, we construct 10 counterfactual tasks from LIBERO-10 layouts by modifying the requested goal while keeping the scene visually close to a familiar source task. We report Faithful Rate, the fraction of rollouts satisfying the active counterfactual goal, and Non-biased Rate, defined as 100 − Biased Rate 100-\text{Biased Rate} , where Biased Rate measures whether the rollout also satisfies the paired source LIBERO-10 goal during a post-success continuation window. The continuation window length is 100. 
+ RoboLab-120. 
+ RoboLab-120  ( Yang et al., 2026 ) contains 120 manipulation tasks organized along three competency axes (visual, relational, and procedural) across three difficulty levels, testing generalization beyond the training distribution. All tasks use the benchmark’s default language instructions. We evaluate all 120 tasks with 5 seeds per task and a maximum horizon of 2,500 steps, using the same initial seeds and budget for the standard π 0.5 \pi_{0.5} baseline and VLAs-as-Tools . Full-task success requires the benchmark task predicate to be satisfied before termination, while partial progress is the mean fraction of required subtasks completed. We report both metrics averaged over all 600 episodes. 
+ Experimental support, please
+ view the build logs 
+ for errors. Generated by
+ L
+ A 
+ T
+ E 
+ xml 
+ .
+ Instructions for reporting errors 
+ We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below: 
+ Click the "Report Issue" ( 
+ ) button, located in the page header. 
+ Tip: You can select the relevant text first, to include it in your report. 
+ Our team has already identified the following issues . We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all. 
+ Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion , and welcome developer contributions . 
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 

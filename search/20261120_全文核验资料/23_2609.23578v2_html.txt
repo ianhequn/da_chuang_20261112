@@ -1,0 +1,928 @@
+ 
+ AR-WAM: A Visual-Conditioned Agent-Ready World Action Model for Robotic Manipulation 
+ Skip to main content 
+ Report GitHub Issue 
+ × 
+ Title: 
+ Content selection saved. Describe the issue below: 
+ Description: 
+ Submit without GitHub 
+ Submit in GitHub 
+ Why HTML? 
+ Report Issue 
+ Back to Abstract 
+ Download PDF 
+ Contents 
+ Reading mode 
+ Colour theme 
+ Abstract 
+ I Introduction 
+ II Related Work 
+ II-A VLA Models and World Action Models 
+ II-B Visual Grounding for Manipulation 
+ II-C Agentic Robot Control 
+ III Methodology 
+ III-A Task Conditioning: Atomic-Operation Embedding and Visual Prompt 
+ Formalization 
+ III-B Reasoning Expert and Foresight Gist 
+ Foresight-gist extraction 
+ III-C World Action Expert: Dual-Level Future Alignment 
+ III-D Training Objective 
+ Data 
+ Visual-prompt augmentation 
+ III-E Agent Compatibility Layer and Failure Recovery 
+ Event-triggered agent invocation 
+ Agent context and output 
+ Long-horizon tasks and memory 
+ Failure detection and recovery 
+ IV Experiments 
+ IV-A Simulation Benchmarks 
+ IV-B Conditioning, Modulation, and Component Ablations 
+ Conditioning and modulation 
+ Reasoning and foresight 
+ IV-C Agent-Driven Long-Horizon Evaluation on RMBench 
+ IV-D Real-Robot Evaluation 
+ IV-E Efficiency Analysis 
+ V Discussion 
+ VI Conclusions 
+ References 
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2609.23578v2 [cs.RO] 02 Oct 2026 
+ AR-WAM: A Visual-Conditioned Agent-Ready World Action Model for Robotic Manipulation
+ Thanks:  ∗ Contributed equally co-first authors, order determined by coin toss. Thanks:  🖂 {}^{\text{\Letter}} Corresponding authors:
+    wangxiaobo@suat-sz.edu.cn , eeqshao@ust.hk . Thanks:  1 The Hong Kong University of Science and Technology Thanks:  2 Shenzhen University of Advanced Technology Thanks:  3 Sangfor Technologies Inc. Thanks:  4 Mininglamp Technology Thanks:  5 MMLab, The Chinese University of Hong Kong Thanks:  6 The University of British Columbia Thanks:  7 Astribot 
+ Yicheng Jiang 1∗ , Zesen Gan 1∗ , Xiaobo Wang 2 , 3 ​ 🖂 {}^{2,3\text{\Letter}} , Tianlun He 1 , Chenxu Zhao 4 ,
+ Minghui Wu 4 , Xinyue Wang 1 , Jiaxu Wang 5 , Junhao He 6 , Jianan Wang 7 , and Qiming Shao 1 ​ 🖂 {}^{1\text{\Letter}} 
+ Affiliation:  
+ Abstract 
+ As AI agents become increasingly capable, agent-driven robotic control is emerging as a compelling paradigm. However, prevailing vision–language–action (VLA) models and world action models (WAMs) still rely on natural-language instructions to specify manipulation tasks, an ill-suited interface for agent-driven control: referentially ambiguous, spatially imprecise, redundant with the agent’s inherent language understanding, and entangling intent with execution. We present AR-WAM , a visual-conditioned, agent-ready world action model that replaces language with two complementary conditions: a visual grounding prompt (a bounding box of the target) denoting the interaction object and location, and a learnable operation token dictating the atomic skill to execute. Our compact 0.5B-parameter model, with a frozen pretrained visual encoder and no language encoder, predicts scene evolution within compact latent states while decoding actions, exposing the policy’s intent through explicit, supervisable reasoning signals. A model-agnostic compatibility layer provides three primitives (detect, execute, and query) so that local VLMs or online agent APIs can drive the policy directly, with long-horizon memory and closed-loop error recovery delegated to the agent side. On RoboTwin 2.0  [ 1 ] , RMBench  [ 2 ] , and a real Astribot S1  [ 3 ] dual-arm platform, AR-WAM attains the highest average success on standard manipulation (85.7% over the clean and randomized settings) and outperforms all baselines on memory-dependent and real-robot long-horizon tasks, improving success rates by 5.9% and 36.7%, respectively, while maintaining the lowest inference latency (14.1 ms). Project page is at https://ar-wam.github.io/ . 
+ I Introduction 
+ Robot control with an agent as the high-level brain and a policy model as the cerebellum is a compelling paradigm: the agent handles language understanding, task decomposition, and memory, while the policy executes precise actions. The policy side evolves along two lines: vision–language–action (VLA) models  [ 4 , 5 , 6 , 7 ] , which transfer web-scale semantic knowledge into continuous control, and world action models (WAMs)  [ 8 , 9 , 10 , 11 ] , which predict scene evolution while decoding actions. Either way, the task is almost always specified by a natural-language instruction. 
+ We argue that in agent-driven control, text conditioning is an ill-suited interface. (i) Referential ambiguity. With several similar objects on a table, text often cannot uniquely identify the target. (ii) Redundancy. Language understanding is what agents do best, and relearning it inside the policy wastes training compute. (iii) Imprecision. Commands pass through the policy’s own language encoder, whose imperfect grounding prevents precise steering. (iv) Black-box entanglement. Cramming understanding, planning, memory, and action generation into one uninspectable model leaves failures unattributable between wrong intent and improper execution. 
+ This motivates rethinking what the policy actually needs from its conditioning signal in the agent era. Open-vocabulary perception is exactly what modern vision–language models (VLMs) excel at: they localize almost arbitrary objects and return bounding boxes directly  [ 12 ] , and spatial specifications have repeatedly proven more actionable than text  [ 13 , 14 , 15 , 16 ] . We replace language with two complementary task conditions: a visual grounding prompt (a target bounding box) denotes the interaction object and location, and a learnable operation token dictates the atomic skill to execute. The agent thus retains language understanding, planning, memory, and error recovery, while the policy focuses solely on action generation. 
+ Building on this idea, we present AR-WAM, a visual-conditioned, agent-ready world action model for robotic manipulation, with four design choices. (1) Atomic operation decomposition. Manipulation is factorized into a compact vocabulary of atomic skills (pick, place, click, handover, etc.), each encoded by a learnable operation embedding. (2) A lightweight latent-WAM backbone. Following the efficient latent-WAM paradigm  [ 11 , 17 , 18 ] , the backbone is a compact 0.5B model with a frozen pretrained visual encoder and no language encoder. A reasoning expert exposes task intent as explicit, supervisable signals, and dual-level foresight alignment keeps control future-aware. (3) A model-agnostic compatibility layer. Three primitives (detect, execute, and query) let locally deployed VLM agents and online agent APIs drive the policy directly. (4) Agent-side long-horizon capability and error recovery. Long-horizon tasks reuse the agent’s memory, and upon a grasp failure or a dropped object the agent re-issues an updated prompt to retry, with failures staying diagnosable as intent versus execution errors. 
+ Experiments on RoboTwin 2.0  [ 1 ] , RMBench  [ 2 ] , and a real Astribot S1  [ 3 ] dual-arm platform establish that the visual prompt outperforms language conditioning under identical training, that the reasoning expert and dual-level foresight each contribute measurably to action quality, and that off-the-shelf agents drive the same policy through memory-dependent long-horizon tasks. 
+ II Related Work 
+ II-A VLA Models and World Action Models 
+ VLA models extend large-scale vision-language pretraining to end-to-end action generation. RT-2  [ 4 ] and OpenVLA  [ 5 ] map web-scale vision-language knowledge to discretized action tokens, while the π \pi family  [ 6 , 7 ] and X-VLA  [ 19 ] attach a flow-matching action expert to a pretrained VLM backbone. Despite high
+performance, these all rely on language conditioning and, in the strongest cases, billion-scale backbones with massive pretraining. 
+ World action models (WAMs) take a different route, anticipating how the scene will evolve and deriving actions from that prediction. Early WAMs reason in pixel space: UniPi plans via text-guided video generation  [ 8 ] , and GR-1/GR-2 unify video and action prediction in one sequence model  [ 9 , 10 ] , spending capacity on visual detail irrelevant to control. Latent WAMs instead predict compact states, whether distilled from video models  [ 11 ] , posed as subgoals in a foundation-model feature space  [ 18 ] , tied to a future-informed posterior over learnable queries  [ 20 ] , or unified with latent action learning  [ 21 ] . Fast-WAM further shows that future prediction matters as a training signal rather than as test-time imagination  [ 22 ] , and LiLa-WAM shows that a lightweight latent WAM can rival much larger models  [ 17 ] . 
+ AR-WAM follows the efficient latent-WAM paradigm: with a compact 0.5B model on a frozen DINOv3 encoder  [ 23 ] , it achieves strong manipulation performance. 
+ II-B Visual Grounding for Manipulation 
+ Existing uses of visual grounding in manipulation fall into two categories, according to the direction in which the grounding signal flows. In the first, grounding serves as part of the input : some methods let a VLM produce spatial guidance for a low-level controller, such as ranked action candidates, affordance keypoints, or spatial constraints over keypoints or object parts  [ 13 , 14 , 15 , 16 , 24 ] . Others feed grounding directly into the policy as points, boxes, or masks  [ 25 , 26 , 27 , 28 , 29 ] , but the grounding always comes from a fixed, built-in pipeline rather than an explicit, model-agnostic agent interface. In the second, grounding serves as an output and supervision signal , distilled into the model through visual traces, spatially-aware encodings, or dedicated spatial-reasoning training  [ 30 , 31 , 32 ] . Both lines demonstrate that spatially grounded signals are more precise and more actionable than raw language. 
+ AR-WAM takes a more decisive step: it removes text conditioning entirely and keeps only two lightweight signals, a visual grounding box and a learnable operation token. The pair is exposed to external agents through detect–execute–query primitives, while mask prediction serves only as an auxiliary reasoning output rather than a policy input. 
+ II-C Agentic Robot Control 
+ A line of work uses LLM- or VLM-based agents to plan over robot capabilities. Such agents score grounded proposals  [ 33 ] , generate executable programs  [ 34 ] , reason over scene graphs  [ 35 ] , turn visual reasoning into spatial objectives for classical planners  [ 36 ] , or replan from language feedback  [ 37 ] . With learned policies, a memory-guided agent can steer a frozen low-level model into reliable primitives  [ 38 ] , hierarchical systems let a high-level VLM relay textual sub-task instructions to a low-level VLA  [ 39 ] , and dual-system designs pair a VLM planner that carries decomposition, memory, and verification with a VLA executor  [ 40 , 41 ] . High-level reasoners can also detect and explain failures and replan during execution  [ 42 , 43 ] . 
+ Two gaps remain. First, the agent-to-policy interface is text or code, which can say what to do but not precisely where . Second, the policy alone provides neither high-level planning nor long-horizon memory, and monolithic designs must bake them in through dedicated mechanisms  [ 44 ] . AR-WAM combines both sides: the agent keeps planning, memory, and recovery and hands the policy exact image-space prompts, while the lightweight WAM focuses on reliable execution. 
+ III Methodology 
+ Fig. 1: Overview of AR-WAM. An agent grounds the target and issues a visual prompt g g together with an atomic operation s s . A compact 0.5B world action model (a 0.2B transformer shared by a reasoning expert and a world action expert, plus a frozen 0.3B vision encoder) predicts an action chunk together with dual-level foresight signals. The reasoning expert runs once per control cycle, and the world action expert then performs multi-step denoising while reusing its KV cache. 
+ We present AR-WAM, a visual-conditioned, agent-ready world action model for robotic manipulation. The key design principle is to replace free-form language instructions with two complementary conditions: visual grounding prompts , bounding boxes that spatially identify the task-relevant object, and learnable atomic-operation tokens . This decouples where to act (grounding, delegated to an external agent with strong open-vocabulary perception) from how to act (control, handled by a compact policy). As a world action model, AR-WAM jointly models future states and actions, realizing the future pathway in compact latent form rather than in pixel space. Fig.  1 gives an overview. 
+ III-A Task Conditioning: Atomic-Operation Embedding and Visual Prompt 
+ AR-WAM organizes manipulation around a finite vocabulary of atomic operations 
+ 𝒮 = { \mathcal{S}=\{ pick , place , handover , click , pull , … } \} . Every s ∈ 𝒮 s\in\mathcal{S} is a short-horizon skill represented by a learnable atomic-operation embedding e s ∈ ℝ d e_{s}\in\mathbb{R}^{d} optimized jointly with the policy. Unlike the fixed-length action chunk, a skill is delimited by execution-level events rather than a fixed horizon (e.g., gripper opening completes a place ), and these delimiting events coincide with those that trigger agent invocation (Sec.  III-E ). Each invocation pairs s s with a visual prompt , a bounding box g = ( x 1 , y 1 , x 2 , y 2 ) ∈ [ 0 , 1 ] 4 g=(x_{1},y_{1},x_{2},y_{2})\in[0,1]^{4} in normalized image coordinates that spatially specifies the target object and removes referential ambiguity. For two-arm tasks, the visual prompt extends to two boxes. The agent may further specify two auxiliary attributes: a participants attribute u u (which arm acts: left, right, or both) and a style attribute w w (the interaction manner, e.g., placing an object on top of another or beside it), each represented by a learnable embedding ( e u e_{u} and e w e_{w} , respectively). 
+ The agent’s decision is injected into the policy through conditional modulation (AdaLN  [ 45 ] ): e s e_{s} , e u e_{u} , e w e_{w} , and the box embedding ϕ ⁡ ( g ) \phi(g) from a lightweight MLP are fused into a task condition token that conditions the downstream experts. All interaction behaviors executed by AR-WAM are learned skills. Auxiliary motions that require no learning (e.g., homing) are handled by classical trajectory planning at the system level. 
+ Formalization 
+ At time step t t , the policy receives the visual observation o t o_{t} , a single primary-view image, and the proprioceptive state p t p_{t} , and produces an action chunk a ^ t → t + H − 1 = { a ^ t , … , a ^ t + H − 1 } \hat{a}_{t\to t+H-1}=\{\hat{a}_{t},\dots,\hat{a}_{t+H-1}\} over horizon H H . Conditioned on the task token formed from ϕ ⁡ ( g ) \phi(g) , e s e_{s} , e u e_{u} , and e w e_{w} , the policy is 
+ a ^ t → t + H − 1 ∼ π θ ( ⋅ ∣ o t , p t , ϕ ( g ) , e s , e u , e w ) , \hat{a}_{t\to t+H-1}\sim\pi_{\theta}\!\left(\,\cdot\mid o_{t},\ p_{t},\ \phi(g),\ e_{s},\ e_{u},\ e_{w}\,\right), 
+ (1) 
+ where the parameters θ \theta are shared across all atomic operations, so that data from different skills reinforce a shared visuomotor representation and the model remains a single deployable artifact.
+Here π θ \pi_{\theta} abstracts the entire agent-facing policy, instantiated by the reasoning expert f θ reas f_{\theta}^{\mathrm{reas}} (Sec.  III-B ) and the world action expert f θ wam f_{\theta}^{\mathrm{wam}} (Sec.  III-C ) 
+ III-B Reasoning Expert and Foresight Gist 
+ The reasoning expert grounds the model’s task understanding before actions are generated: a set of learnable reasoning query tokens q reas q^{\mathrm{reas}} probes the observation and the task condition, producing a reasoning token q t q_{t} : 
+ q t = f θ reas ​ ( E ⁡ ( o t ) , p t , ϕ ⁡ ( g ) , e s , e u , e w , q reas ) , q_{t}=f_{\theta}^{\mathrm{reas}}\!\left(\,E(o_{t}),\ p_{t},\ \phi(g),\ e_{s},\ e_{u},\ e_{w},\ q^{\mathrm{reas}}\,\right), 
+ (2) 
+ where E ⁡ ( ⋅ ) E(\cdot) is the frozen DINOv3 visual encoder  [ 23 ] . A lightweight reason head decodes q t q_{t} into three explicit, supervisable predictions of the current step (cf. Fig.  1 ): 
+ ( m ^ t , T ^ t , c ^ t ) = D reas ​ ( q t ) , (\hat{m}_{t},\ \hat{T}_{t},\ \hat{c}_{t})=D^{\mathrm{reas}}(q_{t}), 
+ (3) 
+ namely (i) the mask m ^ t \hat{m}_{t} of the boxed object, which sharpens the coarse box into a pixel-precise target; (ii) the end-effector poses T ^ t \hat{T}_{t} of both arms when the executing skill terminates; and (iii) a task abstract c ^ t \hat{c}_{t} , a structured one-hot description of the current step (e.g., which arm to use, and how to grasp and place). Unlike the text-based reasoning common in VLAs, these predictions expose the model’s action intent in supervisable form: they are trained against the ground-truth annotations ( m t , T t , c t ) (m_{t},T_{t},c_{t}) by the reasoning loss 
+ ℒ reas = BCE ⁡ ( m ^ t , m t ) + CE ⁡ ( c ^ t , c t ) + ∥ T ^ t − T t ∥ 2 , \mathcal{L}_{\mathrm{reas}}=\mathrm{BCE}(\hat{m}_{t},m_{t})+\mathrm{CE}(\hat{c}_{t},c_{t})+\lVert\hat{T}_{t}-T_{t}\rVert^{2}, 
+ (4) 
+ and serve as failure diagnostics (Sec.  III-E ). 
+ Foresight-gist extraction 
+ To supply a compact, future-aware training target, we pre-train an offline foresight-gist extractor on demonstration sequences: the frozen encoder E E maps two endpoint frames o t 0 o_{t_{0}} and o t 1 o_{t_{1}} ( t 0 < t 1 t_{0}<t_{1} ) of a clip into latent frames, and a latent inverse-dynamics module compresses their temporal evolution into a foresight gist , with no actions or intermediate frames: 
+ f t 0 → t 1 = G IDM ​ ( E ⁡ ( o t 0 ) , E ⁡ ( o t 1 ) ) . \displaystyle f_{t_{0}\to t_{1}}=G^{\mathrm{IDM}}(E(o_{t_{0}}),E(o_{t_{1}})). 
+ (5) 
+ A latent forward-dynamics module then reconstructs the future latent frame from the current frame and the gist, 
+ e ^ t 1 = G FDM ​ ( E ⁡ ( o t 0 ) , f t 0 → t 1 ) , \displaystyle\hat{e}_{t_{1}}=G^{\mathrm{FDM}}(E(o_{t_{0}}),f_{t_{0}\to t_{1}}), 
+ (6) 
+ and the pair is trained with a latent reconstruction loss: 
+ ℒ recon = ∥ e ^ t 1 − E ⁡ ( o t 1 ) ∥ 2 . \displaystyle\mathcal{L}_{\mathrm{recon}}=\lVert\hat{e}_{t_{1}}-E(o_{t_{1}})\rVert^{2}. 
+ (7) 
+ The gist captures how the scene will evolve in compact latent form. Computed from future observations, it serves only as a training-time target and is never used at inference. 
+ III-C World Action Expert: Dual-Level Future Alignment 
+ The world action expert generates executable actions while being explicitly aligned with the future at two levels, so that its decisions are shaped by their anticipated consequences. It shares its transformer with the reasoning expert, invoked with different input tokens, letting task understanding directly shape control. Given E ⁡ ( o t ) E(o_{t}) , p t p_{t} , and the task condition token as a shared condition, it jointly denoises three output modalities by flow matching with a single denoiser f θ wam f_{\theta}^{\mathrm{wam}} : from noise z 0 ∼ 𝒩 ⁡ ( 𝟎 , 𝐈 ) z^{0}\sim\mathcal{N}(\mathbf{0},\mathbf{I}) sampled independently per modality and one shared flow time τ \tau , each prediction is z ^ = f θ wam ​ ( z τ , τ ) \hat{z}=f_{\theta}^{\mathrm{wam}}(z^{\tau},\tau) at the interpolated state z τ = ( 1 − τ ) ​ z 0 + τ ​ z 1 z^{\tau}=(1-\tau)\,z^{0}+\tau z^{1} , z ∈ { a , f , q } z\in\{a,f,q\} : 
+ • 
+ an action chunk a ^ t → t + H − 1 \hat{a}_{t\to t+H-1} (Eq. ( 1 )), with a 1 = a t → t + H − 1 a^{1}=a_{t\to t+H-1} the demonstrated chunk: 
+ ℒ act = 𝔼 ​ ∥ f θ wam ​ ( a τ , τ ) − ( a 1 − a 0 ) ∥ 2 , \displaystyle\mathcal{L}_{\mathrm{act}}=\mathbb{E}\,\big\lVert f_{\theta}^{\mathrm{wam}}(a^{\tau},\tau)-(a^{1}-a^{0})\big\rVert^{2}, 
+ (8) 
+ • 
+ a visual foresight prediction f ^ t → t + H − 1 \hat{f}_{t\to t+H-1} , an anticipated representation of how the scene will look , aligned to the foresight gist extracted offline from the two endpoint frames, f t → t + H − 1 = G IDM ​ ( E ⁡ ( o t ) , E ⁡ ( o t + H − 1 ) ) f_{t\to t+H-1}=G^{\mathrm{IDM}}(E(o_{t}),E(o_{t+H-1})) (Sec.  III-B ): 
+ ℒ vis = ∥ f θ wam ​ ( f τ , τ ) − sg ⁡ ( f t → t + H − 1 ) ∥ 2 , \displaystyle\mathcal{L}_{\mathrm{vis}}=\big\lVert f_{\theta}^{\mathrm{wam}}(f^{\tau},\tau)-\mathrm{sg}(f_{t\to t+H-1})\big\rVert^{2}, 
+ (9) 
+ • 
+ a semantic foresight prediction q ^ t + H − 1 \hat{q}_{t+H-1} , an anticipated representation of what the scene will mean , aligned to the reasoning token q t + H − 1 q_{t+H-1} that the weight-sharing reasoning backbone produces from the future observation ( o t + H − 1 , p t + H − 1 ) (o_{t+H-1},p_{t+H-1}) (Eq. ( 2 )): 
+ ℒ sem = ∥ f θ wam ​ ( q τ , τ ) − sg ⁡ ( q t + H − 1 ) ∥ 2 , \displaystyle\mathcal{L}_{\mathrm{sem}}=\big\lVert f_{\theta}^{\mathrm{wam}}(q^{\tau},\tau)-\mathrm{sg}(q_{t+H-1})\big\rVert^{2}, 
+ (10) 
+ where sg ⁡ ( ⋅ ) \mathrm{sg}(\cdot) denotes the stop-gradient operator: the foresight branches shape the shared representation without back-propagating into the observation-encoding path. The action branch regresses the interpolation velocity, while the two foresight branches regress clean-endpoint estimates of their targets. The semantic target q t + H − 1 q_{t+H-1} is computed online by the same backbone under a stop gradient rather than by a frozen copy, and since the reasoning token is explicitly supervised by the reason head, this bootstrapped target does not suffer from representation collapse. A block attention mask over the token groups { E ⁡ ( o t ) , p t , q reas , a ^ , f ^ , q ^ } \{E(o_{t}),p_{t},q^{\mathrm{reas}},\hat{a},\hat{f},\hat{q}\} lets the action and foresight branches condition on the reasoning output without contaminating it: the reasoning pass and the first denoising step share one forward per control cycle, and the remaining steps reuse the cached keys and values. At inference, all three start from independent Gaussian noise and are jointly refined over a fixed number of ODE integration steps. 
+ III-D Training Objective 
+ The complete model is trained end-to-end with the joint objective 
+ ℒ ⁡ ( θ ) = ℒ act + λ reas ​ ℒ reas + λ vis ​ ℒ vis + λ sem ​ ℒ sem , \mathcal{L}(\theta)=\mathcal{L}_{\mathrm{act}}+\lambda_{\mathrm{reas}}\,\mathcal{L}_{\mathrm{reas}}+\lambda_{\mathrm{vis}}\,\mathcal{L}_{\mathrm{vis}}+\lambda_{\mathrm{sem}}\,\mathcal{L}_{\mathrm{sem}}, 
+ (11) 
+ where the four terms are defined in Eqs. ( 8 ), ( 4 ), ( 9 ), and ( 10 ), and the λ \lambda coefficients balance them. 
+ Data 
+ Training data, detailed in Sec.  IV-A , mixes simulation data from RoboTwin 2.0  [ 1 ] and RMBench  [ 2 ] , whose ground-truth object states are converted into bounding-box visual prompts g g . 
+ Visual-prompt augmentation 
+ Since agent-issued boxes may be loose or slightly misplaced at deployment, we randomly jitter the box center, height, and width during training, so the policy tolerates imprecise boxes instead of overfitting to exact coordinates. 
+ III-E Agent Compatibility Layer and Failure Recovery 
+ We model the agent as a model plus harness   [ 46 , 47 ] : a large (vision-)language model wrapped in a system prompt and rules, callable tools, interaction history, and a control loop. Perception in such agents is native , with vision–language models emitting structured grounding outputs such as bounding boxes directly. Given its history ℋ t \mathcal{H}_{t} and the current observation, the agent issues the next command ( y t , s t , u t , w t ) = 𝒜 ⁡ ( ℋ t , o t ) (y_{t},s_{t},u_{t},w_{t})=\mathcal{A}(\mathcal{H}_{t},o_{t}) through the three primitives introduced below. 
+ Event-triggered agent invocation 
+ The agent is not called at every control step. Instead, each invocation is triggered by one of four events monitored during the policy rollout: (i) cumulative end-effector displacement since the last invocation exceeds a threshold, (ii) gripper closure, (iii) gripper opening, and (iv) a fixed time interval elapses since the last invocation. At each trigger, the agent receives structured feedback: the trigger reason, the current gripper state, and the observation at the trigger moment. 
+ Agent context and output 
+ The agent’s context consists of a global system prompt and rules, the task instruction, the first frame, the atomic-skill list, and the history of policy feedback, agent reasoning and command pairs ( ℋ \mathcal{H} in Algorithm  1 ). Conditioned on it, the agent outputs a reasoning segment followed by the next command. 
+ AR-WAM exposes a model-agnostic interface of three primitives: detect , execute , and query , so that any agent can operate the robot without knowing the policy internals. Algorithm  1 shows the resulting closed loop. 
+ Algorithm 1 Closed-loop agent–policy interaction 
+ 1: 
+   Input: task instruction, first observation o 0 o_{0} 
+ 2: 
+   ℋ ← { \mathcal{H}\leftarrow\{ system prompt, task instruction, o 0 o_{0} , atomic-skill list 𝒮 \mathcal{S} } \} 
+ 3: 
+   repeat 
+ 4: 
+    ( y , s , u , w ) ← AgentReason ​ ( ℋ ) (y,s,u,w)\leftarrow\textsc{AgentReason}(\mathcal{H}) {reason over the history and issue the next command: grounding query y y and skill s ∈ 𝒮 s\in\mathcal{S} }
+ 5: 
+    g ← detect ​ ( y ) g\leftarrow\texttt{detect}(y) {agent-side grounding}
+ 6: 
+    ξ ← execute ​ ( g , s , u , w ) \xi\leftarrow\texttt{execute}(g,s,u,w) {roll out π θ \pi_{\theta} until a trigger event fires}
+ 7: 
+    b ← query ​ ( ξ ) b\leftarrow\texttt{query}(\xi) {trigger reason, gripper state, observation}
+ 8: 
+    ℋ ← ℋ ∪ { ( y , s , g , b ) } \mathcal{H}\leftarrow\mathcal{H}\cup\{(y,s,g,b)\} {command and feedback enter the agent’s memory}
+ 9: 
+   until the agent judges the task complete from ℋ \mathcal{H} 
+ The three primitives partition responsibility cleanly: detect ​ ( y ) → g \texttt{detect}(y)\rightarrow g runs entirely on the agent side: the query y y (e.g., “the red mug”) is grounded in the current observation using the agent’s own grounding capability, and only the box ever reaches the policy, which itself contains no language pathway. execute ​ ( g , s , u , w ) → ξ \texttt{execute}(g,s,u,w)\rightarrow\xi rolls out the policy π θ \pi_{\theta} (Eq. ( 1 )) until one of the trigger conditions above fires and returns the execution trace ξ \xi . query ​ ( ξ ) → b \texttt{query}(\xi)\rightarrow b packages this outcome feedback for the agent’s next reasoning step. 
+ This design makes the agent fully interchangeable: switching from a locally deployed VLM to an online API model changes only the agent-side grounding and reasoning abilities, never the policy. 
+ Long-horizon tasks and memory 
+ AR-WAM deliberately keeps the policy π θ \pi_{\theta} Markovian : each decision depends only on the current observation and conditioning ( g , s , u , w ) (g,s,u,w) , with no recurrent state inside the policy. All long-horizon structure, such as tracking completed sub-goals, failures, and next steps, is carried by the agent’s own history and memory. AR-WAM thereby avoids the dedicated memory architectures that monolithic reactive policies require  [ 44 ] , and extends the achievable horizon by extending the agent’s context rather than retraining the policy. 
+ Fig. 2: Failure recovery through the agent–policy loop. 
+ Failure detection and recovery 
+ Failures such as unsuccessful grasps or dropped objects are handled by the closed loop above (Fig.  2 ) rather than by hardwired recovery behaviors: at each invocation, the agent judges subtask completion, and on failure re-runs detect for an updated prompt g ′ g^{\prime} (e.g., re-localizing a dropped object) and re-invokes execute ​ ( g ′ , s , u , w ) \texttt{execute}(g^{\prime},s,u,w) under a fixed retry budget. Because retries enter through the same interface, recovery composes naturally with agent-side memory, and the policy’s decoded intent (Sec.  III-B ) helps diagnose whether a failure stems from a wrong intent or from improper execution. 
+ IV Experiments 
+ Our experiments are organized around three questions: 
+ (RQ1) Can visual grounding prompts replace, or even outperform, textual instructions as task conditioning? 
+ (RQ2) Does the model-agnostic agent compatibility layer enable diverse VLM/LLM agents to drive the same policy on long-horizon and memory-dependent tasks? 
+ (RQ3) How do the conditioning and modulation choices affect AR-WAM’s manipulation efficiency and performance? 
+ IV-A Simulation Benchmarks 
+ Setup. 
+We evaluate AR-WAM on dual-arm manipulation tasks from RoboTwin 2.0  [ 1 ] and on RMBench  [ 2 ] , with the policy trained jointly on data from both benchmarks. From RoboTwin 2.0, we select ten long-horizon tasks that require bimanual coordination and compose rich combinations of the atomic skills supported by AR-WAM ( pick , place , handover , …) to primarily probe manipulation precision. To factor out the influence of any particular VLM, instructions are issued by a state-machine-based benchmark expert equipped with an object detector. 
+ RMBench, in contrast, comprises memory-dependent tasks that test reasoning and memory, i.e., the cooperation between the policy and the agent. There, instructions are provided by a locally deployed Qwen3.8-27B  [ 48 ] and the online API Kimi-K3  [ 49 ] , both of which are open-source and natively multimodal. 
+ We re-generate the demonstration data with RoboTwin 2.0 (50 clean and 500 randomized demonstrations per task) and RMBench (50 demonstrations per task) to train the model in the main experiments.
+During data generation, a homing action that returns the arm to a rest pose is inserted between consecutive operations whose execution may occlude the manipulated object, so that the outcome of every subtask remains clearly observable and the agent can reliably judge its success or failure.
+All methods are evaluated on an identical, fixed set of initial-state seeds. 
+ Baselines. 
+We select baselines from the model families most related to AR-WAM: language-conditioned VLAs ( π 0.5 \pi_{0.5}   [ 7 ] , X-VLA  [ 19 ] ), world action models (Fast-WAM  [ 22 ] ), and latent world action models (Motus  [ 21 ] , LiLa-WAM  [ 17 ] ). On RoboTwin 2.0, we compare against all five. On RMBench, we compare against π 0.5 \pi_{0.5} , Fast-WAM, and LiLa-WAM, together with three memory-augmented policies: Mem-0, the reference policy released with the benchmark  [ 2 ] , and Goal2Skill  [ 40 ] and Cortex  [ 41 ] , two recent hierarchical systems that, like AR-WAM, pair a memory-aware high-level VLM agent with a low-level visuomotor policy.
+For baselines with officially released weights, we directly adopt the public checkpoints. All other baselines are retrained on the same demonstrations as AR-WAM. 
+ Results. 
+Table  I reports per-task and average success rates. AR-WAM attains the best average success rate in the random setting ( 84.2 % 84.2\% ) and stays within 0.6% of the strongest baseline in the clean setting ( 87.2 % 87.2\% vs. 87.8 % 87.8\% ), achieving higher success than the evaluated language-conditioned baselines under this evaluation protocol (RQ1). 
+ TABLE I: Success rates (%) on ten RoboTwin 2.0 tasks over 50 trials per task, per setting.
+C: clean setting; R: randomized setting. Bold : best; underline : second best. 
+ Pi0.5 
+ X-VLA 
+ Motus 
+ Fast-WAM 
+ LiLa-WAM 
+ AR-WAM 
+ Task 
+ C 
+ R 
+ C 
+ R 
+ C 
+ R 
+ C 
+ R 
+ C 
+ R 
+ C 
+ R 
+ Blocks Ranking Size 
+ 49 
+ 26 
+ 67 
+ 74 
+ 75 
+ 63 
+ 94 
+ 98 
+ 92 
+ 88 
+ 100 
+ 94 
+ Handover Block 
+ 66 
+ 57 
+ 73 
+ 37 
+ 86 
+ 73 
+ 99 
+ 80 
+ 96 
+ 90 
+ 98 
+ 92 
+ Handover Mic 
+ 98 
+ 97 
+ 0 
+ 0 
+ 78 
+ 63 
+ 100 
+ 100 
+ 100 
+ 98 
+ 100 
+ 100 
+ Hanging Mug 
+ 18 
+ 17 
+ 23 
+ 27 
+ 38 
+ 38 
+ 65 
+ 56 
+ 56 
+ 44 
+ 54 
+ 62 
+ Place Can Basket 
+ 62 
+ 62 
+ 49 
+ 52 
+ 81 
+ 76 
+ 72 
+ 67 
+ 80 
+ 72 
+ 90 
+ 82 
+ Place Dual Shoes 
+ 75 
+ 75 
+ 79 
+ 88 
+ 93 
+ 87 
+ 88 
+ 88 
+ 60 
+ 54 
+ 86 
+ 78 
+ Put Bottles Dustbin 
+ 84 
+ 79 
+ 74 
+ 77 
+ 81 
+ 79 
+ 93 
+ 82 
+ 92 
+ 94 
+ 96 
+ 92 
+ Put Object Cabinet 
+ 80 
+ 79 
+ 46 
+ 48 
+ 88 
+ 71 
+ 94 
+ 82 
+ 92 
+ 92 
+ 78 
+ 70 
+ Scan Object 
+ 72 
+ 65 
+ 14 
+ 36 
+ 67 
+ 66 
+ 96 
+ 86 
+ 94 
+ 90 
+ 76 
+ 86 
+ Stack Bowls Three 
+ 77 
+ 71 
+ 76 
+ 86 
+ 79 
+ 87 
+ 77 
+ 86 
+ 88 
+ 82 
+ 94 
+ 86 
+ Average 
+ 68.1 
+ 62.8 
+ 50.1 
+ 52.5 
+ 76.6 
+ 70.3 
+ 87.8 
+ 82.5 
+ 85.0 
+ 80.4 
+ 87.2 
+ 84.2 
+ IV-B Conditioning, Modulation, and Component Ablations 
+ To answer RQ1 and RQ3, we ablate five design axes on the RoboTwin 2.0 suite under an identical backbone, data budget, and training schedule: the conditioning modality , the reasoning and foresight components, and the foresight objective (Table  II ), together with the modulation mechanism (Table  III (b)). 
+ TABLE II: Ablation on condition, reasoning and foresight components.
+All variants use AdaLN modulation. VP: visual prompt. Objective: foresight
+prediction target.
+Params (B). Avg SR: average success rate (%). 
+ Condition 
+ Reasoning 
+ Foresight 
+ Objective 
+ Params 
+ Avg SR 
+ Text 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ Gist 
+ 0.58 
+ 74.2 ( − - 13.0) 
+ VP 
+ × \times 
+ ✓ \checkmark 
+ Gist 
+ 0.49 
+ 79.4 ( − - 7.8) 
+ VP 
+ ✓ \checkmark 
+ × \times 
+ – 
+ 0.50 
+ 78.6 ( − - 8.6) 
+ VP + Text 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ Gist 
+ 0.67 
+ 84.6 ( − - 2.6) 
+ VP 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ Patch 
+ 0.51 
+ 76.4 ( − - 10.8) 
+ VP 
+ ✓ \checkmark 
+ ✓ \checkmark 
+ Gist 
+ 0.50 
+ 87.2 
+ Conditioning and modulation 
+ Replacing the visual prompt with text instructions (Table  II ) drops average success by 13.0 % 13.0\% , directly answering RQ1: under identical training, visual grounding prompts are a strictly stronger conditioning signal than language. Adding text on top of the visual prompt does not help either ( − 2.6 % -2.6\% ), indicating that language is redundant once spatial grounding is available. 
+ Replacing AdaLN with cross-attention drops average success by 13.8 % 13.8\% (Table  III (b)). To understand why , we measure each variant’s reliance on every condition group (Table  III (a)): we permute one group at a time (the skill embedding alone, the full semantic bundle of skill, participants, and style encodings jointly, the proprioceptive state, or all jointly) at matched optimization steps and record the induced change in predicted action velocity, with flow time, noise, and RNG state fixed. 
+ Total reliance is comparable but placed differently: cross-attention depends 2.3 × 2.3\times more on the proprioceptive state ( 35.6 % 35.6\% vs. 15.5 % 15.5\% ), whereas AdaLN depends 2.1 × 2.1\times more on the semantic bundle ( 31.5 % 31.5\% vs. 15.3 % 15.3\% ). Such proprioception-heavy reliance is consistent with the shortcut-learning failure mode of imitation policies  [ 50 , 51 ] : the state signal correlates strongly with expert actions in-distribution and offers a faster route to loss reduction, but carries no task semantics, so leaning on it bypasses the semantic condition and undermines generalization. 
+ TABLE III: Comparison of the two modulation mechanisms.
+Params (B). Avg SR: average success rate (%). 
+ (a) Condition sensitivity 
+ Modulation 
+ Params 
+ Avg SR 
+ Cross 
+ 0.44 
+ 73.4 ( − - 13.8) 
+ AdaLN 
+ 0.50 
+ 87.2 
+ (b) Success rates 
+ Reasoning and foresight 
+ Removing the reasoning expert costs 7.8 % 7.8\% of average success and removing the foresight alignment 8.6 % 8.6\% (Table  II ), confirming that both explicit task understanding and future-aware latent targets contribute to action quality (RQ3). Replacing the compact gist objective with raw future patch features (Patch) drops average success by 10.8%, below even the foresight-free variant, suggesting that the gist’s compression is what makes the foresight signal useful. Fig.  3 visualizes the decoded foresight predictions against the ground-truth future frames, and Fig.  4 compares the attention maps of different token groups under three setups: reasoning concentrates attention on the object to be manipulated and the target, while foresight shifts attention toward regions where motion will occur, so that together the model attends to both the manipulated object and the scene dynamics. 
+ Fig. 3: Foresight prediction. Given the current frame and the task condition, AR-WAM predicts the latent foresight of the future scene, decoded here for visualization, together with the target masks decoded by the reason head for the current and the foreseen scene. 
+ Fig. 4: Attention maps of different token groups under three setups (full model, without foresight, without reasoning). 
+ IV-C Agent-Driven Long-Horizon Evaluation on RMBench 
+ To answer RQ2, we evaluate AR-WAM on RMBench  [ 2 ] , pairing the same policy with Qwen3.8-27B and Kimi-K3 as the agents through the model-agnostic interface of Sec.  III-E . Table  IV reports per-task and average success rates. 
+ TABLE IV: Success rates (%) on RMBench over 50 trials per task.
+AR-K / AR-Q: AR-WAM integrated with Kimi-K3  [ 49 ] / Qwen3.8-27B  [ 48 ] as the agent.
+–: not applicable / not reported. Bold : best; underline : second best. 
+ Task 
+ Pi0.5 
+ Fast-WAM 
+ Goal2Skill 
+ Mem-0 
+ Cortex 
+ LiLa-WAM 
+ AR-K 
+ AR-Q 
+ Observe and Pick Up 
+ 9 
+ 0 
+ 8 
+ 4 
+ 14 
+ 10 
+ 44 
+ 84 
+ Rearrange Blocks 
+ 13 
+ 0 
+ 38 
+ 89 
+ 100 
+ 20 
+ 62 
+ 86 
+ Put Back Block 
+ 11 
+ 0 
+ – 
+ 90 
+ 100 
+ 14 
+ 58 
+ 88 
+ Swap Blocks 
+ 24 
+ 0 
+ – 
+ 67 
+ 99 
+ 10 
+ 68 
+ 82 
+ Swap T 
+ 15 
+ 7 
+ – 
+ 14 
+ 63 
+ 18 
+ 18 
+ 16 
+ M ⁡ ( 1 ) M(1) Tasks Average 
+ 14.4 
+ 1.4 
+ 23.0 
+ 52.8 
+ 75.2 
+ 14.4 
+ 50.0 
+ 71.2 
+ Battery Try 
+ 16 
+ 20 
+ 46 
+ 28 
+ 37 
+ 24 
+ 38 
+ 52 
+ Blocks Ranking Try 
+ 6 
+ 26 
+ 60 
+ 18 
+ – 
+ 30 
+ 18 
+ 34 
+ Cover Blocks 
+ 0 
+ 0 
+ – 
+ 68 
+ – 
+ 0 
+ 72 
+ 78 
+ Press Button 
+ 0 
+ 0 
+ 10 
+ 0 
+ 20 
+ 0 
+ 82 
+ 90 
+ M ⁡ ( n ) M(n) Tasks Average 
+ 5.5 
+ 11.5 
+ 38.7 
+ 28.5 
+ 28.5 
+ 13.5 
+ 52.5 
+ 63.5 
+ Total Average 
+ 10.4 
+ 5.9 
+ 32.4 
+ 42.0 
+ 61.9 
+ 14.0 
+ 51.1 
+ 67.8 
+ On M ⁡ ( n ) M(n) tasks, AR-WAM with either agent substantially outperforms all memory-augmented baselines ( 52.5 % 52.5\% and 63.5 % 63.5\% vs. 38.7 % 38.7\% for the strongest, Goal2Skill), which we attribute to clearly delegating memory management to the upstream agent rather than entangling it within the policy. 
+ On M ⁡ ( 1 ) M(1) tasks, however, AR-WAM trails Cortex ( 75.2 % 75.2\% ). These tasks involve smaller objects, for which the bounding boxes produced natively by the VLM are not always accurate, introducing occasional manipulation errors. AR-Q surpasses AR-K ( 71.2 % 71.2\% vs. 50.0 % 50.0\% on M ⁡ ( 1 ) M(1) ) despite AR-K’s far larger agent model, suggesting that once both agents reason well enough to handle the memory component, grounding accuracy becomes the bottleneck. On the “Swap T” task, AR-WAM does not improve over LiLa-WAM, indicating that bounding boxes, as a form of visual grounding, are not yet fine-grained enough for tasks that demand strict spatial details. 
+ IV-D Real-Robot Evaluation 
+ Fig. 5: Real-robot rollouts of the three tasks on the Astribot S1  [ 3 ] dual-arm platform: pressing bells a specified number of times, picking up a specified bottle twice, and placing an egg into a specified cell. 
+ We design three challenging real-robot tasks on the Astribot S1  [ 3 ] dual-arm platform (Fig.  5 ), all long-horizon and requiring agent-side reasoning and memory, and evaluate AR-WAM driven by a locally deployed Qwen3.8-27B  [ 48 ] as the agent. For each task, we finetune the simulation-trained policy on 100 100 expert demonstrations collected on the real platform. AR-WAM achieves the highest success on all three tasks (Table  V ). These results demonstrate that AR-WAM is not only effective in benchmark settings but practically viable for real-world robotic deployment. 
+ TABLE V: Success rates (%) on three challenging real-robot tasks over 20 trials per task. Bold : best. 
+ Task 
+ Pi0.5 
+ LiLa-WAM 
+ AR-WAM 
+ Press bells X times 
+ 5 
+ 10 
+ 70 
+ Pick up X bottle twice 
+ 45 
+ 40 
+ 65 
+ Place egg into X cell 
+ 55 
+ 45 
+ 80 
+ Average 
+ 35.0 
+ 31.7 
+ 71.7 
+ IV-E Efficiency Analysis 
+ To assess the efficiency aspect of RQ3, we compare AR-WAM with policies of a similar mixture-of-transformers structure (Table  VI ), whose computation splits into a reasoning part and an action-denoising part, so that the end-to-end latency from receiving the current observation to producing an action decomposes into three stages: (i)  input processing , which encodes the task condition and image inputs into tokens, (ii)  KV-cache construction , typically performed together with the first ODE (denoising) step, and (iii)  per-step ODE time , the cost of each remaining denoising step. All latencies are measured on a single RTX 4090 (24 GB) in bf16 precision with identical input data across all methods, and each figure is averaged over repeated runs after several warm-up iterations. AR-WAM attains the lowest end-to-end latency (14.09 ms per chunk), 4.4 × 4.4\times faster than π 0.5 \pi_{0.5} and 22.7 × 22.7\times faster than Fast-WAM, benefiting from the shared reasoning-denoising forward and KV-cache reuse. 
+ TABLE VI: Per-stage inference latency (ms).
+Encoder & Misc.: visual encoding and other overheads;
+ODE: latency per denoising step, with the number of steps in superscript. Bold : fastest; underline : second fastest. 
+ Method 
+ Encoder & Misc. 
+ KV Cache 
+ ODE 
+ End-to-end 
+ Pi0.5 
+ 19.74 
+ 23.36 
+ 2.11 (×9) 
+ 62.09 
+ Fast-WAM 
+ 27.55 
+ 52.56 
+ 26.58 (×9) 
+ 319.33 
+ LiLa-WAM 
+ 4.77 
+ – 
+ 1.02 (×10) 
+ 14.97 
+ AR-WAM 
+ 4.41 
+ 3.74 
+ 0.66 (×9) 
+ 14.09 
+ V Discussion 
+ We delineate the boundaries of the current design. (1) Limited atomic-operation vocabulary. 𝒮 \mathcal{S} covers tabletop-scale skills. Extremely contact-rich behaviors (e.g., cable insertion) may need finer decomposition than a single token, and the human-defined vocabulary injects bias: vertical bottle grasps and cabinet-handle grasps share one grasp token. Hierarchical or duration-parameterized tokens are a natural direction. (2) Sensitivity to agent-side perception. End-to-end performance depends on agent-produced boxes, so deployments pay for perception mistakes. Training-time prompt augmentation (Sec.  III-D ) only partially mitigates this, motivating uncertainty-aware prompting and closed-loop refinement. (3) Reliance on system-level auxiliary motions. All interaction skills are learned. Conventional planning handles only auxiliary motions (e.g., homing) and can break down under complex contact or deformable objects. (4) Data-bound skill precision. The precision of the atomic skills is currently bounded by the limited training data. Continual learning through agent-in-the-loop real-robot reinforcement learning is a promising direction, improving success rates and reducing retries while the system operates. 
+ VI Conclusions 
+ We have presented AR-WAM, a visual-conditioned, agent-ready world action model built on the premise that the interface between agents and manipulation policies should be spatial rather than linguistic. AR-WAM replaces language instructions with a visual grounding prompt specifying where to act and a learnable operation token specifying which skill to perform, realized by a compact 0.5B policy in which a reasoning expert externalizes task understanding into explicit, supervisable signals and dual-level foresight keeps action generation future-aware. Planning, memory, and error recovery are delegated to external agents through a model-agnostic interface of three primitives: detect , execute , and query . Experiments on RoboTwin 2.0, RMBench, and a real Astribot S1 platform confirm the soundness of these choices: visual prompts outperform language conditioning under identical training, off-the-shelf agents drive the policy through memory-dependent long-horizon tasks, and the compact policy transfers to real hardware with only a few demonstrations while attaining the lowest latency among compared methods. We believe such a visual, agent-native interface is the right contract between high-level agents and low-level manipulation policies. 
+ References 
+ [1] 
+ T. Chen, Z. Chen, B. Chen, et al. (2025) 
+ RoboTwin 2.0: a scalable data generator and benchmark with strong domain randomization for robust bimanual robotic manipulation .
+ arXiv preprint arXiv:2506.18088 .
+ Cited by: §I ,
+ §III-D ,
+ §IV-A ,
+ Abstract .
+ [2] 
+ T. Chen, Y. Wang, M. Li, et al. (2026) 
+ RMBench: memory-dependent robotic manipulation benchmark with insights into policy design .
+ arXiv preprint arXiv:2603.01229 .
+ Cited by: §I ,
+ §III-D ,
+ §IV-A ,
+ §IV-A ,
+ §IV-C ,
+ Abstract .
+ [3] 
+ Astribot (2024) 
+ Astribot S1: AI robot platform .
+ Note: https://www.astribot.com/product Accessed: 2026-09-15 
+ Cited by: §I ,
+ Fig. 5 ,
+ §IV-D ,
+ Abstract .
+ [4] 
+ A. Brohan, N. Brown, J. Carbajal, et al. (2023) 
+ RT-2: vision-language-action models transfer web knowledge to robotic control .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §I ,
+ §II-A .
+ [5] 
+ M. J. Kim, K. Pertsch, S. Karamcheti, et al. (2024) 
+ OpenVLA: an open-source vision-language-action model .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §I ,
+ §II-A .
+ [6] 
+ K. Black, N. Brown, D. Driess, et al. (2025) 
+ π 0 \pi_{0} : A vision-language-action flow model for general robot control .
+ In Robotics: Science and Systems (RSS) ,
+ Cited by: §I ,
+ §II-A .
+ [7] 
+ Physical Intelligence (2025) 
+ π 0.5 \pi_{0.5} : A vision-language-action model with open-world generalization .
+ arXiv preprint arXiv:2504.16054 .
+ Cited by: §I ,
+ §II-A ,
+ §IV-A .
+ [8] 
+ Y. Du, M. Yang, B. Dai, et al. (2023) 
+ Learning universal policies via text-guided video generation .
+ In Advances in Neural Information Processing Systems (NeurIPS) ,
+ Cited by: §I ,
+ §II-A .
+ [9] 
+ H. Wu, Y. Jing, C. Cheang, et al. (2024) 
+ Unleashing large-scale video generative pre-training for visual robot manipulation .
+ In International Conference on Learning Representations (ICLR) ,
+ Cited by: §I ,
+ §II-A .
+ [10] 
+ C. Cheang, G. Chen, Y. Jing, et al. (2024) 
+ GR-2: a generative video-language-action model with web-scale knowledge for robot manipulation .
+ arXiv preprint arXiv:2410.06158 .
+ Cited by: §I ,
+ §II-A .
+ [11] 
+ Y. Hu, Y. Guo, P. Wang, et al. (2025) 
+ Video prediction policy: a generalist robot policy with predictive visual representations .
+ In International Conference on Machine Learning (ICML) ,
+ Cited by: §I ,
+ §I ,
+ §II-A .
+ [12] 
+ S. Liu, Z. Zeng, T. Ren, et al. (2024) 
+ Grounding DINO: marrying DINO with grounded pre-training for open-set object detection .
+ In European Conference on Computer Vision (ECCV) ,
+ Cited by: §I .
+ [13] 
+ S. Nasiriany, F. Xia, W. Yu, et al. (2024) 
+ PIVOT: iterative visual prompting elicits actionable knowledge for VLMs .
+ In International Conference on Machine Learning (ICML) ,
+ Cited by: §I ,
+ §II-B .
+ [14] 
+ F. Liu, K. Fang, P. Abbeel, et al. (2024) 
+ MOKA: open-world robotic manipulation through mark-based visual prompting .
+ In Robotics: Science and Systems (RSS) ,
+ Cited by: §I ,
+ §II-B .
+ [15] 
+ W. Yuan, J. Duan, V. Blukis, et al. (2024) 
+ RoboPoint: a vision-language model for spatial affordance prediction for robotics .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §I ,
+ §II-B .
+ [16] 
+ W. Huang, C. Wang, Y. Li, et al. (2024) 
+ ReKep: spatio-temporal reasoning of relational keypoint constraints for robotic manipulation .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §I ,
+ §II-B .
+ [17] 
+ F. Yang, Y. Su, X. Wang, et al. (2026) 
+ LiLa-WAM: lightweight latent reasoning world-action model for robotic manipulation .
+ arXiv preprint arXiv:2608.03701 .
+ Cited by: §I ,
+ §II-A ,
+ §IV-A .
+ [18] 
+ J. Chen, K. Wang, K. Chen, et al. (2026) 
+ LaWAM: latent world action models for efficient dynamics-aware robot policies .
+ arXiv preprint arXiv:2606.15768 .
+ Cited by: §I ,
+ §II-A .
+ [19] 
+ J. Zheng, J. Li, Z. Wang, et al. (2026) 
+ X-VLA: soft-prompted transformer as scalable cross-embodiment vision-language-action model .
+ In International Conference on Learning Representations (ICLR) ,
+ Cited by: §II-A ,
+ §IV-A .
+ [20] 
+ H. Luo W. Zhang et al. (2026) 
+ Being-H0.7: a latent world-action model from egocentric videos .
+ arXiv preprint arXiv:2605.00078 .
+ Cited by: §II-A .
+ [21] 
+ H. Bi, H. Tan, S. Xie, et al. (2025) 
+ Motus: a unified latent action world model .
+ arXiv preprint arXiv:2512.13030 .
+ Cited by: §II-A ,
+ §IV-A .
+ [22] 
+ T. Yuan, Z. Dong, Y. Liu, et al. (2026) 
+ Fast-WAM: do world action models need test-time future imagination? .
+ arXiv preprint arXiv:2603.16666 .
+ Cited by: §II-A ,
+ §IV-A .
+ [23] 
+ O. Siméoni, H. V. Vo, M. Seitzer, et al. (2025) 
+ DINOv3 .
+ arXiv preprint arXiv:2508.10104 .
+ Cited by: §II-A ,
+ §III-B .
+ [24] 
+ H. Huang, F. Lin, Y. Hu, et al. (2024) 
+ CoPa: general robotic manipulation through spatial constraints of parts with foundation models .
+ In IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) ,
+ pp. 9488–9495 .
+ Cited by: §II-B .
+ [25] 
+ Z. Wang, Y. Chen, Y. Liu, et al. (2026) 
+ VP-VLA: visual prompting as an interface for vision-language-action models .
+ arXiv preprint arXiv:2603.22003 .
+ Cited by: §II-B .
+ [26] 
+ H. Yu, J. Zhao, Y. Liu, et al. (2025) 
+ Point what you mean: visually grounded instruction policy .
+ arXiv preprint arXiv:2512.18933 .
+ Cited by: §II-B .
+ [27] 
+ H. Huang, X. Chen, Y. Chen, et al. (2025) 
+ RoboGround: robotic manipulation with grounded vision-language priors .
+ In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) ,
+ pp. 22540–22550 .
+ Cited by: §II-B .
+ [28] 
+ H. Yu, H. Lin, J. Zhang, et al. (2026) 
+ MaskWAM: unifying mask prompting and prediction for world-action models .
+ arXiv preprint arXiv:2606.13515 .
+ Cited by: §II-B .
+ [29] 
+ Y. Zhong, X. Huang, R. Li, et al. (2025) 
+ DexGraspVLA: a vision-language-action framework towards general dexterous grasping .
+ arXiv preprint arXiv:2502.20900 .
+ Cited by: §II-B .
+ [30] 
+ R. Zheng Y. Liang et al. (2025) 
+ TraceVLA: visual trace prompting enhances spatial-temporal awareness for generalist robotic policies .
+ In International Conference on Learning Representations (ICLR) ,
+ Cited by: §II-B .
+ [31] 
+ D. Qu, H. Song, Q. Chen, et al. (2025) 
+ SpatialVLA: exploring spatial representations for visual-language-action model .
+ In Robotics: Science and Systems (RSS) ,
+ Cited by: §II-B .
+ [32] 
+ E. Zhou, J. An, C. Chi, et al. (2025) 
+ RoboRefer: towards spatial referring with reasoning in vision-language models for robotics .
+ In Advances in Neural Information Processing Systems (NeurIPS) ,
+ Cited by: §II-B .
+ [33] 
+ M. Ahn, A. Brohan, N. Brown, et al. (2022) 
+ Do as I can, not as I say: grounding language in robotic affordances .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §II-C .
+ [34] 
+ J. Liang, W. Huang, F. Xia, et al. (2023) 
+ Code as policies: language model programs for embodied control .
+ In IEEE International Conference on Robotics and Automation (ICRA) ,
+ Cited by: §II-C .
+ [35] 
+ K. Rana, J. Haviland, S. Garg, et al. (2023) 
+ SayPlan: grounding large language models using 3D scene graphs for scalable robot task planning .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §II-C .
+ [36] 
+ W. Huang, C. Wang, R. Zhang, et al. (2023) 
+ VoxPoser: composable 3D value maps for robotic manipulation with language models .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §II-C .
+ [37] 
+ W. Huang, F. Xia, T. Xiao, et al. (2022) 
+ Inner Monologue: embodied reasoning through planning with language models .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §II-C .
+ [38] 
+ Y. Zhang, H. Zhang, F. Gao, et al. (2026) 
+ Harness VLA: steering frozen VLAs into reliable manipulation primitives via memory-guided agents .
+ arXiv preprint arXiv:2607.08448 .
+ Cited by: §II-C .
+ [39] 
+ L. X. Shi, B. Ichter, M. Equi, et al. (2025) 
+ Hi Robot: open-ended instruction following with hierarchical vision-language-action models .
+ In International Conference on Machine Learning (ICML) ,
+ Cited by: §II-C .
+ [40] 
+ Z. Liu, X. Ning, Z. Hu, et al. (2026) 
+ Goal2Skill: long-horizon manipulation with adaptive planning and reflection .
+ arXiv preprint arXiv:2604.13942 .
+ Cited by: §II-C ,
+ §IV-A .
+ [41] 
+ J. Peng, X. Yu, D. Feng, et al. (2026) 
+ Cortex: a bidirectionally aligned embodied agent framework for long-horizon manipulation .
+ arXiv preprint arXiv:2607.05377 .
+ Cited by: §II-C ,
+ §IV-A .
+ [42] 
+ Z. Liu, A. Bahety, and S. Song (2023) 
+ REFLECT: summarizing robot experiences for failure explanation and correction .
+ In Conference on Robot Learning (CoRL) ,
+ Cited by: §II-C .
+ [43] 
+ J. Duan, W. Pumacay, N. Kumar, et al. (2025) 
+ AHA: a vision-language-model for detecting and reasoning over failures in robotic manipulation .
+ In International Conference on Learning Representations (ICLR) ,
+ Cited by: §II-C .
+ [44] 
+ H. Shi, B. Xie, Y. Liu, et al. (2026) 
+ MemoryVLA: perceptual-cognitive memory in vision-language-action models for robotic manipulation .
+ In International Conference on Learning Representations (ICLR) ,
+ Cited by: §II-C ,
+ §III-E .
+ [45] 
+ W. Peebles and S. Xie (2023) 
+ Scalable diffusion models with transformers .
+ In IEEE/CVF International Conference on Computer Vision (ICCV) ,
+ Cited by: §III-A .
+ [46] 
+ V. Trivedy (2026) 
+ The anatomy of an agent harness .
+ Note: LangChain Blog, https://www.langchain.com/blog/the-anatomy-of-an-agent-harness Accessed: 2026-09-15 
+ Cited by: §III-E .
+ [47] 
+ L. Wang, C. Ma, X. Feng, et al. (2024) 
+ A survey on large language model based autonomous agents .
+ Frontiers of Computer Science 18 ( 6 ), pp. 186345 .
+ Cited by: §III-E .
+ [48] 
+ Qwen Team (2026) 
+ Qwen3.8-27B .
+ Note: https://huggingface.co/Qwen/Qwen3.8-27B Accessed: 2026-09-15 
+ Cited by: §IV-A ,
+ §IV-D ,
+ TABLE IV .
+ [49] 
+ Kimi Team (2026) 
+ Kimi K3: open frontier intelligence .
+ Note: https://arxiv.org/abs/2607.24653 Accessed: 2026-09-15 
+ Cited by: §IV-A ,
+ TABLE IV .
+ [50] 
+ J. Zhao, W. Lu, D. Zhang, et al. (2025) 
+ Do you need proprioceptive states in visuomotor policies? .
+ arXiv preprint arXiv:2509.18644 .
+ Cited by: §IV-B .
+ [51] 
+ J. Lu, W. Xia, Y. Wu, et al. (2026) 
+ When would vision-proprioception policies fail in robotic manipulation? .
+ In International Conference on Learning Representations (ICLR) ,
+ Cited by: §IV-B .
+ Experimental support, please
+ view the build logs 
+ for errors. Generated by
+ L
+ A 
+ T
+ E 
+ xml 
+ .
+ Instructions for reporting errors 
+ We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below: 
+ Click the "Report Issue" ( 
+ ) button, located in the page header. 
+ Tip: You can select the relevant text first, to include it in your report. 
+ Our team has already identified the following issues . We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all. 
+ Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion , and welcome developer contributions . 
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 

@@ -1,0 +1,107 @@
+ 
+ 
+ 
+     
+     
+     
+     CVPR 2026 Open Access Repository 
+     
+      
+      
+      
+     
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+     
+           
+           
+     
+     
+         
+             CVPR 2026   open access 
+         
+         
+            These CVPR 2026 papers are the Open Access versions, provided by the
+ Computer Vision Foundation.  
+Except for the watermark, they are identical to the accepted versions;
+the final published version of the proceedings is available on IEEE Xplore.
+         
+         
+            This material is presented to ensure timely dissemination of scholarly and technical work.
+Copyright and all rights therein are retained by authors or by other copyright holders.
+All persons copying this information are expected to adhere to the terms and constraints invoked 
+by each author's copyright.  
+             
+                 
+                 
+             
+
+         
+     
+     
+           Powered by:  
+         
+           
+           
+           Sponsored by:  
+         
+         
+         
+     
+ 
+  
+      
+     
+        Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignment
+     
+     
+                Tao Lin, Yilei Zhong, Yuxin Du, Jingjing Zhang, Jiting Liu, Yinxinyu Chen, Encheng Gu, Ziyan Liu, Hongyi Cai, Yanwen Zou, Lixing Zou, Zhaoye Zhou, Gen Li, Bo Zhao  ; Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2026, pp. 13397-13406
+     
+     
+      Abstract 
+     
+      
+     
+    Vision-Language-Action (VLA) models have emerged as a powerful framework that unifies perception, language, and control, enabling robots to perform diverse tasks through multimodal understanding. However, current VLA models typically contain massive parameters and rely heavily on large-scale robot data pretraining, leading to high computational costs during training, as well as limited deployability for real-time inference.Moreover, most training paradigms often degrade the perceptual representations of the Vision-Language backbone, resulting in overfitting and poor generalization to downstream tasks.In this work, we present Evo-1, a lightweight VLA model that reduces computation and improves deployment efficiency, while maintaining strong performance without pretraining on robot data. Evo-1 builds on a native multimodal Vision-Language model (VLM), incorporating a novel cross-modulated diffusion transformer along with an optimized integration module, together forming an effective architecture.We further introduce a two-stage training paradigm that progressively aligns action with perception, preserving the representations of the VLM.Notably, with only 0.77 billion parameters, Evo-1 achieves state-of-the-art results on the Meta-World and RoboTwin suite, surpassing the previous best models by 12.4% and 6.9%, respectively, and also attains a competitive result of 94.8% on LIBERO.In real-world evaluations, Evo-1 attains a 78% success rate with high inference frequency and low memory overhead, outperforming all baseline methods.We release code, data, and model weights to facilitate future research on lightweight and efficient VLA models.
+     
+     
+      Related Material 
+     
+           
+[ pdf ]
+[ supp ]
+[ arXiv ]
+ [ bibtex ]
+ @InProceedings{Lin_2026_CVPR,
+    author    = {Lin, Tao and Zhong, Yilei and Du, Yuxin and Zhang, Jingjing and Liu, Jiting and Chen, Yinxinyu and Gu, Encheng and Liu, Ziyan and Cai, Hongyi and Zou, Yanwen and Zou, Lixing and Zhou, Zhaoye and Li, Gen and Zhao, Bo},
+    title     = {Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignment},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2026},
+    pages     = {13397-13406}
+} 
+         
+   
+ 
+ 

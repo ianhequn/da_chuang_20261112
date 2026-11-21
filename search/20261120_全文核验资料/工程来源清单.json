@@ -1,0 +1,47 @@
+[
+  {
+    "source": "Nav2",
+    "url": "https://docs.nav2.org/",
+    "length": 45
+  },
+  {
+    "source": "ROS2_actions",
+    "url": "https://docs.ros.org/en/rolling/Concepts/Basic/About-Actions.html",
+    "length": 1544
+  },
+  {
+    "source": "slam_toolbox",
+    "url": "https://github.com/SteveMacenski/slam_toolbox",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "source": "RTAB_Map",
+    "url": "https://github.com/introlab/rtabmap_ros",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "source": "FastAPI",
+    "url": "https://fastapi.tiangolo.com/async/",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "source": "MuJoCo",
+    "url": "https://mujoco.readthedocs.io/en/stable/overview.html",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "source": "Gazebo",
+    "url": "https://gazebosim.org/docs/latest/ros2_integration/",
+    "length": 12152
+  },
+  {
+    "source": "LeRobot",
+    "url": "https://huggingface.co/docs/lerobot/integrate_hardware",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "source": "Evo1_search",
+    "url": "https://www.bing.com/search?q=Evo-1+Lightweight+Vision-Language-Action+Model+Preserved+Semantic+Alignment+CVPR+2026",
+    "length": 2192
+  }
+]

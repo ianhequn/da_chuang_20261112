@@ -1,0 +1,671 @@
+ 
+ OpenIN: Open-Vocabulary Instance-Oriented Navigation in Dynamic Domestic Environments 
+ // Restore the saved color scheme preference, or
+ // enact the browser preference if "automatic", 
+ // without expecting DOM load to have completed.
+ //
+ // Also restore any saved readingmode and ToC display preferences.
+ function initializeReadingPreferences() {
+ let saved_theme = localStorage.getItem("ar5iv_theme") || "automatic";
+ if (saved_theme === "automatic") {
+ if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+ saved_theme = "dark";
+ }
+ }
+ if (saved_theme == "dark") {
+ document.documentElement.setAttribute("data-theme", "dark");
+ } else {
+ document.documentElement.setAttribute("data-theme", "light");
+ }
+ const tocDisplay = localStorage.getItem('arxiv_html_paper_toc_display');
+ if (tocDisplay) {
+ document.documentElement.setAttribute("data-toc-display", tocDisplay);
+ }
+ const readingMode = localStorage.getItem('arxiv_html_paper_reading_mode');
+ if (readingMode) {
+ document.documentElement.setAttribute("data-reading-mode", readingMode);
+ }
+ }
+ // Run as soon as JS starts, to minimize repainting
+ initializeReadingPreferences();
+ /* Reading mode hides the chrome and the empty .arxiv-html-header marker: the pinned JS reads
+ the marker's display to know which way to toggle. The marker draws no box. */
+ .arxiv-html-header { display: contents; }
+ html[data-reading-mode="enabled"] :is(.arxiv-html-site-chrome, .arxiv-html-header, .ds-site-footer) { display: none; }
+ /* The paper controls' icons are blocks, so they sit centred (the pinned JS shows the theme
+ icon by making its span a block). */
+ .arxiv-html-site-chrome .ds-site-header-tools svg { display: block; width: 18px; height: 18px; flex-shrink: 0; fill: currentColor; }
+ /* ar5iv dims every image in dark mode and puts it on a white wash, for paper figures;
+ arXiv's own render as they are (the logo on the bar, the funder logos on their white
+ chips). Important: ar5iv's dark rules are unlayered, as specific as
+ :root:not([data-theme]) img:not(.ltx_no_dark_filter). */
+ :is(.ds-site-header, .ds-site-footer) img { filter: none !important; }
+ .ds-site-header img { background-color: transparent !important; }
+ /* Wide (the theme's 1280px): the theme lays the body out as a grid whose full-width top rows
+ were the band's and its sticky reader bar's. The band takes the first and scrolls away; the
+ header, the paper's bar (no site navigation, the paper's controls), takes the second and
+ stays in view, the one sticky bar, with the anchor clearance that requires (DESIGN-POLICIES).
+ The controls show their names. */
+ @media (min-width: 1280px) {
+ html { scroll-padding-top: 80px; }
+ .arxiv-html-site-chrome { display: contents; }
+ .arxiv-html-site-chrome > #ds-announcement { grid-area: announce; }
+ .arxiv-html-site-chrome > .ds-site-header { grid-area: header; position: sticky; top: 0; z-index: 3; }
+ .arxiv-html-site-chrome .tool-icon { display: none; }
+ }
+ /* Narrow: the header scrolls away, and the controls show icons (names kept for screen
+ readers; Why HTML? goes). The theme's contents panel is fixed below where its old sticky
+ bar was, and hidden only once the reader has closed it, so until then it is an invisible box
+ over the header and the paper: it shows only while open, under the chrome, in its place in
+ the page. The paper's footer (build logs, reporting instructions) keeps the text's side
+ inset; the theme gives it none, so it met the screen edges. */
+ @media (max-width: 1279px) {
+ .arxiv-html-site-chrome .tool-wide { display: none; }
+ .arxiv-html-site-chrome .tool-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+ html:not([data-toc-display="block"]) .ltx_page_navbar { display: none; }
+ .ltx_page_navbar { position: absolute; top: auto; }
+ .arxiv-html-footer { padding-inline: 1rem; }
+ }
+ Skip to main content 
+ Report GitHub Issue 
+ × 
+ Title: 
+ Content selection saved. Describe the issue below: 
+ Description: 
+ Submit without GitHub 
+ Submit in GitHub 
+ Why HTML? 
+ Report Issue 
+ Back to Abstract 
+ Download PDF 
+ Contents 
+ Reading mode 
+ Colour theme 
+ Abstract 
+ I Introduction 
+ II Related Work 
+ II-A Open Vocabulary Mapping 
+ II-B Object Navigation 
+ III Method 
+ III-A Problem Definition 
+ III-B Carrier-Relationship Scene Graph (CRSG) 
+ III-C Navigation Strategy for a Displaced Object 
+ III-D CRSG Adaptation 
+ IV Experimental Results 
+ IV-A Multi-type Query on the Offline Map 
+ IV-B Long-sequence Navigation Task for Frequently Used Everyday
+Instances 
+ IV-C Ablation Study 
+ IV-C 1 Different Criteria for Goal Determination 
+ IV-C 2 Impact of Updating CRSG 
+ IV-C 3 Navigation Strategies 
+ IV-D Real-World Validation 
+ V CONCLUSIONS 
+ References 
+ License: arXiv.org perpetual non-exclusive license
+arXiv:2501.04279v1 [cs.RO] 08 Jan 2025 
+OpenIN: Open-Vocabulary Instance-Oriented Navigation in Dynamic Domestic Environments
+ Thanks: 
+This work is supported by the National Natural Science Foundation of China under Grant No. NSFC 62233002, 62003039.
+(Corresponding Author: Yufeng Yue, yueyufeng@bit.edu.cn) Thanks: 1 Yujie Tang, Meiling Wang, Yinan Deng, Jingchuan Deng, Yufeng Yue are with
+School of Automation, Beijing Institute of Technology, Beijing, 100081, China.
+ Thanks: 2 Zibo Zheng are with School of Mechanical Engineering, University of Nottingham Ningbo China, Ningbo, 315100, China. 
+ Yujie Tang, Meiling Wang, Yinan Deng, Zibo Zheng, Jingchuan Deng, Yufeng Yue
+ Abstract 
+ In daily domestic settings, frequently used objects like cups often have unfixed positions and multiple instances within the same category, and their carriers frequently change as well. As a result, it becomes challenging for a robot to efficiently navigate to a specific instance. To tackle this challenge, the robot must capture and update scene changes and plans continuously. However, current object navigation approaches primarily focus on the semantic level and lack the ability to dynamically update scene representation. In contrast, this paper captures the relationships between frequently used objects and their static carriers. It constructs an open-vocabulary Carrier-Relationship Scene Graph (CRSG) and updates the carrying status during robot navigation to reflect the dynamic changes of the scene. Based on the CRSG, we further propose an instance navigation strategy that models the navigation process as a Markov Decision Process. At each step, decisions are informed by the Large Language Model’s commonsense knowledge and visual-language feature similarity.
+We designed a series of long-sequence navigation tasks for frequently used everyday items in the Habitat simulator. The results demonstrate that by updating the CRSG, the robot can efficiently navigate to moved targets. Additionally, we deployed our algorithm on a real robot and validated its practical effectiveness. The project page can be found here: https://OpenIN-nav.github.io . 
+ I Introduction 
+ As one of the fundamental tasks in embodied AI, object navigation [ 1 ] has garnered widespread attention from researchers. Imagine a daily environment in which a robot is tasked with navigating efficiently to any object, whether it is static furniture or a frequently used item with changing positions, such as a black cup . This poses several requirements for the navigation algorithm: 1. Open-vocabulary [ 2 ] recognition and instruction, 2. Accurate instance differentiation, 3. Memorizing and updating object states, and 4. Effective navigation strategies. However, there is still a significant gap in achieving this goal. 
+ Many existing object navigation methods [ 3 , 4 , 5 , 6 , 7 , 1 , 8 ] are limited to closed-set navigation, leading to poor performance with unknown objects. With the advancement of visual language models (VLM) [ 9 ] and large language models (LLM) [ 10 ] , open-vocabulary detection is achievable. However, most object navigation methods [ 11 , 12 , 13 ] support only one predefined instruction type, limiting flexibility. In contrast, humans use diverse instructions, such as demands (e.g., “ I’m hungry ”) or instance descriptions. To meet this requirement, the proposed method supports multiple instruction types, including demands, semantics, and instance descriptions (e.g., color or carried-by relationships).
+In addition, instance-level navigation requires precise target discrimination, but most methods lack dedicated target identification modules, resulting in lower accuracy. To address this, we designed a text-image multimodal input, combining text feature similarity, RGB feature similarity, and image-level similarity from a visual-language model to enhance the accuracy of instance-level object navigation. 
+ Moreover, in daily scenarios, the location of frequently used instance objects (e.g., a blue cup ) is dynamic (e.g., from the living room to the kitchen ), and their carriers can change (e.g., on a coffee table or dining table ), making efficient navigation to specific instances challenging. This requires scene memory and dynamic updates, which many existing methods struggle to handle effectively [ 3 , 4 , 5 , 6 , 7 , 1 , 14 , 11 , 12 , 13 , 8 ] . We capture the carried-by relationships between commonly used instance objects and their carriers, constructing a dynamic Carrier-Relationship Scene Graph (CRSG) to memorize carrying and carried-by relationships and update the states of instance objects, enabling promising lifelong navigation. 
+ Finally, the positional variability of commonly used instances requires an efficient navigation strategy. Based on the CRSG, we designed an instance-oriented navigation strategy that models the object search process as a Markov Decision Process (MDP) [ 15 ] . At each navigation step, the robot navigates toward a candidate target or an unexplored carrier object. Specifically, we use visual-language feature similarity to identify candidate targets, and consider factors such as navigation cost and feature similarity to rank the navigation order of them. If no candidate target is available, we rank the exploration order of carrier objects based on commonsense knowledge provided by the large language model (e.g., a cup is more likely to be placed on the table ), enabling efficient instance navigation. 
+ In summary, our contributions are as follows: 
+ • 
+ We present an open-vocabulary, instance-oriented navigation system that supports multi-modal and multi-type object navigation instructions, enabling effective navigation to everyday instances with variable positions. 
+ • 
+ We present an adaptable carrier relationship scene graph (CRSG) that primarily describes the dynamic carried-by relationships between objects. 
+ • 
+ We design a navigation strategy based on the CRSG, utilizing visual-language features and commonsense knowledge from the LLM to inform decision-making. 
+ • 
+ Extensive qualitative and quantitative experiments demonstrate that updating the CRSG contributes to efficient navigation in tasks involving long sequences of moved instances. Additionally, we deployed the algorithm on a real robot, confirming its practicality. 
+ II Related Work 
+ II-A Open Vocabulary Mapping 
+ With the advent of vision-language models like CLIP [ 16 ] and its variants, scene reconstruction has moved beyond the limitations of fixed classes [ 17 ] , and expanded to open-vocabulary [ 2 , 18 ] . Clip-fields [ 19 ] integrates CLIP and SBERT features into the neural implicit map, enabling open-vocabulary map queries and navigation for a robot. Vlmap [ 20 ] projects CLIP features top-down onto a 2D grid to enable zero-shot language navigation. Conceptgraph [ 18 ] and Hovsg [ 21 ] constructed instance-level point cloud maps with CLIP features embedded and scene graph representing certain relationships between objects, which facilitates more detailed and precise object retrieval. 
+ These maps provide crucial support for applications such as open-vocabulary object queries, scene understanding, and robot navigation. However, they generally lack dynamic update capabilities. We construct a dynamic carrier-relationship scene graph (CRSG) that describes the dynamic carrier-carried relationships between objects, and continuously update the CRSG during navigation. This enables more efficient navigation to everyday instances. 
+ II-B Object Navigation 
+ Object navigation [ 3 , 4 , 5 , 6 , 7 , 1 , 8 , 14 , 11 , 12 , 13 , 22 ] , as one of the key tasks in the field of embodied AI, primarily involves navigating to a specified semantic object or instance within a scene. [ 3 , 4 , 5 , 6 , 7 , 1 , 8 ] mainly perform object navigation within the closed-set classes.
+ [ 18 , 23 , 21 ] constructed an open-vocabulary instance map of the scene based on VLMs, enabling open-set instance navigation. [ 14 , 11 , 12 , 13 ] perform open-vocabulary object navigation using the frontier exploration method. However, they [ 18 , 23 , 21 , 14 , 11 , 12 , 13 ] are unable to capture and update the dynamics of instances in everyday environments and typically lack an instance discrimination module, which makes efficient navigation to dynamic instances challenging. In contrast, we build a dynamic CRSG that captures instance changes. Moreover, by considering multiple factors, such as visual-language features and image similarity, we achieve more accurate instance identification and navigation. The approach most similar to ours is GOAT [ 24 ] , which also implements memory capabilities for the latest scene and supports multi-type and multi-modal navigation command inputs. However, for navigating to a displaced everyday object, we designed a navigation strategy based on CRSG, while GOAT selects the closest unexplored region to navigate to the object. 
+ Figure 1: 
+The OpenIN framework consists of two main modules. The Scene Graph Construction module focuses on constructing the scene graph that describes the carrier-carried relationships. The Graph Updating and Navigation Strategy module is responsible for executing cognitive navigation based on user instructions, following the proposed navigation strategy, while updating the scene graph in the process.
+ III Method 
+ III-A Problem Definition 
+ In a daily environment, when given a navigation command, an intuitive answer is that the robot queries the offline map to determine the endpoint and navigates there. If the target is a daily item (e.g., a cup ) that is being carried, the robot evaluates whether the item remains in its original location based on the current observations. If not, the robot initiates a strategic exploration process. We define this challenge as a displaced instance exploration and navigation task within an everyday setting. An overview of the framework is provided in Fig.
+ 1 . 
+ III-B Carrier-Relationship Scene Graph (CRSG) 
+ We first construct an open-vocabulary instance map ℳ \mathcal{M} using the pre-collected RGB-D data of the scene. Unlike Conceptgraph [ 18 ] , where each instance object O i ∈ O \textit{{O}}_{i}\in\textit{{O}} ( O is the set of all objects) is represented by a CLIP feature V_F i \textit{{V\_F}}_{i} , we enhance each instance by adding a caption description list cap i \textit{{cap}}_{i} , generated using the Tokenize Anything model [ 25 ] , as well as a text feature T_F i \textit{{T\_F}}_{i} encoded using the SBERT model [ 26 ] . A Carrier-Relationship Scene Graph (CRSG) S ​ _ ​ G S\_G is then constructed below. 
+ Building and Room layer: Existing works, such as [ 27 ] and [ 21 ] , have proposed various methods for room segmentation. We employed a prior-based method, partitioning objects in the offline map into distinct rooms. The resulting room layers are then combined to form the overall building layer. 
+ Carrier layer: We calculate the similarity between the text features T_F i \textit{{T\_F}}_{i} of each object O i \textit{{O}}_{i} and the SBERT-encoded text feature T ~ \tilde{\textit{{T}}} for “ furniture for holding objects ”. The mathematical expression for this is as follows, where s ​ i ​ m ​ ( ⋅ , ⋅ ) sim(\cdot,\cdot) denotes the cosine similarity function. 
+ s ​ i ​ m ​ ( T_F i , T ~ ) = T_F i ⋅ T ~ ‖ T_F i ‖ ⋅ ‖ T ~ ‖ sim(\textit{{T\_F}}_{i},\tilde{\textit{{T}}})=\frac{\textit{{T\_F}}_{i}\cdot\tilde{\textit{{T}}}}{||\textit{{T\_F}}_{i}||\cdot||\tilde{\textit{{T}}}||} 
+ (1) 
+ Next, we select the set of objects O ~ ⊆ O \tilde{\textit{{O}}}\subseteq\textit{{O}} with a similarity score exceeding a specified threshold σ \sigma , as shown below. 
+ O ~ = { ( O i , cap i , T_F i ) | s ​ i ​ m ​ ( T_F i , T ~ ) > σ } \tilde{\textit{{O}}}=\{({\textit{{O}}}_{i},\textit{{cap}}_{i},\textit{{T\_F}}_{i})|sim(\textit{{T\_F}}_{i},\tilde{\textit{{T}}})>\sigma\} 
+ (2) 
+ Next, we extract the three most frequent captions for each cap i \textit{{cap}}_{i} in O ~ \tilde{\textit{{O}}} , input them into a LLM (GPT-4o for test), and use a specific prompt to identify potential carrier-type objects, denoted as O ~ 1 ⊆ O ~ \tilde{\textit{{O}}}_{1}\subseteq\tilde{\textit{{O}}} . 
+ Finally, we select the finalized set of carrier-layer objects, denoted as O ¯ ⊆ O ~ 1 \bar{\textit{{O}}}\subseteq\tilde{\textit{{O}}}_{1} , based on criteria such as the objects’ geometric dimensions exceeding a certain size and their contact with the ground, as shown below. 
+ O ¯ = f ​ ( O ~ 1 ) \bar{\textit{{O}}}\ =\ \textit{{f}}\ (\tilde{\textit{{O}}}_{1}) 
+ (3) 
+ Carried layer and other objects: For any non-carrier-layer object O i ∈ ( O − O ¯ ) \textit{{O}}_{i}\in(\textit{{O}}-\bar{\textit{{O}}}) , we determine whether O i \textit{{O}}_{i} is carried by a carrier-layer object O j ∈ O ¯ \textit{{O}}_{j}\in\bar{\textit{{O}}} based on O i \textit{{O}}_{i} ’s dimensions, the closest distance, and the spatial overlap relationship in the x-y-z directions between O i \textit{{O}}_{i} and O j \textit{{O}}_{j} (exceeding a certain overlap rate). h ​ ( O j , O i ) \textbf{{h}}(\textit{{O}}_{j},\textit{{O}}_{i}) is defined to encapsulate the consideration of the aforementioned factors, where
+ h ​ ( O j , O i ) = 1 \textbf{{h}}(\textit{{O}}_{j},\textit{{O}}_{i})=1 
+if all the conditions are satisfied. For any O j ∈ O ¯ \textit{{O}}_{j}\in\bar{\textit{{O}}} , we define the set of objects C ​ ( O j ) \textbf{{C}}(\textit{{O}}_{j}) carried by O j \textit{{O}}_{j} 
+as follows: 
+ C ( O j ) = { O i | h ( O j , O i ) = 1 , O i ∈ ( O − O ¯ ) } \textbf{{C}}(\textit{{O}}_{j})=\{\textit{{O}}_{i}|\textbf{{h}}(\textit{{O}}_{j},\textit{{O}}_{i})=1,\textit{{O}}_{i}\in(\textit{{O}}-\bar{\textit{{O}}})\} 
+ (4) 
+ All carried objects form the carried layer, represented by the object set 𝒞 \mathcal{C} in Eq. ( 5 ). The carried-layer objects can be updated by adding or removing them based on the robot’s latest environmental observations, as detailed in III-D . 
+ 𝒞 = ⋃ O j ∈ O ¯ C ⁡ ( O j ) \mathcal{C}=\bigcup_{\textit{{O}}_{j}\in\bar{\textit{{O}}}}C(\textit{{O}}_{j}) 
+ (5) 
+ Except for the carrier-layer O ¯ \bar{\textit{{O}}} and carried-layer objects 𝒞 \mathcal{C} , the remaining objects are considered other objects, which can also be queried using text or CLIP features. 
+ III-C Navigation Strategy for a Displaced Object 
+ Let the input navigation command for the target object be either a text , an image , or both. For solely an image , it is passed through GPT-4o to obtain a textual description, denoted as text 1 \textbf{{text}}_{1} , of the target object. Then, either text or text 1 \textbf{{text}}_{1} is encoded using the SBERT model. The resulting feature is compared with the SBERT features of each object in the CRSG S ​ _ ​ G S\_G using cosine similarity, similar to Eq. ( 1 ). The object with the highest similarity score is selected as the target object, O t ​ a ​ r ​ g ​ e ​ t \textbf{{O}}_{target} . 
+ We model the exploration of a displaced object as a fixed-policy Markov decision process (MDP) below. 
+ State Space S S : In the current step t t , we define: 
+ 1. the robot’s pose L t ∈ ℒ L_{t}\in\mathcal{L} , 
+ 2. the set of unexplored carrier-layer objects C ​ R t ∈ 𝒞 ​ ℛ CR_{t}\in\mathcal{CR} , 
+ 3. the set of candidate target objects on the unexplored carrier-layer objects C ​ T t ∈ 𝒞 ​ 𝒯 CT_{t}\in\mathcal{CT} , 
+ 4. the flag of finding the target or not F t ∈ { 0 , 1 } F_{t}\in\{0,1\} . ( ℒ \mathcal{L} , 𝒞 ​ ℛ \mathcal{CR} and 𝒞 ​ 𝒯 \mathcal{CT} denote the value set of L t L_{t} , C ​ R t CR_{t} and C ​ T t CT_{t} respectively.) 
+ The state variable S t S_{t} is defined in Eq. ( 6 ). 
+ S t = ( L t , C ​ R t , C ​ T t , F t ) ∈ S S_{t}=(L_{t},CR_{t},CT_{t},F_{t})\in S 
+ (6) 
+ In the initial state S 0 = ( L 0 , C ​ R 0 , C ​ T 0 , F 0 ) S_{0}=(L_{0},CR_{0},CT_{0},F_{0}) , L 0 L_{0} is the initial position of the robot, C ​ R 0 = O ¯ CR_{0}=\bar{\textit{{O}}} , and C ​ T 0 = O t ​ a ​ r ​ g ​ e ​ t CT_{0}=\textbf{{O}}_{target} . 
+ Action Space A A : 
+ A = { S t o p , E x p l o r e ( c r ) , G o t o ( c t ) | c r ∈ C R t , c t ∈ C T t } A=\{Stop,Explore(cr),Goto(ct)\ |\ cr\in CR_{t},ct\in CT_{t}\} 
+ (7) 
+ S ​ t ​ o ​ p Stop indicates that the task is completed or all carrier-layer objects have been explored. E ​ x ​ p ​ l ​ o ​ r ​ e ​ ( c ​ r ) Explore(cr) and G ​ o ​ t ​ o ​ ( c ​ t ) Goto(ct) represent exploring the carrier-layer object c ​ r ∈ C ​ R t cr\in CR_{t} and navigating to the location of c ​ t ∈ C ​ T t ct\in CT_{t} , respectively. 
+ The robot selects the next action a t ∈ A a_{t}\in A based on the current state S t S_{t} according to a specific policy π ⁡ ( ⋅ ) \pi(\cdot) in Eq. ( 8 ). 
+ a t = π ⁡ ( S t ) a_{t}=\pi(S_{t}) 
+ (8) 
+ Policy π ⁡ ( ⋅ ) \pi(\cdot) : 
+Given current state S t = ( L t , C ​ R t , C ​ T t , F t ) S_{t}=(L_{t},CR_{t},CT_{t},F_{t}) , 
+ 1. if F t = 1 F_{t}=1 or C ​ R t = ∅ CR_{t}=\emptyset , then a t = S ​ t ​ o ​ p a_{t}=Stop . 
+ 2. If F t = 0 F_{t}=0 and C ​ T t ≠ ∅ CT_{t}\neq\emptyset , we prioritize and select a candidate object to proceed with. Specifically, let C ​ T t = { O t ​ 1 , … , O t ​ i } CT_{t}=\{\textbf{{O}}_{t1},...,\textbf{{O}}_{ti}\} . Some additional variables are stored: the SBERT similarities S ​ S t = { ss t ​ 1 , … , ss t ​ i } SS_{t}=\{\textbf{{ss}}_{t1},...,\textbf{{ss}}_{ti}\} between C ​ T t CT_{t} and O t ​ a ​ r ​ g ​ e ​ t \textbf{{O}}_{target} , the distances D t = { d t ​ 1 , … , d t ​ i } D_{t}=\{\textbf{{d}}_{t1},...,\textbf{{d}}_{ti}\} between L t L_{t} and C ​ T t CT_{t} , and the average depth values D ~ t = { d ~ t ​ 1 , … , d ~ t ​ i } \tilde{D}_{t}=\{\tilde{\textbf{{d}}}_{t1},...,\tilde{\textbf{{d}}}_{ti}\} when C ​ T t CT_{t} are observed by the robot’s camera. The priority rating of any O t ​ j ∈ C ​ T t \textbf{{O}}_{tj}\in CT_{t} corresponding to ss t ​ j \textit{{ss}}_{tj} , d t ​ j \textit{{d}}_{tj} and d ~ t ​ j \tilde{\textbf{{d}}}_{tj} , is evaluated as follows.
+The parameters in ( 9 ) and ( 10 ) are set as ω 1 = 5 \omega_{1}=5 , ω 2 = 1 \omega_{2}=1 , d ~ 1 = 0.3 \tilde{\textit{d}}_{1}=0.3 m, α = 10 \alpha=10 and β = 0.1 \beta=0.1 in the experiments. 
+ P ​ _ ​ R ​ ( O t ​ j ) = ω r ⋅ ω 1 ⋅ ss t ​ j ⋅ f ⁡ ( d ~ t ​ j ) 1 + ω 2 ⋅ d t ​ j {\color[rgb]{0,0,0}P\_R(\textbf{{O}}_{tj})={\color[rgb]{0,0,0}\omega_{r}\cdot}\frac{\omega_{1}\cdot\textit{{ss}}_{tj}\cdot f(\tilde{\textbf{{d}}}_{tj})}{1+\omega_{2}\cdot\textbf{{d}}_{tj}}} 
+ (9) 
+ f ⁡ ( d ~ t ​ j ) = { exp ​ ( α ⁡ ( d ~ t ​ j − d ~ 1 ) ) d ~ t ​ j < d ~ 1 exp ​ ( − β ⁡ ( d ~ t ​ j − d ~ 1 ) ) d ~ t ​ j ≥ d ~ 1 {\color[rgb]{0,0,0}f(\tilde{\textbf{{d}}}_{tj})=\begin{cases}\ \ \text{exp}(\alpha(\tilde{\textbf{{d}}}_{tj}-\tilde{\textit{d}}_{1}))\ \ \ \ \ \ \tilde{\textbf{{d}}}_{tj}<\tilde{\textit{d}}_{1}\\
+\ \ \text{exp}(-\beta(\tilde{\textbf{{d}}}_{tj}-\tilde{\textit{d}}_{1}))\ \ \ \ \tilde{\textbf{{d}}}_{tj}\geq\tilde{\textit{d}}_{1}\end{cases}} 
+ (10) 
+ where ss t ​ j \textit{{ss}}_{tj} is positively correlated with P ​ _ ​ R ​ ( O t ​ j ) P\_R(\textbf{{O}}_{tj}) , as we assume that a larger ss t ​ j \textit{{ss}}_{tj} indicates a higher likelihood that the candidate is the target. Moreover,
+ f ⁡ ( d ~ t ​ j ) f(\tilde{\textbf{{d}}}_{tj}) is used to model the confidence level of ss t ​ j \textit{{ss}}_{tj} based on d ~ t ​ j \tilde{\textbf{{d}}}_{tj} . Specifically, in Eq. ( 10 ), when d ~ t ​ j \tilde{\textbf{{d}}}_{tj} is less than a small distance d ~ 1 \tilde{\textit{d}}_{1} , we assume that the confidence of the front-end detection results drops sharply, as being too close to the detected object may cause observation distortion or incompleteness. Conversely, when d ~ t ​ j \tilde{\textbf{{d}}}_{tj} exceeds this distance, we assume that the confidence decreases more gradually. Additionally, we generally assume that the moved target objects remain within the same room. Therefore, based on this assumption, ω r = 1 \omega_{r}=1 if the two objects belong to the same room, and ω r = 0.8 \omega_{r}=0.8 if they do not. The robot will navigate to the location of the object with the maximum P ​ _ ​ R P\_R and explore for O t ​ a ​ r ​ g ​ e ​ t \textbf{{O}}_{target} . 
+ 3. If F t = 0 F_{t}=0 , C ​ T t = ∅ CT_{t}=\emptyset , and C ​ R t ≠ ∅ CR_{t}\neq\emptyset , the LLM selects one of the carrier objects c ​ r k ∈ C ​ R t cr_{k}\in CR_{t} and the robot executes the action a t = E ​ x ​ p ​ l ​ o ​ r ​ e ​ ( c ​ r k ) a_{t}=Explore(cr_{k}) . Specifically, the captions for each carrier object in C ​ R t CR_{t} are extracted and provided as input to the LLM, along with the image or caption of the target object. Leveraging the LLM’s commonsense understanding of carrier-carried relationships (e.g., “ a cup is unlikely to be placed on a toilet ”), the LLM identifies the carrier object where the target object is most likely to be found. Additionally, the same-room principle is incorporated into the prompt given to the LLM. 
+ State Transition Process: 
+If a t = E ​ x ​ p ​ l ​ o ​ r ​ e ​ ( c ​ r ) a_{t}=Explore(cr) (where c ​ r ∈ C ​ R t cr\in CR_{t} ) or a t = G ​ o ​ t ​ o ​ ( c ​ t ) a_{t}=Goto(ct) (where c ​ t ∈ C ​ T t ct\in CT_{t} ), then during the robot’s movement, let C ​ R o ​ b ​ s ​ e ​ r ​ v ​ e ​ d CR_{observed} represent the set of carrier objects observed within a small radius r r that have no candidate targets on them (based on the latest environmental observations), and let C ​ T n ​ e ​ w CT_{new} represent the set of new target candidates found on unexplored carrier objects. Since some candidates in C ​ T t CT_{t} may be carried by objects in C ​ R o ​ b ​ s ​ e ​ r ​ v ​ e ​ d CR_{observed} , C ​ T t CT_{t} is updated to C ​ T t ∗ {CT_{t}}^{*} after these candidates are removed. Specifically, the candidates in C ​ T n ​ e ​ w CT_{new} are those for which the SBERT feature similarities with the target exceed a threshold σ 1 \sigma_{1} . Additionally, the similarities between the target O t ​ a ​ r ​ g ​ e ​ t \textbf{{O}}_{target} and the objects carried in C ​ R o ​ b ​ s ​ e ​ r ​ v ​ e ​ d CR_{observed} don’t exceed σ 1 \sigma_{1} . 
+ 1. if a t = E ​ x ​ p ​ l ​ o ​ r ​ e ​ ( c ​ r ) a_{t}=Explore(cr) , C ​ R t + 1 CR_{t+1} and C ​ T t + 1 CT_{t+1} are updated as: 
+ C ​ R t + 1 \displaystyle CR_{t+1} 
+ = C ​ R t \ ( { c ​ r } ∪ C ​ R o ​ b ​ s ​ e ​ r ​ v ​ e ​ d ) \displaystyle=CR_{t}\ \backslash\ (\{cr\}\cup CR_{observed}) 
+ (11a) 
+ C ​ T t + 1 \displaystyle CT_{t+1} 
+ = C ​ T t ∗ ∪ C ​ T n ​ e ​ w \displaystyle={CT_{t}}^{*}\cup CT_{new} 
+ (11b) 
+ 2. if a t = G ​ o ​ t ​ o ​ ( c ​ t ) a_{t}=Goto(ct) , C ​ R t + 1 CR_{t+1} and C ​ T t + 1 CT_{t+1} are updated as: 
+ C ​ R t + 1 \displaystyle CR_{t+1} 
+ = C ​ R t \ ( { c ​ r 1 } ∪ C ​ R o ​ b ​ s ​ e ​ r ​ v ​ e ​ d ) , c ​ t ∈ C ​ ( c ​ r 1 ) \displaystyle=CR_{t}\ \backslash\ (\{cr_{1}\}\cup CR_{observed}),\ ct\in\textbf{{C}}(cr_{1}) 
+ (12a) 
+ C ​ T t + 1 \displaystyle CT_{t+1} 
+ = C ​ T t ∗ ∪ C ​ T n ​ e ​ w \ { c ​ t } \displaystyle={CT_{t}}^{*}\cup CT_{new}\ \backslash\ \{ct\} 
+ (12b) 
+ Figure 2: A top-down schematic of CRSG Adaptation ( III-D ). 
+ Target Determination Criteria. In either case, the similarities between O t ​ a ​ r ​ g ​ e ​ t \textbf{{O}}_{target} and objects carried by c ​ r cr or c ​ r 1 cr_{1} are compared. First, we calculate the SBERT feature similarity s ​ i ​ m s ​ b ​ e ​ r ​ t sim_{sbert} like Eq. ( 1 ) between the target object and the carried objects. If the input includes an image, two more comparisons are made: 1. A GPT-4o based image-to-image comparison is conducted, yielding a probability s ​ i ​ m G ​ P ​ T sim_{GPT} 
+that the objects are the same. 2. We also compute the RGB histogram feature similarity s ​ i ​ m R ​ G ​ B sim_{RGB} between the input image and the image of the carried object, denoted as image c \textbf{{image}}_{c} , as follows. 
+ Figure 3: 
+Query Results for Some Carried Instances on the Offline Map.
+ For each channel ( R R , G G , B B ), the pixel values ranging from 0 to 255 are divided into K K intervals, and the number of pixels in each interval is counted. The histograms for each channel in an image are denoted as hist R \mathrm{hist}_{R} , hist G \mathrm{hist}_{G} and hist B \mathrm{hist}_{B} . The histogram for each channel is calculated below: 
+ hist C ​ [ i ] = ∑ ( x , y ) ∈ i ​ m ​ a ​ g ​ e 𝕀 ⁡ ( i ⋅ 256 K ≤ C ⁡ ( x , y ) < ( i + 1 ) ⋅ 256 K ) {\color[rgb]{0,0,0}\mathrm{hist}_{C}[i]=\sum_{(x,y)\in image}\mathbb{I}\left(i\cdot\frac{256}{K}\leq C(x,y)<(i+1)\cdot\frac{256}{K}\right)} 
+ (13) 
+ where C ∈ { R , G , B } C\in\{R,G,B\} , i i denotes the i i -th interval and 𝕀 ⁡ ( ⋅ ) \mathbb{I}(\cdot) is the indicator function, which equals 1 if the condition is true and 0 otherwise. 
+ After merging the three histograms and normalizing, we obtain the final histograms of image and image c \textbf{{image}}_{c} denoted as hist image \mathrm{hist}_{\textbf{{image}}} and hist image c \mathrm{hist}_{\textbf{{image}}_{c}} . Finally, the calculation of s ​ i ​ m R ​ G ​ B sim_{RGB} is based on the definition of s ​ i ​ m ​ ( ⋅ , ⋅ ) sim(\cdot,\cdot) as presented in Eq. ( 1 ). 
+ The determination of whether a carried object is the target object relies on a comprehensive evaluation of the values s ​ i ​ m s ​ b ​ e ​ r ​ t sim_{sbert} , s ​ i ​ m G ​ P ​ T sim_{GPT} and s ​ i ​ m R ​ G ​ B sim_{RGB} . If the criteria are met, then F t + 1 = 1 F_{t+1}=1 , and the task is marked as complete. 
+ III-D CRSG Adaptation 
+ Matching carrier-layer objects. As the robot navigates, it periodically captures RGB and depth images from the environment. The RGB images are processed through CropFormer [ 28 ] , Tokenize Anything [ 25 ] , CLIP [ 16 ] and SBERT [ 26 ] to obtain instance masks, captions, encoded CLIP features and SBERT features, respectively. For newly observed objects O n ​ e ​ w \textit{{O}}_{new} , the robot compares them with a subset, O ¯ s ​ u ​ b \bar{\textit{{O}}}_{sub} , of the carrier-layer objects O ¯ \bar{\textit{{O}}} in S G S_{G} to identify the observed carrier-layer objects, O m ​ a ​ t ​ c ​ h c ​ r \textit{{O}}_{match}^{cr} . The primary aspects of comparison between O n ​ e ​ w \textit{{O}}_{new} and O ¯ s ​ u ​ b \bar{\textit{{O}}}_{sub} include the object’s size, the distance between their center positions, and the similarity scores based on SBERT features. The subset O ¯ s ​ u ​ b \bar{\textit{{O}}}_{sub} is selected from O ¯ \bar{\textit{{O}}} to improve the efficiency of CRSG updates, where each object in O ¯ s ​ u ​ b \bar{\textit{{O}}}_{sub} satisfies the following criteria: 
+ ( x y ​ a ​ w , y y ​ a ​ w ) → ⋅ ( x i − x r , y i − y r ) → ≥ 0 \overrightarrow{(x_{yaw},y_{yaw})}\cdot\overrightarrow{(x_{i}-x_{r},y_{i}-y_{r})}\geq 0 
+ (14) 
+ where ( x y ​ a ​ w , y y ​ a ​ w ) → \overrightarrow{(x_{yaw},y_{yaw})} , ( x i , y i ) (x_{i},y_{i}) , ( x r , y r ) (x_{r},y_{r}) represent the robot’s heading vector, the coordinates of any carrier-layer object, and the robot’s current position, respectively. 
+ the Addition and Removal of Carried Objects. For currently observed instances, h( ⋅ , ⋅ \cdot,\cdot ) in Eq. ( 4 ) is used to determine whether they are being carried by O m ​ a ​ t ​ c ​ h c ​ r \textit{{O}}_{match}^{cr} . Let the set of carried objects in the new observations be defined as O c ​ r ​ d \textit{{O}}^{crd} . The previously carried objects on O m ​ a ​ t ​ c ​ h c ​ r \textit{{O}}_{match}^{cr} are then compared with O c ​ r ​ d \textit{{O}}^{crd} . The comparison criteria include the object’s size, the distance between their center positions, and the SBERT feature similarity score. After the comparison, the carried objects on O m ​ a ​ t ​ c ​ h c ​ r \textit{{O}}_{match}^{cr} are updated accordingly: they are either added, removed, or left unchanged.
+Notably, certain carrier-layer objects are often only partially observed. Therefore, for each observed carrier-layer object, we calculate the distance between its point cloud and the carried objects recorded in the CRSG S ​ _ ​ G S\_G ; if the distance exceeds a threshold, the carried object’s state is not updated. Fig. 2 illustrates a schematic of the CRSG adaptation from a top-down view. 
+ Table I: Success rate of object Query on the offline map. 
+ Method 
+ scene_1 
+ scene_2 
+ scene_3 
+ scene_4 
+ scene_5 
+ average 
+ Vlmap [ 20 ] 
+ 7/14 
+ 8/19 
+ 7/17 
+ 9/17 
+ 6/18 
+ 43.5% 
+ Conceptgraph [ 18 ] 
+ 9/14 
+ 10/19 
+ 12/17 
+ 6/17 
+ 8/18 
+ 52.9% 
+ Ours 
+ 13/14 
+ 15/19 
+ 15/17 
+ 14/17 
+ 13/18 
+ 82.4% 
+ Table II: SR and Tasks_SR( i ) in different scenes for a series of long-sequence frequently used daily items navigation tasks, with the best in pink and the second best in yellow . 
+   Scenes 
+ 2 
+ 3 
+ 4 
+ 5 
+   Methods 
+ Vlfm 
+ Ofm-0.4 
+ Ofm-0.55 
+ Ofm-0.7 
+ Ours 
+ Vlfm 
+ Ofm-0.4 
+ Ofm-0.55 
+ Ofm-0.7 
+ Ours 
+ Vlfm 
+ Ofm-0.4 
+ Ofm-0.55 
+ Ofm-0.7 
+ Ours 
+ Vlfm 
+ Ofm-0.4 
+ Ofm-0.55 
+ Ofm-0.7 
+ Ours 
+ SR (%) 
+ 1 
+ 40.0 
+ 40.0 
+ 20.0 
+ 20.0 
+ 85.7 
+ 20.0 
+ 00.0 
+ 20.0 
+ 60.0 
+ 80.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 40.0 
+ 83.3 
+ 00.0 
+ 20.0 
+ 20.0 
+ 40.0 
+ 40.0 
+ 2 
+ 40.0 
+ 00.0 
+ 40.0 
+ 20.0 
+ 85.7 
+ 00.0 
+ 00.0 
+ 100.0 
+ 40.0 
+ 40.0 
+ 20.0 
+ 20.0 
+ 00.0 
+ 00.0 
+ 83.3 
+ 00.0 
+ 40.0 
+ 60.0 
+ 80.0 
+ 80.0 
+ 3 
+ 20.0 
+ 20.0 
+ 20.0 
+ 40.0 
+ 57.1 
+ 40.0 
+ 00.0 
+ 00.0 
+ 20.0 
+ 100.0 
+ 00.0 
+ 40.0 
+ 20.0 
+ 00.0 
+ 66.7 
+ 00.0 
+ 80.0 
+ 60.0 
+ 60.0 
+ 100.0 
+ 4 
+ 20.0 
+ 20.0 
+ 40.0 
+ 40.0 
+ 85.7 
+ 40.0 
+ 60.0 
+ 40.0 
+ 40.0 
+ 80.0 
+ 00.0 
+ 20.0 
+ 20.0 
+ 00.0 
+ 83.3 
+ 20.0 
+ 20.0 
+ 60.0 
+ 40.0 
+ 40.0 
+ 5 
+ 00.0 
+ 33.3 
+ 33.3 
+ 33.3 
+ 75.0 
+ 00.0 
+ 66.7 
+ 33.3 
+ 33.3 
+ 100.0 
+ 00.0 
+ 25.0 
+ 25.0 
+ 00.0 
+ 75.0 
+ 00.0 
+ 33.3 
+ 33.3 
+ 00.0 
+ 66.7 
+ Tasks_SR( i ) (%) 
+ 1 
+ 40.0 
+ 40.0 
+ 20.0 
+ 00.0 
+ 85.7 
+ 20.0 
+ 00.0 
+ 20.0 
+ 60.0 
+ 80.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 40.0 
+ 83.3 
+ 00.0 
+ 20.0 
+ 20.0 
+ 40.0 
+ 40.0 
+ 2 
+ 00.0 
+ 00.0 
+ 20.0 
+ 00.0 
+ 71.4 
+ 00.0 
+ 00.0 
+ 20.0 
+ 20.0 
+ 20.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 83.3 
+ 00.0 
+ 00.0 
+ 00.0 
+ 20.0 
+ 40.0 
+ 3 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 57.1 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 20.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 66.7 
+ 00.0 
+ 00.0 
+ 00.0 
+ 20.0 
+ 40.0 
+ 4 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 42.9 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 66.7 
+ 00.0 
+ 00.0 
+ 00.0 
+ 20.0 
+ 20.0 
+ 5 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 50.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 50.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ 00.0 
+ IV Experimental Results 
+ By conducting extensive simulations and hardware experiments, we
+investigate the following key questions: 
+ 1. Do the carried-by relationship and text description features improve the accuracy of instance queries? (Sec. IV-A )? 
+ 2. Does the dynamic update of the CRSG contribute to more efficient instance navigation (Sec. IV-B , IV-C )? 
+ 3. Is our CRSG-based navigation strategy effective in navigating to moved instances (Sec. IV-C )? 
+ Metrics. 
+We report Success Rate (SR) and Success weighted by inverse Path Length (SPL) [ 29 ] . SPL measures the efficiency of a robot’s path by comparing it to the shortest route from the starting point to the target object. If the robot fails to reach the target, the SPL is zero. Otherwise, SPL is the ratio of the shortest path length to the robot’s actual path length, with higher values indicating better performance. 
+ IV-A Multi-type Query on the Offline Map 
+ Baselines. 
+ Vlmap [ 20 ] and Conceptgraph [ 18 ] construct offline maps embedded with visual-language features for object queries and robot navigation, and are compared in terms of the accuracy of multi-type queries. 
+ A total of 85 queries, covering different types of navigation instructions (semantic, instance, and demand-driven), were conducted across 5 scenes in Gibson [ 30 ] , with each type accounting for 17.65%, 49.41%, and 32.94% of the total, respectively. The experimental results are presented in Tab. I , where the query success rate of Ours averages 82.4% and is the highest in all five scenes. Because in instance queries like “ a cup on the table ”, the CRSG of Ours records the carrying relationship between cup and table , allowing for precisely locating the instance. In contrast, Vlmap [ 20 ] and Conceptgraph [ 18 ] may identify the table instead of the cup . Additionally, Ours additionally incorporates text features of caption descriptions for each instance in CRSG, enabling better differentiation between similar objects, such as black cup and white cup , and demonstrating superior performance in querying instances of specific colors. Meanwhile, Vlmap projects CLIP features from 3D space to 2D grids, which can cause the loss of CLIP features for small objects. Additionally, its limited queryable semantic categories lead to inferior performance. We illustrate partial query results in Fig. 3 , and the results demonstrate that Ours outperforms in distinguishing between objects of the same category and in querying specific instances being carried. 
+ Figure 4: SPL of different methods for long-sequence object navigation. ( horizontal-axis : object number, vertical-axis : SPL) 
+ Figure 5: 
+The visualization showcases two long-sequence instance navigation results of Ours , with scene 2 on the left and scene 5 on the right. Updates to task-relevant objects in the CRSG map are highlighted in small frames: red objects within red borders indicate appearances , blue objects within blue borders denote disappearances , and green objects within green borders represent new additions to the CRSG. During the initial exploration and navigation to the first object, the robot updated most of the CRSG area, enabling efficient navigation to subsequent objects by utilizing the known target locations.
+ IV-B Long-sequence Navigation Task for Frequently Used Everyday
+Instances 
+ We conducted long-sequence navigation experiments (4–5 objects per sequence) in four everyday scenes from the Gibson dataset [ 30 ] using the Habitat simulator [ 31 ] .
+In each scene, we placed commonly used items (e.g., black cup , blue clock ) along with distractor objects of the same category (e.g., black cup , white cup ) to test accurate navigation to specific instances, and constructed an offline CRSG. Before the navigation experiments, the positions of these items were randomly altered to simulate the variability in their locations. The robot was instructed to navigate to these instances sequentially. 
+ Baselines. The latest online exploratory open-vocabulary navigation methods, Vlfm [ 13 ] and Ofm [ 22 ] (short for OpenFMNav) are selected as baselines. For Ofm [ 22 ] , it detects object semantics during navigation and records these semantics on a 2D grid map if the detection confidence exceeds a specific threshold. Due to the threshold’s impact on navigation results, we conducted experiments with three thresholds: 0.4, 0.55 (official implementation), and 0.7, referred to as Ofm-0.4 , Ofm-0.55 , and Ofm-0.7 , respectively. 
+ The navigation results for each scene are shown in Tab. II (SR and Tasks_SR( i )) and Fig. 4 (SPL), where Tasks_SR( i ) represents the success rate of correctly navigating to all i objects. Tab. II shows that Ours achieves the highest SR and Tasks_SR( i ), thanks to its ability to identify instance-level targets. By supporting image input and integrating text features, RGB features, and VLM-based (GPT-4o) discriminations, Ours enables accurate navigation to the target instance. In contrast, both Vlfm and Ofm rely solely on text input. Specifically, Vlfm only supports navigation to general semantic categories, such as bottle , rather than more specific instances like yellow bottle , resulting in poor performance in correctly navigating to the target instance. 
+ In Fig. 4 , the SPL curves steadily increase with the number of objects, as the robot captures more changes in the scene and updates the CRSG throughout the long-sequence navigation task. As a result, the robot can often complete subsequent navigation tasks without further exploration. This highlights the importance of CRSG updates and showcases our scene maintenance capabilities. In contrast, Vlfm lacks scene maintenance, which prevents its SPL from improving as the long-sequence task progresses. Although Ofm has scene memory capabilities, its performance is limited by low success rates, leading to an SPL typically lower than Ours . Fig. 5 illustrates two examples of long-sequence navigation using Ours , where the efficiency of target navigation improves significantly as the number of navigated objects increases. 
+ IV-C Ablation Study 
+ IV-C 1 Different Criteria for Goal Determination 
+ We conducted ablation experiments on all long-sequence navigation tasks in scene 4 to assess the necessity of using GPT-4o, text features, and RGB histogram features for determining whether the correct target has been navigated. The results, shown in Tab. III , highlight that Ours consistently achieves the highest success rate. The absence of any component— w/o GPT-4o , w/o text , or w/o RGB —results in lower performance, demonstrating the importance of all three components for accurate target navigation. 
+ Table III: Ablation Study 1: SR (%) / Tasks_SR( i ) (%) Using Different Criteria for Goal Determination. 
+ Object 
+ w/o GPT-4o 
+ w/o text 
+ w/o RGB 
+ Ours 
+ 1 
+ 66.7 / 66.7 
+ 83.3 / 83.3 
+ 83.3 / 83.3 
+ 83.3 / 83.3 
+ 2 
+ 66.7 / 66.7 
+ 50.0 / 50.0 
+ 50.0 / 50.0 
+ 83.3 / 83.3 
+ 3 
+ 66.7 / 50.0 
+ 66.7 / 33.3 
+ 66.7 / 33.3 
+ 66.7 / 66.7 
+ 4 
+ 83.3 / 50.0 
+ 50.0 / 33.3 
+ 50.0 / 33.3 
+ 83.3 / 66.7 
+ 5 
+ 50.0 / 00.0 
+ 25.0 / 25.0 
+ 25.0 / 25.0 
+ 75.0 / 50.0 
+ Figure 6: Ablation Study 2: SPL of whether updating CRSG for long-sequence object navigation. 
+ IV-C 2 Impact of Updating CRSG 
+ We conducted an ablation study to evaluate the impact of CRSG updates on long-sequence navigation efficiency. A variant, Ours-w/o-update , relying on the initial CRSG for each object navigation task, was compared with Ours in terms of SPL across all scenes. Fig. 6 shows the average SPL, with shaded areas indicating the range of values. Without CRSG updates, the SPL of Ours-w/o-update does not increase as Ours does, highlighting the positive effect of CRSG updates on navigation efficiency. 
+ IV-C 3 Navigation Strategies 
+ We also conducted single daily instance navigation experiments in three scenes to evaluate the impact of various modules in our navigation strategy on navigation efficiency. only-carriers_Random navigates to a randomly selected carrier object for exploration, without considering candidate target objects. only-carriers_LLM builds on this by selecting the next carrier object based on LLM’s recommendations. As shown in Tab. IV , our method achieves the highest SPL, followed by only-carriers_LLM , demonstrating that navigating to candidate target objects and selecting carrier objects using LLM’s commonsense knowledge improves navigation efficiency. 
+ Table IV: Ablation Study 3: SPL by different navigation strategies. 
+ Metric 
+ only-carriers_Random 
+ only-carriers_LLM 
+ Ours 
+ SPL 
+ 0.205 
+ 0.309 
+ 0.342 
+ Figure 7: The robot queries the CRSG for the position of the red book at the chair and navigates there. It then discovers that the red book is not in its original location and rules out the interference of the grey book . Finally, it navigates to the newly observed red book . 
+ IV-D Real-World Validation 
+ We validated our algorithm using an Autolabor robot in a real-world scene, equipped with an NVIDIA GeForce RTX 3090, Livox Mid 360 LiDAR for SLAM to obtain global poses, and an Azure Kinect DK for RGB-D capture. Path planning and obstacle avoidance were handled by the ROS move_base package. The robot successfully navigated to a relocated red book , while disregarding interference from a gray book (Fig. 7 ). 
+ V CONCLUSIONS 
+ This paper has proposed an open-vocabulary navigation method for frequently used everyday items, leveraging a dynamic carrier-relationship scene graph (CRSG). Specifically, we first construct the CRSG to capture the dynamic relationships between carrier-level objects and the objects they carry. Next, a navigation strategy based on the CRSG is developed to navigate to frequently used items, modeling the object search process as a Markov Decision Process. At each navigation step, the CRSG is dynamically updated based on the robot’s observations of the environment. The robot then decides to navigate toward candidate target objects or unexplored carrier objects, guided by visual-language feature similarities and commonsense knowledge from the LLM. Both simulations and hardware experiments demonstrate that our method efficiently navigates to objects that are subject to positional changes, even in the presence of distractors from the same category. In the future, we plan to introduce an active exploration and mapping module to improve system scalability. 
+ References 
+ [1] 
+J. Zhang , et al. , “3d-aware object goal navigation via simultaneous exploration and identification,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 6672–6682, 2023.
+ [2] 
+S. Peng , et al. , “Openscene: 3d scene understanding with open vocabularies,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 815–824, 2023.
+ [3] 
+M. Chang , et al. , “Semantic visual navigation by watching youtube videos,” Advances in Neural Information Processing Systems , vol. 33, pp. 4283–4294, 2020.
+ [4] 
+J. Ye , et al. , “Auxiliary tasks and exploration enable objectnav,” arXiv preprint arXiv:2104.04112 , 2021.
+ [5] 
+D. S. Chaplot , et al. , “Object goal navigation using goal-oriented semantic exploration,” Advances in Neural Information Processing Systems , vol. 33, pp. 4247–4258, 2020.
+ [6] 
+H. Luo , et al. , “Stubborn: A strong baseline for indoor object navigation,” in 2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , pp. 3287–3293. IEEE, 2022.
+ [7] 
+S. K. Ramakrishnan , et al. , “Poni: Potential functions for objectgoal navigation with interaction-free learning,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 18 890–18 900, 2022.
+ [8] 
+A. Rajvanshi , et al. , “Saynav: Grounding large language models for dynamic planning to navigation in new environments,” in Proceedings of the International Conference on Automated Planning and Scheduling , vol. 34, pp. 464–474, 2024.
+ [9] 
+J. Zhang , et al. , “Vision-language models for vision tasks: A survey,” IEEE Transactions on Pattern Analysis and Machine Intelligence , 2024.
+ [10] 
+Y. Chang , et al. , “A survey on evaluation of large language models,” ACM Transactions on Intelligent Systems and Technology , vol. 15, no. 3, pp. 1–45, 2024.
+ [11] 
+J. Chen , et al. , “How to not train your dragon: Training-free embodied object goal navigation with semantic frontiers,” arXiv preprint arXiv:2305.16925 , 2023.
+ [12] 
+K. Zhou , et al. , “Esc: Exploration with soft commonsense constraints for zero-shot object navigation,” in International Conference on Machine Learning , pp. 42 829–42 842. PMLR, 2023.
+ [13] 
+N. Yokoyama , et al. , “Vlfm: Vision-language frontier maps for zero-shot semantic navigation,” in 2024 IEEE International Conference on Robotics and Automation (ICRA) , pp. 42–48. IEEE, 2024.
+ [14] 
+V. S. Dorbala , et al. , “Can an embodied agent find your ”cat-shaped mug”? llm-based zero-shot object navigation,” IEEE Robotics and Automation Letters , 2023.
+ [15] 
+F. Garcia , et al. , “Markov decision processes,” Markov Decision Processes in Artificial Intelligence , pp. 1–38, 2013.
+ [16] 
+A. Radford , et al. , “Learning transferable visual models from natural language supervision,” in International conference on machine learning , pp. 8748–8763. PMLR, 2021.
+ [17] 
+Y. Deng , et al. , “S-mki: Incremental dense semantic occupancy reconstruction through multi-entropy kernel inference,” in 2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , pp. 3824–3829. IEEE, 2022.
+ [18] 
+Q. Gu , et al. , “Conceptgraphs: Open-vocabulary 3d scene graphs for perception and planning,” in 2024 IEEE International Conference on Robotics and Automation (ICRA) , pp. 5021–5028. IEEE, 2024.
+ [19] 
+N. M. M. Shafiullah , et al. , “Clip-fields: Weakly supervised semantic fields for robotic memory,” arXiv preprint arXiv:2210.05663 , 2022.
+ [20] 
+C. Huang , et al. , “Visual language maps for robot navigation,” in 2023 IEEE International Conference on Robotics and Automation (ICRA) , pp. 10 608–10 615. IEEE, 2023.
+ [21] 
+A. Werby , et al. , “Hierarchical open-vocabulary 3d scene graphs for language-grounded robot navigation,” Robotics: Science and Systems , 2024.
+ [22] 
+Y. Kuang , et al. , “Openfmnav: Towards open-set zero-shot object navigation via vision-language foundation models,” in Findings of the Association for Computational Linguistics: NAACL 2024 , pp. 338–351, 2024.
+ [23] 
+J. Huang , et al. , “Ivlmap: Instance-aware visual language grounding for consumer robot navigation,” arXiv preprint arXiv:2403.19336 , 2024.
+ [24] 
+M. Chang , et al. , “Goat: Go to any thing,” in Proceedings of Robotics: Science and Systems (RSS) , 2024.
+ [25] 
+T. Pan , et al. , “Tokenize anything via prompting,” arXiv preprint arXiv:2312.09128 , 2023.
+ [26] 
+N. Reimers, “Sentence-bert: Sentence embeddings using siamese bert-networks,” arXiv preprint arXiv:1908.10084 , 2019.
+ [27] 
+N. Hughes , et al. , “Hydra: A real-time spatial perception system for 3D scene graph construction and optimization,” 2022.
+ [28] 
+L. Qi , et al. , “High-quality entity segmentation,” arXiv preprint arXiv:2211.05776 , 2022.
+ [29] 
+P. Anderson , et al. , “On evaluation of embodied navigation agents,” arXiv preprint arXiv:1807.06757 , 2018.
+ [30] 
+F. Xia , et al. , “Gibson env: Real-world perception for embodied agents,” in Proceedings of the IEEE conference on computer vision and pattern recognition , pp. 9068–9079, 2018.
+ [31] 
+M. Savva , et al. , “Habitat: A platform for embodied ai research,” in Proceedings of the IEEE/CVF international conference on computer vision , pp. 9339–9347, 2019.
+ Experimental support, please
+ view the build logs 
+ for errors. Generated by
+ L
+ A 
+ T
+ E 
+ xml 
+ .
+ Instructions for reporting errors 
+ We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below: 
+ Click the "Report Issue" ( 
+ ) button, located in the page header. 
+ Tip: You can select the relevant text first, to include it in your report. 
+ Our team has already identified the following issues . We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all. 
+ Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion , and welcome developer contributions . 
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 

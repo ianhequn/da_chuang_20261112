@@ -1,0 +1,117 @@
+ 
+ [2510.26536v1] RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration 
+ Skip to main content 
+ Search 
+ Submit 
+ Donate 
+ Log in 
+ Search arXiv 
+ Press Enter to search · Advanced search 
+--> 
+ Computer Science > Robotics 
+ arXiv:2510.26536v1 (cs)
+ [Submitted on 30 Oct 2025] 
+ Title: RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration 
+ Authors: Huajie Tan , Cheng Chi , Xiansheng Chen , Yuheng Ji , Zhongxia Zhao , Xiaoshuai Hao , Yaoxu Lyu , Mingyu Cao , Junkai Zhao , Huaihai Lyu , Enshen Zhou , Ning Chen , Yankai Fu , Cheng Peng , Wei Guo , Dong Liang , Zhuo Chen , Mengsi Lyu , Chenrui He , Yulong Ao , Yonghua Lin , Pengwei Wang , Zhongyuan Wang , Shanghang Zhang View a PDF of the paper titled RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration, by Huajie Tan and 23 other authors 
+ View PDF 
+ HTML (experimental) 
+ Abstract: The proliferation of collaborative robots across diverse tasks and embodiments presents a central challenge: achieving lifelong adaptability, scalable coordination, and robust scheduling in multi-agent systems. Existing approaches, from vision-language-action (VLA) models to hierarchical frameworks, fall short due to their reliance on limited or dividual-agent memory. This fundamentally constrains their ability to learn over long horizons, scale to heterogeneous teams, or recover from failures, highlighting the need for a unified memory representation. To address these limitations, we introduce RoboOS-NeXT, a unified memory-based framework for lifelong, scalable, and robust multi-robot collaboration. At the core of RoboOS-NeXT is the novel Spatio-Temporal-Embodiment Memory (STEM), which integrates spatial scene geometry, temporal event history, and embodiment profiles into a shared representation. This memory-centric design is integrated into a brain-cerebellum framework, where a high-level brain model performs global planning by retrieving and updating STEM, while low-level controllers execute actions locally. This closed loop between cognition, memory, and execution enables dynamic task allocation, fault-tolerant collaboration, and consistent state synchronization. We conduct extensive experiments spanning complex coordination tasks in restaurants, supermarkets, and households. Our results demonstrate that RoboOS-NeXT achieves superior performance across heterogeneous embodiments, validating its effectiveness in enabling lifelong, scalable, and robust multi-robot collaboration. Project website: this https URL 
+ Subjects: 
+ Robotics (cs.RO) 
+ Cite as: 
+ arXiv:2510.26536 [cs.RO] 
+ (or 
+ arXiv:2510.26536v1 [cs.RO] for this version)
+ https://doi.org/10.48550/arXiv.2510.26536 
+ Focus to learn more 
+ arXiv-issued DOI via DataCite 
+ Submission history From: Yuheng Ji [ view email ] [v1] 
+ Thu, 30 Oct 2025 14:26:40 UTC (5,012 KB) 
+ Full-text links: 
+ Access Paper: 
+View a PDF of the paper titled RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration, by Huajie Tan and 23 other authors View PDF HTML (experimental) TeX Source
+ view license 
+ Additional Features 
+ Audio Summary 
+ Current browse context: 
+ cs.RO 
+ < prev 
+   |   
+ next > 
+ new 
+ | 
+ recent 
+ | 2025-10 
+ Change to browse by:
+ cs 
+ References & Citations 
+ SciX Google Scholar 
+ Semantic Scholar 
+ export BibTeX citation 
+ Loading... 
+ BibTeX formatted citation 
+ × 
+ loading... 
+ Data provided by: 
+ Bookmark 
+ Bibliographic Tools 
+ Bibliographic and Citation Tools 
+ Bibliographic Explorer Toggle 
+ Bibliographic Explorer ( What is the Explorer? ) 
+ Connected Papers Toggle 
+ Connected Papers ( What is Connected Papers? ) 
+ Litmaps Toggle 
+ Litmaps ( What is Litmaps? ) 
+ scite.ai Toggle 
+ scite Smart Citations ( What are Smart Citations? ) 
+ Code, Data, Media 
+ Code, Data and Media Associated with this Article 
+ alphaXiv Toggle 
+ alphaXiv ( What is alphaXiv? ) 
+ Links to Code Toggle 
+ CatalyzeX Code Finder for Papers ( What is CatalyzeX? ) 
+ DagsHub Toggle 
+ DagsHub ( What is DagsHub? ) 
+ GotitPub Toggle 
+ Gotit.pub ( What is GotitPub? ) 
+ Huggingface Toggle 
+ Hugging Face ( What is Huggingface? ) 
+ ScienceCast Toggle 
+ ScienceCast ( What is ScienceCast? ) 
+ Demos 
+ Demos 
+ Replicate Toggle 
+ Replicate ( What is Replicate? ) 
+ Spaces Toggle 
+ Hugging Face Spaces ( What is Spaces? ) 
+ Spaces Toggle 
+ TXYZ.AI ( What is TXYZ.AI? ) 
+ Related Papers 
+ Recommenders and Search Tools 
+ Link to Influence Flower 
+ Influence Flower ( What are Influence Flowers? ) 
+ Core recommender toggle 
+ CORE Recommender ( What is CORE? ) 
+ Author 
+ Venue 
+ Institution 
+ Topic 
+ About arXivLabs
+ arXivLabs: experimental projects with community collaborators 
+ arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website. 
+ Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them. 
+ Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs . 
+ Which authors of this paper are endorsers? |
+ Disable MathJax ( What is MathJax? )
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 
+ 

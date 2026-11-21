@@ -1,0 +1,454 @@
+[
+  {
+    "ref": 1,
+    "bibliography": "YENAMANDRA S, RAMACHANDRAN A, YADAV K, et al. HomeRobot: Open-Vocabulary Mobile Manipulation[EB/OL]. (2023-06-20)[2026-11-20]. arXiv:2306.11565v2. https://arxiv.org/abs/2306.11565v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2306.11565v2",
+      "https://arxiv.org/html/2306.11565v2"
+    ],
+    "evidence_files": [
+      "01_2306.11565v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "01_2306.11565v2_html.txt": "60565448391f83154589a8bb38a5f241395bf4edd7f8378ec359f56ab5a3f296"
+    }
+  },
+  {
+    "ref": 2,
+    "bibliography": "LIU P, ORRU Y, VAKIL J, et al. OK-Robot: What Really Matters in Integrating Open-Knowledge Models for Robotics[EB/OL]. (2024-01-22)[2026-11-20]. arXiv:2401.12202v2. https://arxiv.org/abs/2401.12202v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2401.12202v2",
+      "https://arxiv.org/html/2401.12202v2"
+    ],
+    "evidence_files": [
+      "02_2401.12202v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "02_2401.12202v2_html.txt": "03b9b75307cffa2f8c834d56ef8bbead880b846908d014a9889df4e5f9c5cb06"
+    }
+  },
+  {
+    "ref": 3,
+    "bibliography": "WU J, ANTONOVA R, KAN A, et al. TidyBot: Personalized Robot Assistance with Large Language Models[EB/OL]. (2023-05-09)[2026-11-20]. arXiv:2305.05658v2. https://arxiv.org/abs/2305.05658v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2305.05658v2",
+      "https://arxiv.org/html/2305.05658v2"
+    ],
+    "evidence_files": [
+      "03_2305.05658v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "03_2305.05658v2_html.txt": "ec83ffca8fd82b48c0ac38e819c96f7c09cdfee4ac9826765c7be0d4a7573d20"
+    }
+  },
+  {
+    "ref": 4,
+    "bibliography": "FU Z, ZHAO T Z, FINN C. Mobile ALOHA: Learning Bimanual Mobile Manipulation with Low-Cost Whole-Body Teleoperation[EB/OL]. (2024-01-04)[2026-11-20]. arXiv:2401.02117v1. https://arxiv.org/abs/2401.02117v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2401.02117v1",
+      "https://arxiv.org/html/2401.02117v1"
+    ],
+    "evidence_files": [
+      "04_2401.02117_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "04_2401.02117_html.txt": "c82df6c8c3f7696cf3148864aef72eac8345fa38246f9ff98cbea12946f8051c"
+    }
+  },
+  {
+    "ref": 5,
+    "bibliography": "AHN M, BROHAN A, BROWN N, et al. Do As I Can, Not As I Say: Grounding Language in Robotic Affordances[EB/OL]. (2022-04-04)[2026-11-20]. arXiv:2204.01691v2. https://arxiv.org/abs/2204.01691v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2204.01691v2",
+      "https://arxiv.org/html/2204.01691v2"
+    ],
+    "evidence_files": [
+      "05_2204.01691_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "05_2204.01691_html.txt": "2b0cc72743f42af9c5782f6ba51b989e6acaa5bd88d9d5602c42d531cd14d626"
+    }
+  },
+  {
+    "ref": 6,
+    "bibliography": "HUANG W, XIA F, XIAO T, et al. Inner Monologue: Embodied Reasoning through Planning with Language Models[EB/OL]. (2022-07-12)[2026-11-20]. arXiv:2207.05608v1. https://arxiv.org/abs/2207.05608v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2207.05608v1",
+      "https://arxiv.org/html/2207.05608v1"
+    ],
+    "evidence_files": [
+      "06_2207.05608_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "06_2207.05608_html.txt": "bbd1a286f1f3254ce447bb5b7b3a2de44c6d1de96171a06131bb1d30b1ee0617"
+    }
+  },
+  {
+    "ref": 7,
+    "bibliography": "SHI L X, ICHTER B, EQUI M, et al. Hi Robot: Open-Ended Instruction Following with Hierarchical Vision-Language-Action Models[EB/OL]. (2025-02-26)[2026-11-20]. arXiv:2502.19417v2. https://arxiv.org/abs/2502.19417v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2502.19417v2",
+      "https://arxiv.org/html/2502.19417v2"
+    ],
+    "evidence_files": [
+      "07_2502.19417v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "07_2502.19417v2_html.txt": "00124c1c718c7fe69f2bd5c8188e1d4611eb6f5a05f0dbc63b15db84dec07812"
+    }
+  },
+  {
+    "ref": 8,
+    "bibliography": "TAN H, HAO X, CHI C, et al. RoboOS: A Hierarchical Embodied Framework for Cross-Embodiment and Multi-Agent Collaboration[EB/OL]. (2025-05-06)[2026-11-20]. arXiv:2505.03673v2. https://arxiv.org/abs/2505.03673v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2505.03673v2",
+      "https://arxiv.org/html/2505.03673v2"
+    ],
+    "evidence_files": [
+      "08_2505.03673v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "08_2505.03673v2_html.txt": "a299f600539ed9ab3c97a96442ec93a34f2083a08374f5981a35fd607af76591"
+    }
+  },
+  {
+    "ref": 9,
+    "bibliography": "MI B, MA M, YAO Y, et al. Exploratory, Communicative, and Deployable: Vision-Driven Embodied Agents for Open-World Mobile Manipulation[EB/OL]. (2026-07-15)[2026-11-20]. arXiv:2607.13653v2. https://arxiv.org/abs/2607.13653v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2607.13653v2",
+      "https://arxiv.org/html/2607.13653v2"
+    ],
+    "evidence_files": [
+      "09_2607.13653v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "09_2607.13653v2_html.txt": "8cfa7dd46ccf875506e1c39d4fd8f88181b4d42532ba42bb8e29951267c16e8b"
+    }
+  },
+  {
+    "ref": 10,
+    "bibliography": "TAN H, CHI C, CHEN X, et al. RoboOS-NeXT: A Unified Memory-based Framework for Lifelong, Scalable, and Robust Multi-Robot Collaboration[EB/OL]. (2025-10-30)[2026-11-20]. arXiv:2510.26536v1. https://arxiv.org/abs/2510.26536v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2510.26536v1",
+      "https://arxiv.org/html/2510.26536v1"
+    ],
+    "evidence_files": [
+      "10_2510.26536v1_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "10_2510.26536v1_html.txt": "98d1b78cf14bb840a0d69c0316f61bbe0fcaf0f79f518e5ee7f08747133cbba7"
+    }
+  },
+  {
+    "ref": 11,
+    "bibliography": "CHEN J, LIANG H, DU L, et al. OWMM-Agent: Open World Mobile Manipulation With Multi-modal Agentic Data Synthesis[EB/OL]. (2025-06-04)[2026-11-20]. arXiv:2506.04217v2. https://arxiv.org/abs/2506.04217v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2506.04217v2",
+      "https://arxiv.org/html/2506.04217v2"
+    ],
+    "evidence_files": [
+      "11_html_retry.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "11_html_retry.txt": "dadb5ec351848170761f0a0cf7094be1f17e4a97dfc2133b09afd7239addc0fc"
+    }
+  },
+  {
+    "ref": 12,
+    "bibliography": "HUANG J, LI Z, HU Y, et al. RoboHarness: Memory-Driven Orchestration of Heterogeneous Robot Policies for Long-Horizon Planning[EB/OL]. (2026-07-20)[2026-11-20]. arXiv:2607.18060v3. https://arxiv.org/abs/2607.18060v3.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2607.18060v3",
+      "https://arxiv.org/html/2607.18060v3"
+    ],
+    "evidence_files": [
+      "12_2607.18060v3_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "12_2607.18060v3_html.txt": "53a13f2d85c147e28ced43e7fd46830b69bcc19763b57b545096ecec7df54e73"
+    }
+  },
+  {
+    "ref": 13,
+    "bibliography": "SHI J, YANG R, CHAO K, et al. MAESTRO: Orchestrating Robotics Modules with Coding Agents for Zero-Shot Generalist Robots[EB/OL]. (2025-11-02)[2026-11-20]. arXiv:2511.00917v3. https://arxiv.org/abs/2511.00917v3.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2511.00917v3",
+      "https://arxiv.org/html/2511.00917v3"
+    ],
+    "evidence_files": [
+      "13_2511.00917v3_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "13_2511.00917v3_html.txt": "6db8306df8b8a0533ac7e9b79969a380451672275fb9c92e0d8d2965f14b02b6"
+    }
+  },
+  {
+    "ref": 14,
+    "bibliography": "LEI Z, LIU C, XIONG Y, et al. Towards Long-horizon Embodied Agents with Tool-Aligned Vision-Language-Action Models[EB/OL]. (2026-05-13)[2026-11-20]. arXiv:2605.13119v2. https://arxiv.org/abs/2605.13119v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2605.13119v2",
+      "https://arxiv.org/html/2605.13119v2"
+    ],
+    "evidence_files": [
+      "14_2605.13119v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "14_2605.13119v2_html.txt": "4910929201c3210e458816b4fb0e220d661f8521cbfdd5c5e93eca729aeef382"
+    }
+  },
+  {
+    "ref": 15,
+    "bibliography": "GU Q, KUWAJERWALA A, MORIN S, et al. ConceptGraphs: Open-Vocabulary 3D Scene Graphs for Perception and Planning[EB/OL]. (2023-09-28)[2026-11-20]. arXiv:2309.16650v1. https://arxiv.org/abs/2309.16650v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2309.16650v1",
+      "https://arxiv.org/html/2309.16650v1"
+    ],
+    "evidence_files": [
+      "15_2309.16650_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "15_2309.16650_html.txt": "7946379dae47416853c50e0e4fc89be116f28b3d66ef6c10bac42537ce0c81e6"
+    }
+  },
+  {
+    "ref": 16,
+    "bibliography": "KATHIRVEL R S R, CHAVIS Z A, GUY S J, et al. SENT Map -- Semantically Enhanced Topological Maps with Foundation Models[EB/OL]. (2025-11-05)[2026-11-20]. arXiv:2511.03165v1. https://arxiv.org/abs/2511.03165v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2511.03165v1",
+      "https://arxiv.org/html/2511.03165v1"
+    ],
+    "evidence_files": [
+      "16_2511.03165v1_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "16_2511.03165v1_html.txt": "643436d8810d6a6a81658027818434eb2b4fc5af3c886591886123743184bce4"
+    }
+  },
+  {
+    "ref": 17,
+    "bibliography": "LIU P, GUO Z, WARKE M, et al. DynaMem: Online Dynamic Spatio-Semantic Memory for Open World Mobile Manipulation[EB/OL]. (2024-11-07)[2026-11-20]. arXiv:2411.04999v2. https://arxiv.org/abs/2411.04999v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2411.04999v2",
+      "https://arxiv.org/html/2411.04999v2"
+    ],
+    "evidence_files": [
+      "17_2411.04999v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "17_2411.04999v2_html.txt": "21628590be0a91e4f81db5b4ba5caa870440a3c41adb2986ce197b3a655e5ee3"
+    }
+  },
+  {
+    "ref": 18,
+    "bibliography": "TANG Y, WANG M, DENG Y, et al. OpenIN: Open-Vocabulary Instance-Oriented Navigation in Dynamic Domestic Environments[EB/OL]. (2025-01-08)[2026-11-20]. arXiv:2501.04279v1. https://arxiv.org/abs/2501.04279v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2501.04279v1",
+      "https://arxiv.org/html/2501.04279v1"
+    ],
+    "evidence_files": [
+      "18_html_retry.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "18_html_retry.txt": "2130f2ed658e4eae28c15680a8b1ba79b90230b37aa8e016e3ef2ad7eda1be90"
+    }
+  },
+  {
+    "ref": 19,
+    "bibliography": "HE S, HUANG L, LILJA A, et al. FARM: Find Anything using Relational Spatial Memory[EB/OL]. (2026-06-13)[2026-11-20]. arXiv:2606.15476v3. https://arxiv.org/abs/2606.15476v3.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2606.15476v3",
+      "https://arxiv.org/html/2606.15476v3"
+    ],
+    "evidence_files": [
+      "19_html_retry.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "19_html_retry.txt": "1c6b0db63e5e9feedc9c546e10e4f9399eec580f0166ca14915dd25c38db528a"
+    }
+  },
+  {
+    "ref": 20,
+    "bibliography": "WANG J, XUE Z, Chen Jizhuo, et al. Retrospective Open-Vocabulary Memory for Long-Term Object Search[EB/OL]. (2026-09-29)[2026-11-20]. arXiv:2610.00330v2. https://arxiv.org/abs/2610.00330v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2610.00330v2",
+      "https://arxiv.org/html/2610.00330v2"
+    ],
+    "evidence_files": [
+      "20_html_retry.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "20_html_retry.txt": "bf1f9640b8ca8df1938d326d43e18a5aa2fb890033359c0f27c18d6fbac78cd2"
+    }
+  },
+  {
+    "ref": 21,
+    "bibliography": "SHUKOR M, AUBAKIROVA D, CAPUANO F, et al. SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics[EB/OL]. (2025-06-02)[2026-11-20]. arXiv:2506.01844v1. https://arxiv.org/abs/2506.01844v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2506.01844v1",
+      "https://arxiv.org/html/2506.01844v1"
+    ],
+    "evidence_files": [
+      "21_html_retry.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "21_html_retry.txt": "9ed8df0d309f8b530c2e73a22a02023c099bef8a711abcb7d9c83a4c6af52773"
+    }
+  },
+  {
+    "ref": 22,
+    "bibliography": "WANG Y, HUANG S, LI M, et al. OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining[EB/OL]. (2026-09-07)[2026-11-20]. arXiv:2609.07398v1. https://arxiv.org/abs/2609.07398v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2609.07398v1",
+      "https://arxiv.org/pdf/2609.07398v1"
+    ],
+    "evidence_files": [
+      "22_OpenWAM_pdf.txt",
+      "OpenWAM_site.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "22_OpenWAM_pdf.txt": "351d67d053674bde9f8276b9d3d32d77cff9e81afc0d21839398ba8d906cad21",
+      "OpenWAM_site.txt": "f6ce93fe050e6a0e53fad901ef90c8c65cfba911800292dff8ac29d4c3b4a3ba"
+    }
+  },
+  {
+    "ref": 23,
+    "bibliography": "JIANG Y, GAN Z, WANG X, et al. AR-WAM: A Visual-Conditioned Agent-Ready World Action Model for Robotic Manipulation[EB/OL]. (2026-09-20)[2026-11-20]. arXiv:2609.23578v2. https://arxiv.org/abs/2609.23578v2.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2609.23578v2",
+      "https://arxiv.org/html/2609.23578v2"
+    ],
+    "evidence_files": [
+      "23_2609.23578v2_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "23_2609.23578v2_html.txt": "d26e0bea969818440208f297d7795d71f4b05063d59753c523e0234cb2afb76c"
+    }
+  },
+  {
+    "ref": 24,
+    "bibliography": "LI C, ZHANG R, WONG J, et al. BEHAVIOR-1K: A Human-Centered, Embodied AI Benchmark with 1,000 Everyday Activities and Realistic Simulation[EB/OL]. (2024-03-14)[2026-11-20]. arXiv:2403.09227v1. https://arxiv.org/abs/2403.09227v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2403.09227v1",
+      "https://arxiv.org/html/2403.09227v1"
+    ],
+    "evidence_files": [
+      "24_2403.09227_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "24_2403.09227_html.txt": "ed8cc9386733300965225b07e597878fd29d80456c8b373f08a281628181c599"
+    }
+  },
+  {
+    "ref": 25,
+    "bibliography": "NASIRIANY S, NASIRIANY S, MADDUKURI A, et al. RoboCasa365: A Large-Scale Simulation Framework for Training and Benchmarking Generalist Robots[EB/OL]. (2026-03-04)[2026-11-20]. arXiv:2603.04356v1. https://arxiv.org/abs/2603.04356v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2603.04356v1",
+      "https://arxiv.org/html/2603.04356v1"
+    ],
+    "evidence_files": [
+      "25_2603.04356_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "25_2603.04356_html.txt": "a9d0ab03c27d3cdc65ccceee4639cd47942eeedefd6a2f220346644292dab7b6"
+    }
+  },
+  {
+    "ref": 26,
+    "bibliography": "HU S, ABUDUWEILI A, MENG Y, et al. Perceptive Humanoid Motion from Simulation[EB/OL]. (2026-11-04)[2026-11-20]. arXiv:2611.06908v1. https://arxiv.org/abs/2611.06908v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2611.06908v1",
+      "https://arxiv.org/html/2611.06908v1"
+    ],
+    "evidence_files": [
+      "26_2611.06908v1_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "26_2611.06908v1_html.txt": "df76a722ca4b2a42e5baf0619ab47e87b91384131f6050ed2109228c6dac0347"
+    }
+  },
+  {
+    "ref": 27,
+    "bibliography": "CHEN T, CHEN Y, LI Z, et al. RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies[EB/OL]. (2026-07-05)[2026-11-20]. arXiv:2607.04434v3. https://arxiv.org/abs/2607.04434v3.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2607.04434v3",
+      "https://arxiv.org/html/2607.04434v3"
+    ],
+    "evidence_files": [
+      "27_2607.04434v3_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "27_2607.04434v3_html.txt": "ffa7db09846006ee720c9bd81d1df227ddb9906f969ed4173d66c6fd018a2031"
+    }
+  },
+  {
+    "ref": 28,
+    "bibliography": "MAO L, CAO J, HE L, et al. RobotAgentBench: Towards Open-world Robot Autonomy[EB/OL]. (2026-10-26)[2026-11-20]. arXiv:2610.34649v1. https://arxiv.org/abs/2610.34649v1.",
+    "primary_urls": [
+      "https://arxiv.org/abs/2610.34649v1",
+      "https://arxiv.org/html/2610.34649v1"
+    ],
+    "evidence_files": [
+      "28_2610.34649v1_html.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "28_2610.34649v1_html.txt": "fadb9faa6abfe441c9d71955edd28a16188a16f6d9f393fe651f76fa1ac9839a"
+    }
+  },
+  {
+    "ref": 29,
+    "bibliography": "LIN T, ZHONG Y, DU Y, et al. Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignment[C]//Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2026: 13397-13406. https://openaccess.thecvf.com/content/CVPR2026/html/Lin_Evo-1_Lightweight_Vision-Language-Action_Model_with_Preserved_Semantic_Alignment_CVPR_2026_paper.html.",
+    "primary_urls": [
+      "https://openaccess.thecvf.com/content/CVPR2026/html/Lin_Evo-1_Lightweight_Vision-Language-Action_Model_with_Preserved_Semantic_Alignment_CVPR_2026_paper.html"
+    ],
+    "evidence_files": [
+      "29_Evo1_CVF.txt",
+      "Evo1_paper.txt"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "29_Evo1_CVF.txt": "37912e3e02ad6415d18511be83b0a49966610797205ac90d34ccd49a795012d9",
+      "Evo1_paper.txt": "e7a2d1567c0567bff3cdcf2069e3eaefd9555b1e806a957ecc574864ae8cb198"
+    }
+  },
+  {
+    "ref": 30,
+    "bibliography": "EARENDIL-WORKS. pi: SDK[EB/OL]. [2026-11-20]. https://github.com/earendil-works/pi/blob/3c9a86bb08398a425f95a81ba4339aa76151f5a1/packages/coding-agent/docs/sdk.md.",
+    "primary_urls": [
+      "https://github.com/earendil-works/pi/blob/3c9a86bb08398a425f95a81ba4339aa76151f5a1/packages/coding-agent/docs/sdk.md"
+    ],
+    "evidence_files": [
+      "30_Pi_SDK_固定提交.md"
+    ],
+    "scope": "针对当前正文具体主张核对；非独立实验复现",
+    "evidence_sha256": {
+      "30_Pi_SDK_固定提交.md": "41f70a6e9187791cda80d08b8edb0acda91c3c6e84f5fbb2c6890037292ebdde"
+    }
+  }
+]

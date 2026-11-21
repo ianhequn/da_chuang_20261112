@@ -1,0 +1,469 @@
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to
+ deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.
+--> 
+ NAV2 - Nav2 Docs 
+ Skip to content
+ Partner with Nav2: sponsorship opportunities & professional services available.
+ Learn More 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to
+ deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.
+-->
+ NAV2
+ ros-navigation/navigation2
+ Home
+ Getting Started
+ Tutorials
+ Configuration & Development
+ Community
+ Robots Using
+ About & Contact
+ ros-navigation/navigation2
+ Initializing search
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to
+ deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.
+-->
+ ros-navigation/navigation2
+ Home
+ Home
+ Getting Started
+ Getting Started
+ Quickstart
+ Build and Install
+ Dev Container
+ Navigation Concepts
+ Nav2 Behavior Trees
+ Tutorials
+ Tutorials
+ Plugin Tutorials
+ General Tutorials
+ Configuration & Development
+ Configuration & Development
+ First-Time Robot Setup Guide
+ Navigation Plugins
+ Configuration Guide
+ Tuning Guide
+ Simple Commander API
+ Migration Guides
+ API Docs
+ Community
+ Community
+ Getting Involved
+ Maintainer Docs
+ Roadmaps
+ ROSCon Talks
+ Robots Using
+ Robots Using
+ About & Contact
+ About & Contact
+ Related Projects
+ Citations
+ Getting Started
+ Getting Started
+ Quickstart
+ Build and Install
+ Build and Install
+ Local Installation
+ Docker Installation
+ Build Troubleshooting Guide
+ Dev Container
+ Dev Container
+ Dev Container Guide
+ Navigation Concepts
+ Navigation Concepts
+ ROS 2
+ Behavior Trees
+ Navigation Servers
+ State Estimation
+ Environmental Representation
+ Nav2 Behavior Trees
+ Nav2 Behavior Trees
+ Introduction To Nav2 Specific Nodes
+ Detailed Behavior Tree Walkthrough
+ Navigate To Pose
+ Navigate Through Poses
+ Navigate To Pose and Pause Near Goal-Obstacle
+ Navigate To Pose With Consistent Replanning And If Path Becomes Invalid
+ Navigate on Route Graph with Recovery
+ Follow Dynamic Point
+ Odometry Calibration
+ Tutorials
+ Tutorials
+ Plugin Tutorials
+ Plugin Tutorials
+ Writing a New Behavior Plugin
+ Writing a New Behavior Tree Plugin
+ Writing a New Controller Plugin
+ Writing a New Costmap2D Plugin
+ Writing a New Navigator Plugin
+ Writing a New Planner Plugin
+ General Tutorials
+ General Tutorials
+ Navigating with a Physical Turtlebot 3
+ Navigating while Mapping (SLAM)
+ Using an External Costmap Plugin (STVL)
+ Navigating using GPS Localization
+ Lidar-Free, Vision-Based Navigation
+ Lidar-Free, Vision-Based Navigation
+ Rebuilding TensorRT Engine
+ Navigating with Semantic Segmentation (Nvidia Jetson)
+ Navigating with Semantic Segmentation (SAM3, AMD Strix Halo)
+ Groot Tutorials
+ Groot Tutorials
+ Groot - Interacting with Behavior Trees
+ Groot2 - Interacting with Behavior Trees
+ Using VIO to Augment Robot Odometry
+ Dynamic Object Following
+ Navigating with Keepout Zones
+ Navigating with Speed Limits
+ Navigating with Zone Parameter Overrides
+ Using Docking Server
+ Using Rotation Shim Controller
+ Adding a Smoother to a BT
+ Using Collision Monitor
+ Adding a New Nav2 Task Server
+ Filtering of Noise-Induced Obstacles
+ Camera Calibration
+ Get Backtrace in ROS 2 / Nav2
+ Profiling in ROS 2 / Nav2
+ Docker for Development: Zero to Hero
+ Route Server Tools
+ Route Server Tools
+ Using the Nav2 Route Tool
+ Route Graph Generation LIF Editor
+ Route Graph Generation
+ SWAGGER Route Graph Generation
+ Navigating with Vector Objects
+ ROSCon UK 2025 - State Estimation for Mobile Robotics Workshop
+ Enhanced Safety for Nav2 using 3Laws Supervisor
+ Ground Terrain Segmentation using 3D Lidar
+ AI Depth Estimation with Nav2 Costmap
+ Configuration & Development
+ Configuration & Development
+ First-Time Robot Setup Guide
+ First-Time Robot Setup Guide
+ Setting Up Transformations
+ Setting Up The URDF
+ Setting Up The SDF
+ Setting Up Odometry
+ Smoothing Odometry using Robot Localization
+ Setting Up Sensors
+ Mapping and Localization
+ Setting Up the Robot's Footprint
+ Setting Up Navigation Plugins
+ Navigation Plugins
+ Configuration Guide
+ Configuration Guide
+ Behavior Server
+ Behavior-Tree Navigator
+ Behavior Tree XML Nodes
+ Behavior Tree XML Nodes
+ Action Plugins
+ Action Plugins
+ Wait
+ Spin
+ BackUp
+ DriveOnHeading
+ AssistedTeleop
+ ComputePathToPose
+ ComputeRoute
+ ComputeAndTrackRoute
+ FollowPath
+ NavigateToPose
+ ClearEntireCostmap
+ ClearCostmapExceptRegion
+ ClearCostmapAroundRobot
+ ClearCostmapAroundPose
+ ReinitializeGlobalLocalization
+ TruncatePath
+ TruncatePathLocal
+ PlannerSelector
+ ControllerSelector
+ SmootherSelector
+ GoalCheckerSelector
+ ProgressCheckerSelector
+ PathHandlerSelector
+ NavigateThroughPoses
+ ComputePathThroughPoses
+ RemovePassedGoals
+ RemoveInCollisionGoals
+ CancelControl
+ CancelBackUp
+ CancelSpin
+ CancelWait
+ CancelDriveOnHeading
+ CancelAssistedTeleop
+ CancelComputeAndTrackRoute
+ SmoothPath
+ GetPoseFromPath
+ DockRobot
+ UndockRobot
+ ConcatenatePaths
+ GetCurrentPose
+ AppendGoalPoseToGoals
+ ExtractRouteNodesAsGoals
+ GetNextFewGoals
+ ToggleCollisionMonitor
+ FollowObject
+ CancelFollowObject
+ ValidatePath
+ CheckStopStatus
+ CheckPoseOccupancy
+ Condition Plugins
+ Condition Plugins
+ GoalReached
+ TransformAvailable
+ DistanceTraveled
+ GoalUpdated
+ GlobalUpdatedGoal
+ InitialPoseReceived
+ IsGoalNearby
+ IsStuck
+ TimeExpired
+ IsBatteryLow
+ IsWithinPathTrackingBounds
+ PathExpiringTimer
+ AreErrorCodesPresent
+ WouldAControllerRecoveryHelp
+ WouldAPlannerRecoveryHelp
+ WouldASmootherRecoveryHelp
+ WouldARouteRecoveryHelp
+ IsBatteryCharging
+ ArePosesNear
+ Control Plugins
+ Control Plugins
+ PipelineSequence
+ RoundRobin
+ RecoveryNode
+ NonblockingSequence
+ PersistentSequence
+ PauseResumeController
+ Decorator Plugins
+ Decorator Plugins
+ RateController
+ DistanceController
+ SpeedController
+ GoalUpdater
+ PathLongerOnApproach
+ SingleTrigger
+ GoalUpdatedController
+ Collision Monitor
+ Collision Monitor
+ Collision Monitor Node
+ Collision Detector Node
+ Controller Server
+ Controller Server
+ SimpleProgressChecker
+ PoseProgressChecker
+ AxisGoalChecker
+ AdaptiveToleranceGoalChecker
+ SimpleGoalChecker
+ StoppedGoalChecker
+ PositionGoalChecker
+ FeasiblePathHandler
+ Costmap 2D
+ Costmap 2D
+ Static Layer Parameters
+ Inflation Layer Parameters
+ Legacy Inflation Layer Parameters
+ Asymmetric Inflation Layer Parameters
+ Obstacle Layer Parameters
+ Voxel Layer Parameters
+ Range Sensor Parameters
+ Denoise Layer Parameters
+ Plugin Container Layer Parameters
+ Keepout Filter Parameters
+ Speed Filter Parameters
+ Binary Filter Parameters
+ Zone Parameter Filter Parameters
+ Docking Server
+ Lifecycle Manager
+ Map Server
+ Map Server
+ Map Server
+ Map Saver
+ Costmap Filter Info Server
+ Vector Object Server
+ Planner Server
+ Route Server
+ Smoother Server
+ Velocity Smoother
+ Waypoint Follower
+ Waypoint Follower
+ WaitAtWaypoint
+ PhotoAtWaypoint
+ InputAtWaypoint
+ NavFn Planner
+ Smac Planner
+ Smac Planner
+ Smac 2D Planner
+ Smac Hybrid-A* Planner
+ Smac State Lattice Planner
+ Theta Star Planner
+ DWB Controller
+ DWB Controller
+ DWB Controller
+ XYTheta Iterator
+ Kinematic Parameters
+ Publisher
+ LimitedAccelGenerator
+ StandardTrajectoryGenerator
+ BaseObstacleCritic
+ GoalAlignCritic
+ GoalDistCritic
+ ObstacleFootprintCritic
+ OscillationCritic
+ PathAlignCritic
+ PathDistCritic
+ PreferForwardCritic
+ RotateToGoalCritic
+ TwirlingCritic
+ Graceful Controller
+ Model Predictive Path Integral Controller
+ Regulated Pure Pursuit
+ Rotation Shim Controller
+ Constrained Smoother
+ Savitzky-Golay Smoother
+ Simple Smoother
+ AMCL
+ Coverage Server
+ Following Server
+ Loopback Simulator
+ Tuning Guide
+ Simple Commander API
+ Migration Guides
+ Migration Guides
+ Dashing to Eloquent
+ Eloquent to Foxy
+ Foxy to Galactic
+ Galactic to Humble
+ Humble to Iron
+ Iron to Jazzy
+ Jazzy to Kilted
+ Kilted to Lyrical
+ Lyrical to M-Turtle
+ API Docs
+ Community
+ Community
+ Getting Involved
+ Maintainer Docs
+ Maintainer Docs
+ ROS Distribution Release Process
+ ROS Distribution Sync Process
+ Docs Distribution Release Process
+ Roadmaps
+ ROSCon Talks
+ Robots Using
+ Robots Using
+ About & Contact
+ About & Contact
+ Related Projects
+ Citations
+ Partner with Nav2 Sponsorship opportunities & professional services available.
+ Learn More 
+ Table of contents
+ Your Autonomous Navigation Framework
+ Our Sponsors
+ Services
+ Overview
+ Distributions
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to
+ deal in the Software without restriction, including without limitation the
+ rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ IN THE SOFTWARE.
+-->
+ -->
+ NAV2 
+ Your Autonomous Navigation Framework 
+ An open-source, production-grade autonomy framework trusted by 300+ companies worldwide. Building on 15 years of heritage to accelerate the robotics industry. 
+ Get Started 
+ Concepts 
+ First-Time Setup 
+ Our Sponsors 
+ Services 
+ If you need professional services related to Nav2, please contact Open Navigation at info@opennav.org . 
+ Overview 
+ Nav2 is the professionally-supported successor of the ROS Navigation Stack deploying the same kinds of technology powering Autonomous Vehicles brought down, optimized, and reworked for mobile and surface robotics.
+This project allows for mobile robots to navigate through complex environments to complete user-defined application tasks with nearly any class of robot kinematics and dynamics; shape size; indoor or outdoor, or sensor configuration.
+Not only can it move from Point A to Point B, but it can have intermediary poses, and represent other types of tasks like object following, complete coverage navigation, and more.
+Nav2 is a production-grade and high-quality navigation framework trusted by 300+ companies worldwide. 
+ It provides perception, planning, control, localization, visualization, behaviors, and much more to build highly reliable autonomous systems.
+This will compute an environmental model from sensor and semantic data, dynamically route a path through the environment, compute feasible motor commands, avoid obstacles, and structures higher-level robot behaviors. 
+ Nav2 uses behavior trees to create customized and intelligent navigation behavior via orchestrating many independent modular servers.
+A task server can be used to compute a path, control effort, behavior, or any other navigation
+related task. These separate servers communicate with the behavior tree (BT)
+over a ROS interface such as an action server or service.
+A robot may utilize potentially many different behavior trees to allow a robot to perform many types of unique and complex tasks.
+A task server may have multiple plugins for controllers, planners, and behaviors to create contextual navigation behaviors. 
+ We also provide a set of starting plugins to get you going.
+A list of all plugins can be found on Navigation Plugins - but they include algorithms for the spanning cross section of common behaviors and robot platform types. 
+ Citations - If you use the navigation framework, an algorithm from this repository, or ideas from it please cite this work in your papers! 
+ Distributions 
+ Nav2 is available across multiple ROS 2 distributions with varying levels of support: 
+ Rolling Ridley 
+ Development 
+ Lyrical Luth 
+ Active Support 
+ Kilted Kaiju 
+ Maintained 
+ Jazzy Jalisco 
+ Active Support 
+ Iron Irwini 
+ End of Life 
+ Humble Hawksbill 
+ Maintained 
+ Galactic Geochelone 
+ End of Life 
+ Back to top
+ © Copyright 2026, Open Navigation LLC.
+ 

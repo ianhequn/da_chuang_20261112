@@ -1,0 +1,942 @@
+ 
+ RoboOS: A Hierarchical Embodied Framework for Cross-Embodiment and Multi-Agent Collaboration 
+ Skip to main content 
+ Report GitHub Issue 
+ × 
+ Title: 
+ Content selection saved. Describe the issue below: 
+ Description: 
+ Submit without GitHub 
+ Submit in GitHub 
+ Why HTML? 
+ Report Issue 
+ Back to Abstract 
+ Download PDF 
+ Contents 
+ Reading mode 
+ Colour theme 
+ Abstract 
+ 1 Introduction 
+ 2 Related Work 
+ 3 Method 
+ 3.1 Framework of RoboOS 
+ 3.2 Workflow Pipeline of RoboOS 
+ 3.3 Edge-Cloud Deployment 
+ 4 Experiment 
+ 4.1 Implementation Details 
+ 4.2 Results on Embodied Evaluation 
+ 4.3 Demos on Real-World Collaboration 
+ 5 Conclusion 
+ References 
+ A Details of Models and Training 
+ B Details of Datasets and Benchmarks 
+ B.1 Training Datasets 
+ B.2 Evaluation Settings 
+ C Efficiency Performance on FlagScale 
+ C.1 Experimental Setup 
+ C.2 FP16 Performance 
+ C.3 W8A16 Performance 
+ License: CC BY 4.0
+arXiv:2505.03673v2 [cs.RO] 05 Jun 2025 
+ RoboOS: A Hierarchical Embodied Framework for Cross-Embodiment and Multi-Agent Collaboration 
+ Huajie Tan, Xiaoshuai Hao, Cheng Chi, Minglan Lin
+ Affiliation:  State Key Laboratory of Multimedia Information ProcessingSchool of Computer Science, Peking University
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Yaoxu Lyu
+ Affiliation:  State Key Laboratory of Multimedia Information ProcessingSchool of Computer Science, Peking University
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Mingyu Cao
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Dong Liang
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Zhuo Chen
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Mengsi Lyu
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Cheng Peng
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Chenrui He
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Yulong Ao
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Yonghua Lin
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Pengwei Wang
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Zhongyuan Wang
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Shanghang Zhang
+ Affiliation:  State Key Laboratory of Multimedia Information ProcessingSchool of Computer Science, Peking University
+ Affiliation:  Beijing Academy of Artificial Intelligence (BAAI)
+ Abstract 
+ The dawn of embodied intelligence has ushered in an unprecedented imperative for resilient, cognition-enabled multi-agent collaboration across next-generation industrial ecosystems, revolutionizing paradigms in autonomous manufacturing, adaptive service robotics, and cyber-physical production architectures.
+However, current robotic systems face significant limitations, such as limited cross-embodiment adaptability, inefficient task scheduling, and insufficient dynamic error correction.
+While End-to-end Vision Language Action (VLA) models demonstrate inadequate long-horizon planning and task generalization, hierarchical VLA models suffer from a lack of cross-embodiment compatibility and multi-agent coordination capabilities.
+To address these challenges, we introduce RoboOS , the first open-source embodied system built on a Brain-Cerebellum hierarchical architecture, enabling a paradigm shift from single-agent to multi-agent intelligence.
+Specifically, RoboOS consists of three key components: (1) the Embodied Brain Model (RoboBrain) , a multimodal large language model (MLLM) designed for global perception and high-level decision-making; (2) the Cerebellum Skill Library , a modular, plug-and-play toolkit that facilitates seamless execution of multiple skills; and (3) Real-Time Shared Memory , a spatiotemporal synchronization mechanism for coordinating multi-agent states.
+By integrating hierarchical information flow, RoboOS bridges the Embodied Brain and the Cerebellum Skill Library, facilitating robust planning, scheduling, and error correction for long-horizon tasks, while ensuring efficient multi-agent collaboration through Real-Time Shared Memory.
+Furthermore, we enhance edge-cloud communication and cloud-based distributed inference to facilitate high-frequency interactions and enable scalable deployment.
+Extensive real-world experiments across various scenarios, such as restaurants, households, and supermarket settings , demonstrate RoboOS’s versatility in supporting heterogeneous embodiments, including single-arm, dual-arm, humanoid, and wheeled .
+This capability offers a scalable and practical solution for cross-embodiment collaboration, advancing the frontiers of embodied intelligence.
+Project website: RoboOS . 
+ † † footnotetext: ∗ Equal contribution. † Project leader. 🖂 {}^{\text{\Letter}} Corresponding author. 
+ Keywords: Embodied System, Multi-Robot Collaboration, Cross-Embodiment 
+ 1 Introduction 
+ The rapid evolution of embodied intelligence has ushered in a transformative era for industrial automation, service robotics, and smart manufacturing, where robust multi-agent collaboration has become essential [ 1 , 2 , 3 , 4 ] .
+Despite significant advancements, current robotic systems face persistent limitations, including poor cross-embodiment adaptability, inefficient task scheduling, and inadequate dynamic error correction.
+While End-to-end Vision Language Action (VLA) models like OpenVLA  [ 5 ] , RDT-1B  [ 6 ] , and π 0 \pi_{0}   [ 7 ] demonstrate weak long-horizon planning and task generalization, hierarchical VLA frameworks such as Helix  [ 8 ] , Gemini-Robotics  [ 9 ] , GR00T-N1  [ 10 ] , Hi-Robot  [ 11 ] and π 0.5 \pi_{0.5}   [ 12 ] suffer from fragmented cross-embodiment compatibility and challenges in scalable multi-agent coordination.
+These issues highlight the urgent need for a unified system that bridges high-level cognition with low-latency execution while facilitating seamless collaboration among heterogeneous robots. 
+ To address these gaps, we introduce RoboOS , the first open-source embodied system built on a biologically inspired Brain-Cerebellum hierarchical architecture  [ 13 , 14 , 15 ] , representing a paradigm shift from single-agent to multi-agent intelligence. RoboOS innovatively incorporates three groundbreaking components: (1) The Embodied Brain Model (RoboBrain  [ 16 ] ) , a multimodal large language model (MLLM) that orchestrates global perception—including 3D scene reconstruction and historical state tracking—and high-level decision-making for multi-agent task decomposition and affordance-aware trajectory generation, while dynamically correcting errors through real-time replanning; (2) The Cerebellum Skill Library , a modular, plug-and-play toolkit that supports heterogeneous embodiments ( e.g. , single-arm, humanoid) with low-latency execution for manipulation (VLA-based tools  [ 5 , 6 , 7 ] ,
+Expert-based tools  [ 17 , 18 ] ), navigation (VLN-based tools  [ 19 , 20 ] , SLAM  [ 21 , 22 ] ), and specialized skills   [ 23 , 24 , 25 ] ; and (3) Real-Time Shared Memory , a spatiotemporal synchronization hub that maintains spatial memory ( e.g. , spatial relationship, locations of objects and robots), temporal memory ( e.g. , task feedback, tool-calling history), and embodiment memory ( e.g. , motion domain, joint states and battery levels) to enable fault prediction and load balancing across robots. 
+ Figure 1: 
+ Overview of RoboOS. 
+ Moreover, RoboOS optimizes scalability through edge-cloud communication and cloud-based distributed inference, ensuring high-frequency interactions and large-scale deployment of cloud inference with our Flagscale framework  [ 26 ] .
+Extensive real-world validation in diverse scenarios—from industrial assembly to household services—demonstrates its versatility across heterogeneous robots, including dual-arm manipulators and wheeled platforms.
+For instance, to tackle a collaborative “apple-and-knife delivery” task, as shown in Fig.  1 , RoboOS dynamically allocates subtasks to three distinct robots ( Unitree Humanoid, AgileX Dual-arm, and RealMan Single-arm ) via shared memory, achieving seamless coordination through RoboBrain’s task decomposition and the Cerebellum’s skill execution. 
+ Our main contributions are summarized as follows: 
+ • 
+ We propose RoboOS , the pioneering open-source embodied system built on a Brain-Cerebellum Hierarchical Architecture , facilitating a transformative shift from single-agent systems to multi-agent intelligence. 
+ • 
+ We meticulously designed RoboOS with three core components: the Embodied Brain Model, the Cerebellum Skill Library, and Real-Time Shared Memory. Additionally, we optimized it for efficient edge-cloud communication and distributed inference, enhancing its overall performance and scalability. 
+ • 
+ Extensive real-world experiments across various scenarios—including restaurants, households, and supermarket settings —validate RoboOS’s adaptability and performance across diverse embodiments, such as single-arm, dual-arm, humanoid, and wheeled robots . This showcases its effectiveness in cross-embodiment collaboration and advances the capabilities of embodied intelligence, leading to practical and scalable solutions. 
+ 2 Related Work 
+ Multimodal Large Language Models 
+Recent advancements in Vision-Language Models (VLMs) have demonstrated exceptional multimodal understanding. Proprietary models  [ 27 , 28 , 29 , 30 ] and open-source alternatives  [ 31 , 32 , 33 , 34 , 35 ] have set new benchmarks in visual question answering (VQA), image captioning, and multimodal dialogue through large-scale pretraining on image-text pairs.
+Reasoning-enhanced models like GPT-o1  [ 36 ] , DeepSeek-R1  [ 37 ] , and Kimi-1.5  [ 38 ] show that post-training reinforcement learning (RL) can significantly improve mathematical and coding abilities. RL-based reasoning MLLMs  [ 39 , 40 ] also excel in multimodal reasoning tasks.
+However, transferring these capabilities to embodied intelligence systems is a challenge. Works like EmbodiedGPT  [ 41 ] and RoboBrain  [ 16 ] explore integrating visual-language understanding with robot-specific skills, including long-horizon task planning and trajectory synthesis. Extending reasoning-enhanced MLLMs to embodied scenarios  [ 39 , 42 ] represents a promising research frontier. 
+ Vision-Language-Action (VLA) Models 
+Building on the capabilities of VLMs  [ 32 , 33 , 35 , 43 ] , researchers have developed vision-language-action (VLA) models for robotic manipulation tasks. Current VLAs are categorized as follows:
+End-to-End VLAs directly map visual-textual inputs to actions using unified architectures, employing regression-based  [ 44 , 45 , 5 , 46 , 47 ] , diffusion-based  [ 6 , 7 , 48 ] , and hybrid approaches  [ 49 ] . While effective for short-term tasks, they struggle with long-horizon planning and generalization.
+Hierarchical VLAs address these limitations by using model-level  [ 50 , 8 , 9 , 10 ] or task-level hierarchies  [ 11 , 12 ] to decompose long-horizon tasks into subtasks. However, they still face challenges in cross-embodiment compatibility and multi-agent coordination.
+To tackle these issues, we introduce RoboOS, the first open-source hierarchical embodied framework that facilitates cross-embodiment and multi-agent collaboration, achieving structural decoupling while maintaining functional synergy between MLLMs and VLAs. 
+ Multi-Robot Collaboration 
+Multi-robot collaboration (MRC) has been extensively studied for various applications  [ 1 , 2 , 3 , 4 , 51 ] . Research focuses on coordination, communication, and task allocation to enhance efficiency  [ 52 , 53 ] . MRC shows promise in automated warehousing  [ 54 ] , search and rescue  [ 55 ] , and environmental monitoring  [ 56 ] . Learning methods like reinforcement and imitation learning further improve MRC  [ 57 , 58 , 59 ] .
+Despite advancements, MRC faces challenges in cross-embodiment adaptation, task allocation, and dynamic planning, impacting real-time coordination. This paper introduces RoboOS, a hierarchical architecture that addresses these issues and enhances edge-cloud communication for scalable deployment. 
+ 3 Method 
+ In this section, we first introduce the framework of our proposed RoboOS and explain the functionalities of its three key components. Next, we outline the primary workflow pipeline for multi-robot collaboration within RoboOS , detailing the implementation of hierarchical information interaction.
+Finally, we present optimizations for edge-cloud communication and cloud-based distributed inference, ensuring high-frequency interactions and enabling large-scale deployment. 
+ Figure 2: 
+ Framework of RoboOS. RoboOS is a Brain-Cerebellum hierarchical architecture for multi-robot collaboration that comprises three core components: a) Cloud-based Embodied Brain model for high-level cognition and multi-agent coordination; b) Distributed Cerebellum Modules for executing robot-specific skills; and c) Real-Time Shared Memory for enhanced environmental awareness.
+ 3.1 Framework of RoboOS 
+ As shown in Fig.  2 , RoboOS is a unified embodied system built on a biologically inspired Brain-Cerebellum hierarchical architecture, comprising three core components: the Embodied Brain Model ( RoboBrain  [ 16 ] ), the Cerebellum Skill Library, and Real-Time Shared Memory. Deployed via the FlagScale MLLMs toolkit  [ 26 ] , the edge-cloud RoboOS framework facilitates seamless multi-robot coordination by synchronizing cognition across the multiple agents.
+The system operates as follows: First, the Embodied Brain Model manages system-wide tasks, including multi-robot task planning, tool invocation, spatiotemporal memory updates, and adaptive error correction through continuous three-level feedback loops. Second, the Cerebellum Skill Library, deployed on individual robot terminals, offers modular, plug-and-play functionality via standardized Robot Profiles. Finally, the Redis-optimized Shared Memory maintains a dynamic knowledge base of spatial relationships, operational states, and historical data to support real-time decision making. This architecture ensures robust large-scale deployment while maintaining the low-latency interactions essential for embodied AI systems. 
+ Embodied Brain Model (RoboBrain) 
+The cloud-deployed MLLM can be any existing model, including proprietary models  [ 27 , 28 , 30 ] or open-source options  [ 60 , 31 , 32 , 33 , 34 , 35 ] . To better suit embodied scenarios, we adopt RoboBrain  [ 16 ] as our Embodied Brain Model, enhancing its capabilities for the RoboOS framework. Building on RoboBrain’s functionalities—single-robot planning, affordance prediction, and trajectory prediction—we implement multi-stage training to improve multi-robot task planning, agent-based tool invocation, and spatiotemporal updates using the pretrained Qwen2.5VL-7B model  [ 31 ] . Key enhancements include Multi-Robot Task Planning , utilizing real-time shared spatiotemporal memory to predict workflow topologies for collaborative tasks; Agent-Based Tool Invocation , managing agents and invoking tools as needed with self-corrective planning based on feedback; Spatiotemporal Memory Update , dynamically updating shared memory in real time according to subtask execution and tool feedback; and Low-Level Guidance , predicting manipulable regions and trajectories during tool execution to assist in manipulation  [ 16 ] . 
+ Cerebellum Skill Library 
+This modular, plug-and-play embodied toolkit supports various robotic embodiments ( e.g. , single-arm, dual-arm, wheeled, humanoid) with low-latency execution for manipulation and navigation throughout the robotic task cycle.
+The Cerebellum Skill Library encompasses three key aspects: manipulation types, integrating both expert-based tools ( e.g. , affordance-aware grasping  [ 17 ] , generalized grasping  [ 18 ] ) and VLA-based tools ( e.g. , OpenVLA  [ 5 ] , RDT-1B  [ 6 ] , Octo  [ 48 ] , π 0 \pi_{0}   [ 7 ] );
+navigation types, supporting traditional mapping-localization-navigation pipelines ( e.g. , SLAM  [ 21 , 22 ] ) and vision-language-navigation (VLN) tools ( e.g. , MapNav  [ 19 ] , NavID  [ 20 ] );
+and specialized skills for contact-rich interactions, deformable object handling, and dexterous hand control  [ 23 , 24 , 25 ] .
+Standardized tool and robot profiles ensure seamless integration and interoperability across diverse robotic platforms. 
+ Real-Time Shared Memory 
+This component maintains spatial, temporal, and robotic memory to enable robust coordination and adaptive decision-making.
+ Spatial memory is represented as a dynamic scene graph  [ 61 ] , structured hierarchically into floors, rooms, and object-level nodes  [ 62 , 63 ] . Each node encodes attributes such as position, affordances, and semantic labels, while edges represent spatial or functional relationships. Scene graphs are constructed from multi-view RGB-D inputs using SAM segmentation and CLIP features, merged via geometric clustering and open-vocabulary grounding.
+ Temporal memory records task execution history, feedback, tool-calling logs, and other temporal data to support adaptive decision-making.
+ Robotic memory stores real-time system attributes such as motion domain constraints, joint states, and battery levels, optimizing task allocation based on each robot’s capabilities, power status, and connectivity conditions. 
+ Figure 3: 
+ Pipeline of RoboOS. The RoboOS framework implements a workflow pipeline for multi-robot collaboration, consisting of four key phases: (1) hierarchical task decomposition, (2) topology-aware subtask allocation, (3) distributed agent-based execution, and (4) dynamic memory updating. This integrated workflow enables coordinated task completion while maintaining adaptability to environmental and operational constraints.
+ 3.2 Workflow Pipeline of RoboOS 
+ The proposed RoboOS demonstrates high task concurrency and flexibility in multi-robot task allocation. To clarify the overall workflow pipeline of RoboOS, we use a single global task for detailed elaboration, as shown in Fig. 3 . 
+ Step 1: Global Task Decomposition Upon receiving the global task instruction T global T_{\text{global}} , RoboOS initiates a Retrieval-Augmented Generation (RAG) process via RoboBrain to query the shared spatial memory, extracting environment-relevant information M s M_{s} . This is integrated with (i) state feedback M t M_{t} from prior task executions (stored in shared temporal memory), (ii) the robot’s operational status S r S_{r} ( idle , busy , or offline ), (iii) the robot skill library M r M_{r} , and (iv) T global T_{\text{global}} . RoboBrain processes these inputs to generate a structured reasoning trace ℛ \mathcal{R} and a subtask graph 𝒢 \mathcal{G} , formalized as: 
+ ( ℛ , 𝒢 ) = RoboBrain ​ ( M s ⊕ M t ⊕ S r ⊕ M r ⊕ T global ) , (\mathcal{R},\mathcal{G})=\text{RoboBrain}\big(M_{s}\oplus M_{t}\oplus S_{r}\oplus M_{r}\oplus T_{\text{global}}\big), 
+ (1) 
+ where ⊕ \oplus denotes the concatenation or fusion of multimodal inputs. 
+ Step 2: Topological Subtask Allocation 
+The Monitor dynamically schedules and allocates subtasks in parallel based on the topological dependencies encoded in the directed acyclic graph 𝒢 \mathcal{G} .
+Each subtask in 𝒢 \mathcal{G} is classified into two types: (1) Single-Robot Subtask ( d , r i ) (d,r_{i}) , executed autonomously by robot r i r_{i} at topological depth d d ; and (2) Collaboration Subtask ( d , r i : j ) (d,r_{i:j}) , requiring coordinated execution among multiple robots { r i , … , r j } \{r_{i},\dots,r_{j}\} at depth d d . Here, d d represents the execution priority, while r i r_{i} (or r i : j r_{i:j} ) denotes the assigned robot(s).
+To enforce dependency constraints, the Monitor employs Parallel Allocation —executing independent subtasks concurrently at the same depth ( e.g. , ( 1 , R 1 ) (1,R_{1}) and ( 1 , R 2 ) (1,R_{2}) in Fig. 3 )—and Sequential Allocation , where subtask ( d + 1 , r k ) (d+1,r_{k}) is blocked until all prerequisites at depth d d are fulfilled ( e.g. , ( 2 , R 1 + 2 ) (2,R_{1+2}) ).
+In practice, the system supports concurrent management of multiple subtask graphs { 𝒢 1 , 𝒢 2 , … , 𝒢 n } \{\mathcal{G}_{1},\mathcal{G}_{2},\dots,\mathcal{G}_{n}\} , ensuring real-time adaptability to dynamic robot states and evolving task dependencies. 
+ Step 3: Distributed Subtask Agent 
+For each subtask, RoboOS deploys a dedicated Robotic Agent to manage execution. The Agent autonomously orchestrates tool selection from the Skill Library based on: (1) feedback from prior executions, (2) tool-calling history, and (3) partial spatial memory of the environment. This closed-loop reasoning facilitates dynamic error recovery.
+For example (Fig. 3 ), when tasked with “Search for an egg and place it on the table”, the Agent sequentially invokes tools ( e.g., “detect an egg” ). If the search fails ( e.g., no egg detected in the kitchen ), the Agent uses spatial memory to infer potential locations ( e.g., the fridge ) and selects the navigation tool to “move to fridge”, showcasing adaptive recovery through iterative tool refinement. 
+ Step 4: Dynamic Memory Updating 
+Scene graphs are updated incrementally as robots perceive and act. New observations or interaction effects (e.g., filling, moving) modify node attributes and spatial edges in real time. For instance, after placing a cup on a shelf, its position and supporting surface edge are updated. Occlusion and history-aware correction ensure continuity, even when objects are temporarily hidden.
+Additionally, feedback, tool-calling history, and robot states are logged in the Temporal Memory and Robotic Memory. 
+ 3.3 Edge-Cloud Deployment 
+ Built upon our parallel training and inference framework, FlagScale [ 26 ] , RoboOS supports end-cloud collaboration for multi-robot systems, creating a unified foundation for embodied intelligence. Designed for “multi-robot, multi-modal, multi-task” scenarios, it offers exceptional scalability and ultra-low-latency responsiveness. In edge deployments, robots automatically establish bidirectional communication with the cloud-based RoboBrain upon registration, enabling real-time task scheduling and status feedback via an efficient publish-subscribe mechanism (average command response latency < 0.001 ​ s <0.001\,\text{s} ).
+To manage the vast perception and behavioral data generated during long-term operations, FlagScale includes a memory-optimized data access engine that supports TB-level historical data with in-memory random access. This facilitates task replay, anomaly backtracking, cross-task knowledge transfer, and other critical scenarios. Additionally, FlagScale’s framework supports parallel inference and multi-task cooperative scheduling of large models across distributed devices, unlocking the systemic potential of RoboBrain. 
+ 4 Experiment 
+ 4.1 Implementation Details 
+ Figure 4: 
+ Training dataset distribution. 
+ Dataset Details 
+As shown in Fig.  4 , the dataset for training the RoboBrain-1.5-OS model from pretrained Qwen2.5-VL-7B [ 31 ] consists of three categories: VLM datasets, Robotic datasets, and RoboOS-Enhanced datasets.
+ (1) VLM Datasets: These are organized by capability type: General-873k [ 33 , 64 ] for enhancing general QA capabilities; ScanView-318k [ 65 , 66 , 67 , 68 , 69 ] for improving multi-perspective scene perception; VG-326k [ 33 , 70 , 71 , 72 , 73 ] for boosting visual grounding in object localization; Spatial-R-1005k [ 74 , 75 , 39 ] for spatial reasoning; and Temporal-R-525k [ 42 , 76 ] for temporal reasoning. All data underwent rigorous cleaning to ensure the model retains strong QA abilities while enhancing localization and spatiotemporal reasoning.
+ (2) Robotic Datasets: These were curated to target four core robotic operation capabilities: Planning, Pointing, Affordance, and Trajectory. Specifically, Planning-700k [ 77 , 16 , 78 ] enhances long-horizon task planning; Pointing-537k [ 79 , 80 ] improves spatial position perception; Affordance-373k [ 80 , 81 , 16 ] predicts interactive object affordance regions; and Trajectory-428k [ 82 , 16 ] anticipates complete manipulation trajectories for successful execution.
+ (3) RoboOS-Enhanced (OS) Datasets: We Multi-Robot Task Planning and Agent-Based Tool Invocation within the RoboOS framework. Specifically, we designed 68 multi-robot collaboration task types across supermarket, household, and restaurant scenarios, generating 45,000 samples using DeepSeek-V3 [ 60 ] . This dataset, named Multi-Robot-45k, features instances where each question includes a detailed scene graph, robot specifications, and a long-horizon collaborative task, while the corresponding answers provide reasoning processes and workflow graphs of decomposed subtasks. Additionally, we constructed Robotic-Agent-144k by generating correct Observation-Action pairs (positive samples) alongside probabilistically sampled error-injected Observation-Action pairs (negative samples) for each subtask from Multi-Robot-45k. 
+ Training Strategy 
+The training of the RoboBrain-1.5-OS model consists of three stages, as illustrated in Fig.  4 . In STAGE-1, we utilize large-scale, high-quality VLM datasets with 3M samples to enhance foundational perception and reasoning. STAGE-2 employs carefully sampled robotic datasets to improve the model’s four core embodied capabilities, incorporating 10% of STAGE-1 data to prevent catastrophic forgetting, resulting in 2.3M samples. Finally, in STAGE-3, we apply RoboOS-Enhanced datasets for adaptability, mixing 2% of STAGE-1 and 3% of STAGE-2 data, yielding 249k samples. Throughout training, we used the Zero3 [ 83 ] distributed strategy on 20 servers, each equipped with 8 × \times A800 GPUs, with further details available in the appendix. 
+ Evaluation Metrics For multi-robot planning, we use Accuracy-Rate (AR)  [ 84 ] to evaluate agent-based tool-calling in RoboOS. For pointing prediction, we employ the Where2Place benchmark  [ 80 ] with AR to measure hit accuracy against target masks. For affordance and trajectory prediction, we evaluate using ShareRobot  [ 16 ] benchmark, where affordance is measured by mAP across IoU thresholds, while trajectory prediction uses Discrete Fréchet Distance (DFD)  [ 85 ] , Hausdorff Distance (HD), and RMSE for macroscopic and microscopic analysis. To better evaluate autonomous trajectory prediction, we removed the initial start-point hints during trajectory assessment. 
+ 4.2 Results on Embodied Evaluation 
+ To evaluate the embodied capabilities of RoboBrain-1.5-OS—the core component of RoboOS—we selected comparable VLMs ( e.g. , LLaVA-OneVision-7B  [ 33 ] , Qwen2.5-VL-7B  [ 31 ] ) with similar parameter scales, alongside larger LLMs ( e.g. , Qwen3-14B  [ 86 ] , DeepSeek-V3-685B  [ 60 ] ) as general baselines. We also compared against embodied baselines such as RoboPoint-14B  [ 80 ] and RoboBrain-1.0  [ 16 ] . As shown in Tab.  1 , RoboBrain-1.5-OS achieves outstanding performance in multi-robot planning, surpassing Qwen2.5-VL-7B by 28.14% and outpacing DeepSeek-V3-685B by 5.53%, thereby enhancing RoboOS’s capabilities. It also outperforms all baselines in pointing, affordance, and trajectory prediction, improving over RoboBrain-1.0 by 3.64%, 16.96%, and 40.77%, respectively, demonstrating superior results across multiple embodied capabilities. 
+ Table 1: Performance across four key embodied capabilities. Top results are highlighted in bold . 
+ Models / Metrics 
+ Multi-Robot Planning 
+ Pointing 
+ Affordance 
+ Trajectory 
+ Rest. 
+ House. 
+ Super. 
+ AVG ↑ \uparrow 
+ Seen 
+ Unseen 
+ AVG ↑ \uparrow 
+ mAP ↑ \uparrow 
+ DFD ↓ \downarrow 
+ HD ↓ \downarrow 
+ RMSE ↓ \downarrow 
+ General Baselines 
+ Llava-OneVision-7B  [ 33 ] 
+ 11.31 
+ 8.26 
+ 9.33 
+ 9.63 
+ 55.54 
+ 48.48 
+ 53.42 
+ 11.37 
+ 0.3558 
+ 0.3310 
+ 0.2749 
+ Qwen2.5-VL-7B  [ 31 ] 
+ 43.22 
+ 59.30 
+ 58.29 
+ 53.60 
+ 57.20 
+ 47.60 
+ 54.32 
+ 14.06 
+ 0.2964 
+ 0.2751 
+ 0.2254 
+ Qwen3-14B  [ 86 ] 
+ 47.74 
+ 63.82 
+ 43.22 
+ 51.60 
+ × \times 
+ × \times 
+ × \times 
+ × \times 
+ × \times 
+ × \times 
+ × \times 
+ DeepSeek-V3-685B  [ 60 ] 
+ 69.85 
+ 83.92 
+ 74.87 
+ 76.21 
+ × \times 
+ × \times 
+ × \times 
+ × \times 
+ × \times 
+ × \times 
+ × \times 
+ Embodied Baselines 
+ RoboPoint-14B  [ 80 ] 
+ – 
+ – 
+ – 
+ – 
+ 46.77 
+ 44.48 
+ 46.08 
+ – 
+ – 
+ – 
+ – 
+ RoboBrain-7B-1.0  [ 16 ] 
+ 17.59 
+ 12.06 
+ 10.55 
+ 13.40 
+ 54.64 
+ 49.45 
+ 53.09 
+ 27.10 
+ 0.1910 
+ 0.1710 
+ 0.1330 
+ RoboBrain-7B-1.5-OS 
+ 78.39 
+ 86.93 
+ 79.90 
+ 81.74 
+ 57.23 
+ 55.57 
+ 56.73 
+ 44.06 
+ 0.0994 
+ 0.0966 
+ 0.0801 
+ 4.3 Demos on Real-World Collaboration 
+ To demonstrate RoboOS’s multi-robot collaboration, we present demos in restaurant, household, and supermarket settings. In the restaurant scenario (Fig.  5  (a)), a Unitree G1 humanoid robot and an Agilex dual-arm robot work together to fulfill the task: “I’m hungry and order a normal burger.” RoboBrain-1.5-OS handles scene-aware reasoning, decomposing the task into subtasks for burger preparation and delivery.
+In the household scenario (Fig.  5  (b)), a Realman single-arm robot and an Agilex dual-arm robot collaborate to accomplish tasks like “Give me an orange and a knife.”
+In the supermarket (Fig.  5  (c)), RoboBrain-1.5-OS assists a customer with gift selection by analyzing dimensions and bag compatibility. It coordinates the Realman and Agilex robots, with the Agilex executing a VLA-cerebellum skill to “open the gift bag,” while the Realman selects and places the gift.
+Future applications may explore more complex collaborations with three or more robots, significantly advancing embodied AI and robotics. 
+ Figure 5: 
+ Real-world RoboOS Demonstrations. We showcase multi-robot collaboration in three scenarios: (a) Restaurant: Unitree G1 and Agilex robots prepare burgers. (b) Household: Realman and Agilex robots fetch items. (c) Supermarket: Robots coordinate gift selection and packaging.
+ 5 Conclusion 
+ In this paper, we present RoboOS , an open-source embodied system that improves multi-agent collaboration in industrial ecosystems. Utilizing a Brain-Cerebellum hierarchical architecture, RoboOS overcomes challenges in adaptability and task scheduling. It features the Embodied Brain Model for decision-making, the Cerebellum Skill Library for skill execution, and Real-Time Shared Memory for coordination. This integration enables effective planning and error correction for complex tasks. Real-world experiments showcase RoboOS’s versatility across various robotic embodiments, advancing embodied intelligence.
+ Limitations 
+This paper focuses on experiments conducted in three specific environments: restaurants, households, and supermarkets. These settings were chosen to demonstrate the practical applications and effectiveness of our approach in everyday scenarios. However, due to limitations in our experimental environment, we were unable to explore additional contexts, such as factory settings and other industrial environments, including warehouses, assembly lines, and logistics hubs, where multi-robot collaboration is essential. These industrial environments often involve complex tasks that require coordinated efforts among multiple robots to achieve efficiency and productivity. Future work should aim to address these gaps and investigate the performance of our system in these critical scenarios, further showcasing its versatility and adaptability. 
+ References 
+ [1] 
+T. Greenawalt.
+ Amazon has more than 750,000 robots that sort, lift, and carry packages—see them in action.
+ Amazon News, Mar. 2025.
+ URL https://www.aboutamazon.com/news/operations/amazon-robotics-delivering-the-future .
+ Last updated: March 03, 2025.
+ [2] 
+Z. Mandi, S. Jain, and S. Song.
+ Roco: Dialectic multi-robot collaboration with large language models.
+ In 2024 IEEE International Conference on Robotics and Automation (ICRA) , pages 286–299. IEEE, 2024.
+ [3] 
+X. An, C. Wu, Y. Lin, M. Lin, T. Yoshinaga, and Y. Ji.
+ Multi-robot systems and cooperative object transport: Communications, platforms, and challenges.
+ IEEE Open Journal of the Computer Society , 4:23–36, 2023.
+ [4] 
+K. Liu, Z. Tang, D. Wang, Z. Wang, X. Li, and B. Zhao.
+ Coherent: Collaboration of heterogeneous multi-robot system with large language models.
+ arXiv preprint arXiv:2409.15146 , 2024.
+ [5] 
+M. J. Kim, K. Pertsch, S. Karamcheti, T. Xiao, A. Balakrishna, S. Nair, R. Rafailov, E. Foster, G. Lam, P. Sanketi, et al.
+ Openvla: An open-source vision-language-action model.
+ arXiv preprint arXiv:2406.09246 , 2024.
+ [6] 
+S. Liu, L. Wu, B. Li, H. Tan, H. Chen, Z. Wang, K. Xu, H. Su, and J. Zhu.
+ Rdt-1b: a diffusion foundation model for bimanual manipulation.
+ arXiv preprint arXiv:2410.07864 , 2024.
+ [7] 
+K. Black, N. Brown, D. Driess, A. Esmail, M. Equi, C. Finn, N. Fusai, L. Groom, K. Hausman, B. Ichter, et al.
+ π ​ _ ​ 0 \pi\_0 : A vision-language-action flow model for general robot control.
+ arXiv preprint arXiv:2410.24164 , 2024.
+ [8] 
+Figure AI.
+ Helix: A vision-language-action model for generalist humanoid control.
+ https://www.figure.ai/news/helix , 2025.
+ Accessed: 2025-04-18.
+ [9] 
+G. R. Team, S. Abeyruwan, J. Ainslie, J.-B. Alayrac, M. G. Arenas, T. Armstrong, A. Balakrishna, R. Baruch, M. Bauza, M. Blokzijl, et al.
+ Gemini robotics: Bringing ai into the physical world.
+ arXiv preprint arXiv:2503.20020 , 2025.
+ [10] 
+J. Bjorck, F. Castañeda, N. Cherniadev, X. Da, R. Ding, L. Fan, Y. Fang, D. Fox, F. Hu, S. Huang, et al.
+ Gr00t n1: An open foundation model for generalist humanoid robots.
+ arXiv preprint arXiv:2503.14734 , 2025.
+ [11] 
+L. X. Shi, B. Ichter, M. Equi, L. Ke, K. Pertsch, Q. Vuong, J. Tanner, A. Walling, H. Wang, N. Fusai, et al.
+ Hi robot: Open-ended instruction following with hierarchical vision-language-action models.
+ arXiv preprint arXiv:2502.19417 , 2025.
+ [12] 
+Physical Intelligence.
+ π \pi 0.5: A vision-language-action model with open-world generalization.
+ https://www.physicalintelligence.company/blog/pi05 , 2025.
+ Accessed: 2025-04-25.
+ [13] 
+S. Israely, H. Ninou, O. Rajchert, L. Elmaleh, R. Harel, F. Mawase, J. Kadmon, and Y. Prut.
+ Cerebellar output shapes cortical preparatory activity during motor adaptation.
+ Nature Communications , 16(1):2574, 2025.
+ [14] 
+Z. Ren, X. Wang, M. Angelov, C. I. De Zeeuw, and Z. Gao.
+ Neuronal dynamics of cerebellum and medial prefrontal cortex in adaptive motor timing.
+ Nature Communications , 16(1):612, 2025.
+ [15] 
+Y. Zhao, J.-T. Wu, J.-B. Feng, X.-Y. Cai, X.-T. Wang, L. Wang, W. Xie, Y. Gu, J. Liu, W. Chen, et al.
+ Dual and plasticity-dependent regulation of cerebello-zona incerta circuits on anxiety-like behaviors.
+ Nature Communications , 16(1):3339, 2025.
+ [16] 
+Y. Ji, H. Tan, J. Shi, X. Hao, Y. Zhang, H. Zhang, P. Wang, M. Zhao, Y. Mu, P. An, et al.
+ Robobrain: A unified brain model for robotic manipulation from abstract to concrete.
+ arXiv preprint arXiv:2502.21257 , 2025.
+ [17] 
+Y. Tang, S. Zhang, X. Hao, P. Wang, J. Wu, Z. Wang, and S. Zhang.
+ Affordgrasp: In-context affordance reasoning for open-vocabulary task-oriented grasping in clutter.
+ arXiv preprint arXiv:2503.00778 , 2025.
+ [18] 
+H.-S. Fang, C. Wang, H. Fang, M. Gou, J. Liu, H. Yan, W. Liu, Y. Xie, and C. Lu.
+ Anygrasp: Robust and efficient grasp perception in spatial and temporal domains.
+ IEEE Transactions on Robotics , 39(5):3929–3945, 2023.
+ [19] 
+L. Zhang, X. Hao, Q. Xu, Q. Zhang, X. Zhang, P. Wang, J. Zhang, Z. Wang, S. Zhang, and R. Xu.
+ Mapnav: A novel memory representation via annotated semantic maps for vlm-based vision-and-language navigation.
+ arXiv preprint arXiv:2502.13451 , 2025.
+ [20] 
+J. Zhang, K. Wang, R. Xu, G. Zhou, Y. Hong, X. Fang, Q. Wu, Z. Zhang, and H. Wang.
+ Navid: Video-based vlm plans the next step for vision-and-language navigation.
+ arXiv preprint arXiv:2402.15852 , 2024.
+ [21] 
+Y. Xu, X. Li, Z. Zhao, G. Zhou, D. Li, X. An, H. Tan, and Z. Feng.
+ FAST_LIO_LOCALIZATION_HUMANOID.
+ https://github.com/deepglint/FAST_LIO_LOCALIZATION_HUMANOID , 2025.
+ Accessed: 2025-04-23.
+ [22] 
+G. Grisetti, R. Kümmerle, C. Stachniss, and W. Burgard.
+ A tutorial on graph-based slam.
+ IEEE Intelligent Transportation Systems Magazine , 2(4):31–43, 2010.
+ [23] 
+Y. Fu, Q. Feng, N. Chen, Z. Zhou, M. Liu, M. Wu, T. Chen, S. Rong, J. Liu, H. Dong, et al.
+ Cordvip: Correspondence-based visuomotor policy for dexterous manipulation in real-world.
+ arXiv preprint arXiv:2502.08449 , 2025.
+ [24] 
+Y. Zhong, Q. Jiang, J. Yu, and Y. Ma.
+ Dexgrasp anything: Towards universal robotic dexterous grasping with physics awareness.
+ arXiv preprint arXiv:2503.08257 , 2025.
+ [25] 
+B. Aksoy and J. Wen.
+ Planning and control for deformable linear object manipulation.
+ arXiv preprint arXiv:2503.04007 , 2025.
+ [26] 
+BAAI.
+ Flagscale.
+ https://github.com/FlagOpen/FlagScale , 2024.
+ Accessed: 2025-04-20.
+ [27] 
+A. Hurst, A. Lerer, A. P. Goucher, A. Perelman, A. Ramesh, A. Clark, A. Ostrow, A. Welihinda, A. Hayes, A. Radford, et al.
+ Gpt-4o system card.
+ arXiv preprint arXiv:2410.21276 , 2024.
+ [28] 
+Anthropic.
+ Introducing claude 3.5 sonnet.
+ https://www.anthropic.com/news/claude-3-5-sonnet , 2024.
+ Accessed: 2025-04-02.
+ [29] 
+Y. Wu, H. Lyu, Y. Tang, L. Zhang, Z. Zhang, W. Zhou, and S. Hao.
+ Evaluating gpt-4o’s embodied intelligence: A comprehensive empirical study.
+ TechRxiv preprint techrxiv.174495686.69962588/v1 , 2025.
+ [30] 
+Google.
+ Introducing gemini: Our largest and most capable ai model.
+ https://blog.google/technology/ai/ , 2023.
+ Accessed: 2025-04-02.
+ [31] 
+S. Bai, K. Chen, X. Liu, J. Wang, W. Ge, S. Song, K. Dang, P. Wang, S. Wang, J. Tang, H. Zhong, Y. Zhu, M. Yang, Z. Li, J. Wan, P. Wang, W. Ding, Z. Fu, Y. Xu, J. Ye, X. Zhang, T. Xie, Z. Cheng, H. Zhang, Z. Yang, H. Xu, and J. Lin.
+ Qwen2.5-vl technical report.
+ arXiv preprint arXiv:2502.13923 , 2025.
+ [32] 
+Z. Chen, J. Wu, W. Wang, W. Su, G. Chen, S. Xing, M. Zhong, Q. Zhang, X. Zhu, L. Lu, et al.
+ Internvl: Scaling up vision foundation models and aligning for generic visual-linguistic tasks.
+ In IEEE/CVF conference on computer vision and pattern recognition , pages 24185–24198, 2024.
+ [33] 
+B. Li, Y. Zhang, D. Guo, R. Zhang, F. Li, H. Zhang, K. Zhang, P. Zhang, Y. Li, Z. Liu, et al.
+ Llava-onevision: Easy visual task transfer.
+ arXiv preprint arXiv:2408.03326 , 2024.
+ [34] 
+M. Abdin, J. Aneja, H. Awadalla, A. Awadallah, A. A. Awan, N. Bach, A. Bahree, A. Bakhtiari, J. Bao, H. Behl, et al.
+ Phi-3 technical report: A highly capable language model locally on your phone.
+ arXiv preprint arXiv:2404.14219 , 2024.
+ [35] 
+L. Beyer, A. Steiner, A. S. Pinto, A. Kolesnikov, X. Wang, D. Salz, M. Neumann, I. Alabdulmohsin, M. Tschannen, E. Bugliarello, et al.
+ Paligemma: A versatile 3b vlm for transfer.
+ arXiv preprint arXiv:2407.07726 , 2024.
+ [36] 
+OpenAI.
+ Learning to reason with llms.
+ https://openai.com/index/learning-to-reason-with-llms/ , 2024.
+ Accessed: 2025-03-02.
+ [37] 
+D. Guo, D. Yang, H. Zhang, J. Song, R. Zhang, R. Xu, Q. Zhu, S. Ma, P. Wang, X. Bi, et al.
+ Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning.
+ arXiv preprint arXiv:2501.12948 , 2025.
+ [38] 
+K. Team, A. Du, B. Gao, B. Xing, C. Jiang, C. Chen, C. Li, C. Xiao, C. Du, C. Liao, et al.
+ Kimi k1. 5: Scaling reinforcement learning with llms.
+ arXiv preprint arXiv:2501.12599 , 2025.
+ [39] 
+H. Tan, Y. Ji, X. Hao, M. Lin, P. Wang, Z. Wang, and S. Zhang.
+ Reason-rft: Reinforcement fine-tuning for visual reasoning.
+ arXiv preprint arXiv:2503.20752 , 2025.
+ [40] 
+W. Huang, B. Jia, Z. Zhai, S. Cao, Z. Ye, F. Zhao, Y. Hu, and S. Lin.
+ Vision-r1: Incentivizing reasoning capability in multimodal large language models.
+ arXiv preprint arXiv:2503.06749 , 2025.
+ [41] 
+Y. Mu, Q. Zhang, M. Hu, W. Wang, M. Ding, J. Jin, B. Wang, J. Dai, Y. Qiao, and P. Luo.
+ Embodiedgpt: Vision-language pre-training via embodied chain of thought.
+ Advances in Neural Information Processing Systems , 36:25081–25094, 2023.
+ [42] 
+W. Zhang, M. Wang, G. Liu, X. Huixin, Y. Jiang, Y. Shen, G. Hou, Z. Zheng, H. Zhang, X. Li, et al.
+ Embodied-reasoner: Synergizing visual search, reasoning, and action for embodied interactive tasks.
+ arXiv preprint arXiv:2503.21696 , 2025.
+ [43] 
+D. Li, Y. Jin, Y. Sun, H. Yu, J. Shi, X. Hao, P. Hao, H. Liu, F. Sun, J. Zhang, et al.
+ What foundation models can bring for robot learning in manipulation: A survey.
+ arXiv preprint arXiv:2404.18201 , 2024.
+ [44] 
+X. Li, M. Liu, H. Zhang, C. Yu, J. Xu, H. Wu, C. Cheang, Y. Jing, W. Zhang, H. Liu, et al.
+ Vision-language foundation models as effective robot imitators.
+ arXiv preprint arXiv:2311.01378 , 2023.
+ [45] 
+A. Brohan, N. Brown, J. Carbajal, Y. Chebotar, X. Chen, K. Choromanski, T. Ding, D. Driess, A. Dubey, C. Finn, et al.
+ Rt-2: Vision-language-action models transfer web knowledge to robotic control.
+ arXiv preprint arXiv:2307.15818 , 2023.
+ [46] 
+P. Hao, C. Zhang, D. Li, X. Cao, X. Hao, S. Cui, and S. Wang.
+ Tla: Tactile-language-action model for contact-rich manipulation.
+ arXiv preprint arXiv:2503.08548 , 2025.
+ [47] 
+J. Liu, M. Liu, Z. Wang, L. Lee, K. Zhou, P. An, S. Yang, R. Zhang, Y. Guo, and S. Zhang.
+ Robomamba: Multimodal state space model for efficient robot reasoning and manipulation.
+ arXiv preprint arXiv:2406.04339 , 2024.
+ [48] 
+O. M. Team, D. Ghosh, H. Walke, K. Pertsch, K. Black, O. Mees, S. Dasari, J. Hejna, T. Kreiman, C. Xu, et al.
+ Octo: An open-source generalist robot policy.
+ arXiv preprint arXiv:2405.12213 , 2024.
+ [49] 
+J. Liu, H. Chen, P. An, Z. Liu, R. Zhang, C. Gu, X. Li, Z. Guo, S. Chen, M. Liu, et al.
+ Hybridvla: Collaborative diffusion and autoregression in a unified vision-language-action model.
+ arXiv preprint arXiv:2503.10631 , 2025.
+ [50] 
+J. Liu, C. Li, G. Wang, L. Lee, K. Zhou, S. Chen, C. Xiong, J. Ge, R. Zhang, and S. Zhang.
+ Self-corrected multimodal large language model for end-to-end robot manipulation.
+ arXiv preprint arXiv:2405.17418 , 2024.
+ [51] 
+X. Hao, Y. Diao, M. Wei, Y. Yang, P. Hao, R. Yin, H. Zhang, W. Li, S. Zhao, and Y. Liu.
+ Mapfusion: A novel bev feature fusion network for multi-modal map construction.
+ Information Fusion , 119:103018, 2025.
+ [52] 
+Y. Rizk, M. Awad, and E. W. Tunstel.
+ Cooperative heterogeneous multi-robot systems: A survey.
+ ACM Computing Surveys (CSUR) , 52(2):1–31, 2019.
+ [53] 
+R. Fierro, L. Chaimowicz, and V. Kumar.
+ Multi-robot cooperation.
+ In Autonomous Mobile Robots , pages 417–460. CRC Press, 2018.
+ [54] 
+A. Agrawal, A. S. Bedi, and D. Manocha.
+ Rtaw: An attention inspired reinforcement learning method for multi-robot task allocation in warehouse environments.
+ In 2023 IEEE International Conference on Robotics and Automation (ICRA) , pages 1393–1399. IEEE, 2023.
+ [55] 
+H. Guo, Z. Liu, R. Shi, W.-Y. Yau, and D. Rus.
+ Cross-entropy regularized policy gradient for multirobot nonadversarial moving target search.
+ IEEE Transactions on Robotics , 39(4):2569–2584, 2023.
+ [56] 
+V. Edwards, T. C. Silva, B. Mehta, J. Dhanoa, and M. A. Hsieh.
+ On collaborative robot teams for environmental monitoring: A macroscopic ensemble approach.
+ In 2023 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , pages 11148–11153. IEEE, 2023.
+ [57] 
+D. Patiño, S. Mayya, J. Calderon, K. Daniilidis, and D. Saldaña.
+ Learning to navigate in turbulent flows with aerial robot swarms: A cooperative deep reinforcement learning approach.
+ IEEE Robotics and Automation Letters , 8(7):4219–4226, 2023.
+ [58] 
+X.-H. Liu, F. Xu, X. Zhang, T. Liu, S. Jiang, R. Chen, Z. Zhang, and Y. Yu.
+ How to guide your learner: Imitation learning with active adaptive expert involvement.
+ arXiv preprint arXiv:2303.02073 , 2023.
+ [59] 
+K. Pereida, M. K. Helwa, and A. P. Schoellig.
+ Data-efficient multirobot, multitask transfer learning for trajectory tracking.
+ IEEE Robotics and Automation Letters , 3(2):1260–1267, 2018.
+ [60] 
+A. Liu, B. Feng, B. Xue, B. Wang, B. Wu, C. Lu, C. Zhao, C. Deng, C. Zhang, C. Ruan, et al.
+ Deepseek-v3 technical report.
+ arXiv preprint arXiv:2412.19437 , 2024.
+ [61] 
+X. Chang, P. Ren, P. Xu, Z. Li, X. Chen, and A. Hauptmann.
+ A comprehensive survey of scene graphs: Generation and application.
+ IEEE Transactions on Pattern Analysis and Machine Intelligence , 45(1):1–26, 2021.
+ [62] 
+A. Werby, C. Huang, M. Büchner, A. Valada, and W. Burgard.
+ Hierarchical open-vocabulary 3d scene graphs for language-grounded robot navigation.
+ Robotics: Science and Systems , 2024.
+ [63] 
+Q. Gu, A. Kuwajerwala, S. Morin, K. M. Jatavallabhula, B. Sen, A. Agarwal, C. Rivera, W. Paul, K. Ellis, R. Chellappa, et al.
+ Conceptgraphs: Open-vocabulary 3d scene graphs for perception and planning.
+ In 2024 IEEE International Conference on Robotics and Automation (ICRA) , pages 5021–5028. IEEE, 2024.
+ [64] 
+F. Liu, K. Lin, L. Li, J. Wang, Y. Yacoob, and L. Wang.
+ Mitigating hallucination in large multi-modal models via robust instruction tuning.
+ arXiv preprint arXiv:2306.14565 , 2023.
+ [65] 
+R. Lyu, T. Wang, J. Lin, S. Yang, X. Mao, Y. Chen, R. Xu, H. Huang, C. Zhu, D. Lin, and J. Pang.
+ Mmscan: A multi-modal 3d scene dataset with hierarchical grounded language annotations.
+ arXiv preprint arXiv:2406.09401 , 2024.
+ [66] 
+J. Huang, S. Yong, X. Ma, X. Linghu, P. Li, Y. Wang, Q. Li, S.-C. Zhu, B. Jia, and S. Huang.
+ An embodied generalist agent in 3d world.
+ In ICLR 2024 Workshop: How Far Are We From AGI .
+ [67] 
+J. Wald, A. Avetisyan, N. Navab, F. Tombari, and M. Nießner.
+ Rio: 3d object instance re-localization in changing indoor environments.
+ In ICCV , pages 7658–7667, 2019.
+ [68] 
+D. Azuma, T. Miyanishi, S. Kurita, and M. Kawanabe.
+ Scanqa: 3d question answering for spatial scene understanding.
+ In CVPR , pages 19129–19139, 2022.
+ [69] 
+X. Ma, S. Yong, Z. Zheng, Q. Li, Y. Liang, S.-C. Zhu, and S. Huang.
+ Sqa3d: Situated question answering in 3d scenes.
+ In ICLR , 2023.
+ URL https://openreview.net/forum?id=IDJx97BC38 .
+ [70] 
+L. Yu, P. Poirson, S. Yang, A. C. Berg, and T. L. Berg.
+ Modeling context in referring expressions.
+ In Computer Vision–ECCV 2016: 14th European Conference, Amsterdam, The Netherlands, October 11-14, 2016, Proceedings, Part II 14 , pages 69–85. Springer, 2016.
+ [71] 
+J. Mao, J. Huang, A. Toshev, O. Camburu, A. L. Yuille, and K. Murphy.
+ Generation and comprehension of unambiguous object descriptions.
+ In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 11–20, 2016.
+ [72] 
+J. Chen, F. Wei, J. Zhao, S. Song, B. Wu, Z. Peng, S.-H. G. Chan, and H. Zhang.
+ Revisiting referring expression comprehension evaluation in the era of large multimodal models.
+ arXiv preprint arXiv:2406.16866 , 2024.
+ [73] 
+R. Krishna, Y. Zhu, O. Groth, J. Johnson, K. Hata, J. Kravitz, S. Chen, Y. Kalantidis, L.-J. Li, D. A. Shamma, et al.
+ Visual genome: Connecting language and vision using crowdsourced dense image annotations.
+ International journal of computer vision , 123:32–73, 2017.
+ [74] 
+S. Yang, G. Li, and Y. Yu.
+ Graph-structured referring expression reasoning in the wild.
+ In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 9952–9961, 2020.
+ [75] 
+Z. Chen, P. Wang, L. Ma, K.-Y. K. Wong, and Q. Wu.
+ Cops-ref: A new dataset and task on compositional referring expression comprehension.
+ In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 10086–10095, 2020.
+ [76] 
+Y. Wan, J. Mao, and J. Tenenbaum.
+ Handmethat: Human-robot communication in physical and social environments.
+ Advances in Neural Information Processing Systems , 35:12014–12026, 2022.
+ [77] 
+P. Sermanet, T. Ding, J. Zhao, F. Xia, D. Dwibedi, K. Gopalakrishnan, C. Chan, G. Dulac-Arnold, S. Maddineni, N. J. Joshi, et al.
+ Robovqa: Multimodal long-horizon reasoning for robotics.
+ In 2024 IEEE International Conference on Robotics and Automation (ICRA) , pages 645–652. IEEE, 2024.
+ [78] 
+Q. Bu, J. Cai, L. Chen, X. Cui, Y. Ding, S. Feng, S. Gao, X. He, X. Huang, S. Jiang, et al.
+ Agibot world colosseo: A large-scale manipulation platform for scalable and intelligent embodied systems.
+ arXiv preprint arXiv:2503.06669 , 2025.
+ [79] 
+M. Deitke, C. Clark, S. Lee, R. Tripathi, Y. Yang, J. S. Park, M. Salehi, N. Muennighoff, K. Lo, L. Soldaini, et al.
+ Molmo and pixmo: Open weights and open data for state-of-the-art multimodal models.
+ arXiv preprint arXiv:2409.17146 , 2024.
+ [80] 
+W. Yuan, J. Duan, V. Blukis, W. Pumacay, R. Krishna, A. Murali, A. Mousavian, and D. Fox.
+ Robopoint: A vision-language model for spatial affordance prediction for robotics.
+ arXiv preprint arXiv:2406.10721 , 2024.
+ [81] 
+V. Ramanathan, A. Kalia, V. Petrovic, Y. Wen, B. Zheng, B. Guo, R. Wang, A. Marquez, R. Kovvuri, A. Kadian, et al.
+ Paco: Parts and attributes of common objects.
+ In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7141–7151, 2023.
+ [82] 
+D. Niu, Y. Sharma, G. Biamby, J. Quenum, Y. Bai, B. Shi, T. Darrell, and R. Herzig.
+ Llarva: Vision-action instruction tuning enhances robot learning.
+ arXiv preprint arXiv:2406.11815 , 2024.
+ [83] 
+J. Rasley, S. Rajbhandari, O. Ruwase, and Y. He.
+ Deepspeed: System optimizations enable training deep learning models with over 100 billion parameters.
+ In SIGKDD , pages 3505–3506, 2020.
+ [84] 
+K. Zhang, B. Li, P. Zhang, F. Pu, J. A. Cahyono, K. Hu, S. Liu, Y. Zhang, J. Yang, C. Li, et al.
+ Lmms-eval: Reality check on the evaluation of large multimodal models.
+ arXiv preprint arXiv:2407.12772 , 2024.
+ [85] 
+J. Gu, S. Kirmani, P. Wohlhart, Y. Lu, M. G. Arenas, K. Rao, W. Yu, C. Fu, K. Gopalakrishnan, Z. Xu, et al.
+ Rt-trajectory: Robotic task generalization via hindsight trajectory sketches.
+ arXiv preprint arXiv:2311.01977 , 2023.
+ [86] 
+Q. Team.
+ Qwen3: Think deeper, act faster.
+ https://qwenlm.github.io/blog/qwen3 , 2025.
+ Accessed: 2025-04-29.
+ [87] 
+Z. Shao, P. Wang, Q. Zhu, R. Xu, J. Song, X. Bi, H. Zhang, M. Zhang, Y. K. Li, Y. Wu, and D. Guo.
+ Deepseekmath: Pushing the limits of mathematical reasoning in open language models, 2024.
+ [88] 
+H. Luo, W. Zhai, J. Zhang, Y. Cao, and D. Tao.
+ Grounded affordance from exocentric view.
+ International Journal of Computer Vision , 132(6):1945–1969, 2024.
+ Appendix 
+ This supplementary material provides additional details on the proposed method and experimental results that could not be included in the main manuscript due to page limitations.
+Specifically, this appendix is organized as follows. 
+ • 
+ Sec.  A presents additional details of the models and training strategies. 
+ • 
+ Sec.  B presents details of training datasets and evaluation benchmarks. 
+ • 
+ Sec.  C presents comprehensive experimental results on the performance of FlagScale  [ 26 ] . 
+ Appendix A Details of Models and Training 
+ RoboBrain-1.5-OS represents a significant advancement in robotic vision-language models, building upon the robust foundation of Qwen2.5-VL-7B  [ 31 ] through an elaborate three-stage training paradigm designed to progressively enhance both general and domain-specific capabilities.
+(1) In Stage 1, the model undergoes full-parameter supervised fine-tuning (SFT) using 3M high-quality general VLM datasets with a learning rate of 1e-4, trained across 20 servers each equipped with 8 × \times A800 GPUs, aiming to establish robust foundational visual understanding and reasoning capabilities. (2) Stage 2 focuses on the robotics domain, utilizing 2.3M carefully curated robotic-related training data while retaining 10% of Stage 1 data to prevent catastrophic forgetting. The learning rate is reduced to 1e-5 to ensure stable convergence. (3) The final Stage 3 specializes in optimization for RoboOS, first performing SFT with 245K OS-SFT samples (containing 2% Stage 1 and 3% Stage 2 data), followed by Group Relative Preference Optimization (GRPO)  [ 87 ] using 4K OS-RL samples (only tool-calling samples), leveraging reinforcement learning (RL) for its efficiency and scalability. The GRPO phase in Stage 3 further reduces the learning rate to 1e-6, and completes training in 3 epochs on a single 8 × \times A800 server. The entire training process employs the DeepSpeed Zero3  [ 83 ] optimization strategy, with carefully configured key parameters including batch size (2 for SFT, 1 for GRPO), maximum sequence length (32768 for SFT, 8192 for GRPO), and weight decay (0.1). The number of completion (4) and maximum completion length (512) are specific for GRPO. Detailed hyperparameters are provided in Tab.  2 . This training scheme significantly enhances the model’s performance in robotics applications and system compatibility while preserving the original capabilities of Qwen2.5-VL-7B  [ 31 ] . 
+ Table 2: Detailed configuration for each training stage of the RoboBrain-1.5-OS. 
+ Stage-1 
+ Stage-2 
+ Stage-3    
+ SFT 
+ SFT 
+ SFT 
+ GRPO 
+ Data 
+ Dataset 
+ General VLM 
+ Robotic 
+ OS-SFT (Part 1) 
+ OS-RL (Part 2) 
+ #Samples 
+ 3M 
+ 2.3M 
+ 245K 
+ 4K 
+ Model 
+ Trainable Part 
+ Full Model 
+ Full Model 
+ Full Model 
+ Full Model 
+ #Tunable Parameters 
+ 8.29B 
+ 8.29B 
+ 8.29B 
+ 8.29B 
+ Training 
+ Per-device Batch Size 
+ 2 
+ 2 
+ 4 
+ 1 
+ Gradient Accumulation 
+ 2 
+ 2 
+ 2 
+ 2 
+ LR: { ψ v ViT , ϕ v LLM } \{\psi_{v}^{\text{ViT}},\phi_{v}^{\text{LLM}}\} 
+ 1 × 10 − 4 \times 10^{-4} 
+ 1 × 10 − 6 \times 10^{-6} 
+ 1 × 10 − 5 \times 10^{-5} 
+ 1 × 10 − 6 \times 10^{-6} 
+ Epoch 
+ 1 
+ 1 
+ 1 
+ 3 
+ Optimizer 
+ AdamW 
+ AdamW 
+ AdamW 
+ AdamW 
+ Deepspeed 
+ Zero3 
+ Zero3 
+ Zero3 
+ Zero3 
+ Weight Decay 
+ 0.1 
+ 0.1 
+ 0.1 
+ 0.0 
+ Warmup Ratio 
+ 0.03 
+ 0.03 
+ 0.03 
+ 0.00 
+ LR Schedule 
+ Cosine 
+ Cosine 
+ Cosine 
+ Cosine 
+ Max Seq. Length 
+ 32768 
+ 32768 
+ 32768 
+ 8192 
+ Max Compl. Length 
+ – 
+ – 
+ – 
+ 512 
+ Num. of Compl. 
+ – 
+ – 
+ – 
+ 4 
+ GPU Nums 
+ 20 × \times 8 
+ 20 × \times 8 
+ 4 × \times 8 
+ 1 × \times 8 
+ Appendix B Details of Datasets and Benchmarks 
+ B.1 Training Datasets 
+ The training of RoboBrain-1.5-OS leverages three comprehensive dataset categories: general VLM datasets for foundational capabilities, Robotic datasets for embodied intelligence, and RoboOS-Enhanced datasets for system-specific optimization.
+The specific composition of these three datasets are listed as follows: 
+ • 
+ General VLM Datasets (Total: 3M samples) – We systematically organized five specialized subsets to establish fundamental capabilities:
+(1) General-873k , curated from LRV-400K  [ 64 ] and LLaVA-665K  [ 33 ] through rigorous filtering and restructuring, enhances broad question-answering with diverse QA pairs spanning descriptive, analytical, and inferential tasks.
+(2) ScanView-318k integrates multimodal 3D scene understanding data from MMScan-224K  [ 65 ] (annotated object segmentation and textual descriptions), 3RScan-43K  [ 67 ] (3D reconstructions with semantic labels), ScanQA-25K  [ 68 ] (QA pairs grounded in 3D environments), and SQA3D-26K  [ 69 ] (spatial QA), enabling fine-grained environmental perception.
+(3) VG-326k combines Ref-L4  [ 72 ] (45K expressions spanning 365 object categories), OV-VG  [ 33 ] (visual grounding smaples in Llava-OneVision), RefCOCO/RefCOCO+  [ 70 , 71 ] (natural language descriptions with restrictive/non-restrictive spatial constraints), and Visual Genome  [ 73 ] (rich region descriptions and relational annotations) for precise visual grounding and localization.
+(4) Spatial-R-1005k leverages Ref-Reasoning-791K  [ 74 ] (complex expressions with attribute/spatial reasoning and adversarial images), COPS-Ref-148K  [ 75 ] , and Spatial-Trans-66K  [ 39 ] to model compositional relationships.
+(5) Temporal-R-525k synthesizes Embodied-Reasoner-9K  [ 42 ] , HandMeThat-300K  [ 76 ] (abstract command-based planning), and 200K+ simulated reasoning samples for sequential event comprehension. All datasets underwent deduplication and quality filtering to balance capability coverage while eliminating noise. 
+ • 
+ Robotic Datasets (Total: 2.3M samples) – Designed to develop four core embodied intelligence competencies:
+(1) Planning-700k aggregates RoboVQA-Clean-200K (reconstructed from original RoboVQA-800K  [ 77 ] ), ShareRobot-Plan-400K (a planning subset of ShareRobot  [ 16 ] ), RoboBench-50K (constructed based on real-world embodied tasks by ourselves), and AgiBotWorld-Alpha-50K  [ 78 ] to train hierarchical task decomposition and long-horizon planning.
+(2) Pointing-537k unifies Object-Ref-347K  [ 80 ] (287K images with coordinate-based QA) and Pixmo-Point-190K  [ 79 ] (indoor scene point annotations) to refine spatial awareness via coordinate regression.
+(3) Affordance-373k merges Region-Ref-320K  [ 80 ] (270K images with interactive region QA), PACO-LVIS-45K  [ 81 ] (object functionality labels), and ShareRobot-Affordance-8K  [ 16 ] to predict actionable object properties.
+(4) Trajectory-428k combines LLaRVA-420K  [ 82 ] and ShareRobot-Trajectory-8K  [ 80 ] to learn manipulation sequences for successful execution. Each subset was iteratively optimized for robotic applicability, emphasizing precision in action-object mapping. To mitigate catastrophic forgetting while maintaining model performance, we implement a knowledge retention strategy where 10% of Stage 1 training samples (Stage1-300K) are preserved during Stage 2. 
+ • 
+ RoboOS-Enhanced Datasets (Total: 249k samples) – Tailored for RoboOS integration:
+(1) Multi-Robot-45k features 68 collaboration task types (supermarket/household/restaurant scenarios) generated via DeepSeek-V3-0324  [ 60 ] , with scene graphs, robot specs, and workflow visualizations for subtask reasoning.
+(2) Robotic-Agent-144k augments Multi-Robot-45k generated via DeepSeek-V3-0324  [ 60 ] with probabilistically sampled Observation-Action pairs (144K correct/error-injected variants) to improve operational robustness through SFT and RL training (140K for SFT and the rest for GRPO). This architecture ensures seamless adaptation to the RoboOS ecosystem implementation while preserving task-specific performance in multi-agent coordination and tool invocation. 
+ B.2 Evaluation Settings 
+ Evaluation Baselines 
+The reference baselines for comparison include: (1) Vision-Language Models (VLMs) of comparable parameter scales (e.g., LLaVA-OneVision-7B  [ 33 ] , Qwen2.5-VL-7B  [ 31 ] , RoboBrain-7B-1.0  [ 16 ] , RoboPoint-14B  [ 80 ] ), and (2) larger general-purpose LLMs (e.g., Qwen3-14B  [ 86 ] , DeepSeek-V3-685B  [ 60 ] ). We evaluate vision-based and text-based benchmarks for VLMs, while only text-based benchmarks for LLMs. 
+ Evaluation Benchmarks 
+We conducted comprehensive evaluations on the model’s four core robotic operation capabilities (Multi-Robot Planning, Pointing Prediction, Affordance Prediction, and Trajectory Prediction), with the benchmark configurations specified as follows: 
+ • 
+ Multi-Robot Planning 
+Our evaluation framework assesses multi-robot planning capabilities across three task scenarios: restaurant environments, commercial supermarkets, and household settings. Using RoboOS as the testbed system, we employ the Tool-Calling Accuracy Rate (AR) metric  [ 84 ] for quantitative assessment. For the three task scenarios of restaurant, supermarket, and household settings, we randomly sampled and generated 200 task samples for each scenario as a benchmark for testing. The task specifications for each scenario are shown in Fig.  6 - 8 . These samples are used to evaluate global task decomposition and agent-based tool-calling in RoboOS, with corresponding prompts illustrated in Fig.  9 and Fig.  10 . 
+ • 
+ Pointing Prediction 
+We evaluate pointing prediction performance using the Where2Place dataset  [ 80 ] , which contains 100 real-world images depicting cluttered environments with annotated spatial relations. Each image includes: (i) a textual description specifying desired free space, (ii) a ground-truth mask of the target region, and (iii) corresponding query points that probe the model’s ability to localize referenced spaces. Performance is quantified through Hit Accuracy measured against target masks using the AR metric, assessing the precision of robotic systems in interpreting spatial references and predicting intended pointing locations. 
+ • 
+ Affordance Prediction 
+We utilize the AGD20K benchmark  [ 88 ] - a comprehensive dataset comprising over 20,000 annotated images spanning diverse affordance categories - to evaluate the performance of affordance prediction. The evaluation protocol measures mean Average Precision (mAP) across multiple Intersection-over-Union (IoU) thresholds (0.25, 0.50, 0.75, 0.90), providing rigorous assessment of model robustness. 
+ • 
+ Trajectory Prediction 
+Our trajectory analysis employs the ShareRobot-Trajectory benchmark  [ 16 ] with three complementary metrics:
+(1) Discrete Fréchet Distance (DFD)  [ 85 ] : Computes the minimum leash length required for coupled traversal of predicted and ground-truth trajectories, capturing both geometric similarity and temporal alignment.
+(2) Hausdorff Distance (HD): Measures worst-case positional deviation between trajectories.
+(3) Root Mean Square Error (RMSE): Quantifies average pointwise Euclidean distance errors.
+This multi-metric approach enables hierarchical analysis of trajectory quality, from global shape preservation (DFD) to local precision (RMSE), with HD identifying critical failure cases. 
+ Appendix C Efficiency Performance on FlagScale 
+ This study conducts a comprehensive evaluation of the impact of FlagScale  [ 26 ] on inference efficiency within the RoboOS framework through controlled comparative testing between two system configurations: RoboOS without FlagScale (Baseline) and RoboOS with FlagScale (+ FlagScale) . 
+ C.1 Experimental Setup 
+ All controlled comparative testing experiments were performed on an NVIDIA RTX 4090 GPU featuring 24GB of GDDR6X VRAM, noting that this hardware architecture lacks native support for FP8 tensor operations. The evaluation environment maintained strict parameter consistency, including fixed GPU memory utilization at 90% through the gpu_memory_utilization=0.9 setting while deliberately disabling prefix caching to establish baseline performance measurements.
+The experimental design incorporated several optimized computational parameters to ensure representative benchmarking conditions. These included a maximum sequence limit of 16 concurrent processes (max_num_seqs=16) and a progressive CUDA graph capture strategy configured for batch sizes [1, 2, 4, 8, 16], enabling efficient batch processing across varying workload demands. Primary performance metrics focused on End-to-Token Latency (E2TL) measurements for 85-token generation outputs, with particular attention to the characteristic disparity between initial batch latency and steady-state operational performance. The evaluation further examined scaling characteristics through Tensor Parallelism configurations at three distinct levels (TP1, TP2, and TP4) to assess both single-device and multi-device acceleration potential. 
+ C.2 FP16 Performance 
+ The FP16 latency comparisons demonstrate consistent acceleration benefits from FlagScale optimization across all tensor parallelism configurations. As shown in Tab.  3 , the relative improvement decreases monotonically from 48.3%–62.9% at batch size of 1, to 16.4%–20.8% at batch size of 16 under TP1–TP4 configurations. This inverse correlation between batch size and optimization efficacy suggests diminishing returns for memory-bound operations at larger workloads. The non-linear latency growth pattern—where baseline latency increases 3.18× from batch 1 to 16 versus 5.14× for FlagScale—indicates superior batch processing scalability of the optimized implementation. 
+ Table 3: FP16 Latency Comparison (85-token generation, ms) 
+ Batch Size 
+ E2TL-TP1 
+ TP2 
+ TP4 
+ Baseline 
+ + FlagScale 
+ Baseline 
+ + FlagScale 
+ Baseline 
+ + FlagScale 
+ 1 
+ 4.06 
+ 2.10 (-48.3%) 
+ 3.85 
+ 1.52 (-60.5%) 
+ 3.29 
+ 1.22 (-62.9%) 
+ 2 
+ 4.64 
+ 2.69 (-42.0%) 
+ 4.41 
+ 2.08 (-52.8%) 
+ 3.96 
+ 1.75 (-55.8%) 
+ 4 
+ 5.79 
+ 3.83 (-33.9%) 
+ 5.24 
+ 3.16 (-39.7%) 
+ 4.95 
+ 2.78 (-43.8%) 
+ 8 
+ 8.09 
+ 6.13 (-24.2%) 
+ 7.34 
+ 5.25 (-28.5%) 
+ 7.31 
+ 4.90 (-33.0%) 
+ 16 
+ 12.92 
+ 10.80 (-16.4%) 
+ 12.16 
+ 9.63 (-20.8%) 
+ 11.21 
+ 9.11 (-18.7%) 
+ C.3 W8A16 Performance 
+ Quantization to W8A16 precision yields additional latency reductions beyond FP16 baselines, with FlagScale achieving 54.0%–65.2% improvement for single-query inference, as shown in Tab.  4 . The TP4 configuration maintains the most significant gains across all batch sizes, demonstrating 23.4%–65.2% lower latency compared to baseline. Two key observations emerge: (1) The absolute latency values under W8A16 are consistently 12%–17% lower than corresponding FP16 results, confirming the expected quantization benefits; (2) The optimization maintains stable relative improvements across precision modes, with TP2 showing particularly consistent 20.0%–60.5% reductions. The convergence of latency values at batch size 16 (9.11–10.62ms across TP modes) suggests a hardware-bound limit for large-batch processing regardless of parallelism configuration. 
+ Table 4: W8A16 Latency Comparison (85-token generation, ms) 
+ Batch Size 
+ E2TL-TP1 
+ TP2 
+ TP4 
+ Baseline 
+ + FlagScale 
+ Baseline 
+ + FlagScale 
+ Baseline 
+ + FlagScale 
+ 1 
+ 3.48 
+ 1.60 (-54.0 %) 
+ 3.34 
+ 1.32 (-60.5 %) 
+ 3.36 
+ 1.17 (-65.2 %) 
+ 2 
+ 4.17 
+ 2.22 (-46.8 %) 
+ 4.21 
+ 1.91 (-54.6 %) 
+ 3.92 
+ 1.69 (-56.9 %) 
+ 4 
+ 5.52 
+ 3.39 (-38.6 %) 
+ 5.08 
+ 2.99 (-41.1 %) 
+ 5.28 
+ 2.76 (-47.7 %) 
+ 8 
+ 7.78 
+ 5.78 (-25.7 %) 
+ 7.46 
+ 5.25 (-29.6 %) 
+ 6.96 
+ 4.84 (-30.5 %) 
+ 16 
+ 12.98 
+ 10.62 (-18.2 %) 
+ 12.53 
+ 10.03 (-20.0 %) 
+ 11.90 
+ 9.11 (-23.4 %) 
+ Figure 6: 
+Task specification for household scenario.
+ Figure 7: 
+Task specification for restaurant scenario.
+ Figure 8: 
+Task specification for supermarket scenario.
+ Figure 9: 
+Prompt for global task decomposition.
+ Figure 10: 
+Prompt for agent-based tool calling.
+ Experimental support, please
+ view the build logs 
+ for errors. Generated by
+ L
+ A 
+ T
+ E 
+ xml 
+ .
+ Instructions for reporting errors 
+ We are continuing to improve HTML versions of papers, and your feedback helps enhance accessibility and mobile
+ support. To report errors in the HTML that will help us improve conversion and rendering, choose any of the
+ methods listed below: 
+ Click the "Report Issue" ( 
+ ) button, located in the page header. 
+ Tip: You can select the relevant text first, to include it in your report. 
+ Our team has already identified the following issues . We appreciate your time reviewing and reporting rendering errors we
+ may not have found yet. Your efforts will help us improve the HTML versions for all readers, because disability
+ should not be a barrier to accessing research. Thank you for your continued support in championing open access for
+ all. 
+ Have a free development cycle? Help support accessibility at arXiv! Our collaborators at LaTeXML maintain a list of packages that need conversion , and welcome developer contributions . 
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 

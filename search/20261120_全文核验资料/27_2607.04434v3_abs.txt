@@ -1,0 +1,126 @@
+ 
+ [2607.04434v3] RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies 
+ Skip to main content 
+ Search 
+ Submit 
+ Donate 
+ Log in 
+ Search arXiv 
+ Press Enter to search · Advanced search 
+--> 
+ Computer Science > Robotics 
+ arXiv:2607.04434v3 (cs)
+ [Submitted on 5 Jul 2026 ( v1 ), last revised 8 Jul 2026 (this version, v3)] 
+ Title: RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies 
+ Authors: Tianxing Chen , Yue Chen , Zixuan Li , Junyuan Tang , Kailun Su , Haoran Lu , Weijie Wan , Baijun Chen , Songling Liu , Haowen Yan , Honghao Su , Zhiyang Dou , Kaixuan Wang , Dandan Zhang , Yunze Liu , Yan Qin , Qiwei Liang , Qiwei Wu , Zijian Lin , Wenwei Lin , Yuran Wang , Minghua He , Tianshu Wu , Ruihai Wu , Jingquan Zhou , Kai-Chong Lei , Haibao Yu , Yuanfeng Ji , Weiyang Jin , Guanyu Lin , Xiaofan Li , Qi Xiong , Renjing Xu , Zhongyu Li , Wenhao Chai , Enze Xie , Ziwei Wang , Yao Mu , Hao Dong , Wojciech Matusik , Mingyu Ding , Wenbo Ding , Ping Luo , Masayoshi Tomizuka View a PDF of the paper titled RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies, by Tianxing Chen and 43 other authors 
+ View PDF 
+ HTML (experimental) 
+ Abstract: Generalist robot manipulation policies have advanced rapidly, yet existing benchmarks remain limited in systematically evaluating their capabilities. Many rely on simple, short-horizon, or skill-narrow tasks with limited capability coverage, and are often conducted only in simulation or only in the real world. Simulation enables scalable feedback but misses physical deployment challenges, while real-world evaluation is costly, time-consuming, and difficult to reproduce. We introduce RoboDojo, a unified sim-and-real benchmark for comprehensive evaluation of generalist robot manipulation policies. RoboDojo includes 42 simulation tasks and 18 real-world tasks covering diverse and complementary manipulation capabilities. The simulation benchmark evaluates five dimensions: generalization, memory, precision, long-horizon execution, and open-vocabulary instruction following, while the real-world benchmark exposes policies to challenging physical-world deployment conditions. RoboDojo supports scalable evaluation through heterogeneous parallel simulation in Isaac Sim and provides RoboDojo-RealEval, a reproducible real-world evaluation system with remote cloud access, standardized hardware, scene reset, evaluation protocol, and deployment interface. Together with XPolicyLab, policies can be integrated once and evaluated across simulation and real-world settings with minimal adaptation. We integrate 30 policies into XPolicyLab and evaluate them on RoboDojo, establishing a public leaderboard and systematic analysis of current policy performance. The website is available at this http URL .
+ Comments: 
+ Website: this https URL , Code: this https URL , Leaderboard: this https URL 
+ Subjects: 
+ Robotics (cs.RO) ; Artificial Intelligence (cs.AI); Computer Vision and Pattern Recognition (cs.CV); Graphics (cs.GR) 
+ Cite as: 
+ arXiv:2607.04434 [cs.RO] 
+ (or 
+ arXiv:2607.04434v3 [cs.RO] for this version)
+ https://doi.org/10.48550/arXiv.2607.04434 
+ Focus to learn more 
+ arXiv-issued DOI via DataCite 
+ Submission history From: Tianxing Chen [ view email ] [v1] 
+ Sun, 5 Jul 2026 17:58:02 UTC (27,081 KB) 
+ [v2] 
+ Tue, 7 Jul 2026 17:58:37 UTC (27,400 KB) 
+ [v3] 
+ Wed, 8 Jul 2026 17:48:03 UTC (27,400 KB) 
+ Full-text links: 
+ Access Paper: 
+View a PDF of the paper titled RoboDojo: A Unified Sim-and-Real Benchmark for Comprehensive Evaluation of Generalist Robot Manipulation Policies, by Tianxing Chen and 43 other authors View PDF HTML (experimental) TeX Source
+ view license 
+ Additional Features 
+ Audio Summary 
+ Current browse context: 
+ cs.RO 
+ < prev 
+   |   
+ next > 
+ new 
+ | 
+ recent 
+ | 2026-07 
+ Change to browse by:
+ cs 
+ cs.AI 
+ cs.CV 
+ cs.GR 
+ References & Citations 
+ SciX Google Scholar 
+ Semantic Scholar 
+ export BibTeX citation 
+ Loading... 
+ BibTeX formatted citation 
+ × 
+ loading... 
+ Data provided by: 
+ Bookmark 
+ Bibliographic Tools 
+ Bibliographic and Citation Tools 
+ Bibliographic Explorer Toggle 
+ Bibliographic Explorer ( What is the Explorer? ) 
+ Connected Papers Toggle 
+ Connected Papers ( What is Connected Papers? ) 
+ Litmaps Toggle 
+ Litmaps ( What is Litmaps? ) 
+ scite.ai Toggle 
+ scite Smart Citations ( What are Smart Citations? ) 
+ Code, Data, Media 
+ Code, Data and Media Associated with this Article 
+ alphaXiv Toggle 
+ alphaXiv ( What is alphaXiv? ) 
+ Links to Code Toggle 
+ CatalyzeX Code Finder for Papers ( What is CatalyzeX? ) 
+ DagsHub Toggle 
+ DagsHub ( What is DagsHub? ) 
+ GotitPub Toggle 
+ Gotit.pub ( What is GotitPub? ) 
+ Huggingface Toggle 
+ Hugging Face ( What is Huggingface? ) 
+ ScienceCast Toggle 
+ ScienceCast ( What is ScienceCast? ) 
+ Demos 
+ Demos 
+ Replicate Toggle 
+ Replicate ( What is Replicate? ) 
+ Spaces Toggle 
+ Hugging Face Spaces ( What is Spaces? ) 
+ Spaces Toggle 
+ TXYZ.AI ( What is TXYZ.AI? ) 
+ Related Papers 
+ Recommenders and Search Tools 
+ Link to Influence Flower 
+ Influence Flower ( What are Influence Flowers? ) 
+ Core recommender toggle 
+ CORE Recommender ( What is CORE? ) 
+ Author 
+ Venue 
+ Institution 
+ Topic 
+ About arXivLabs
+ arXivLabs: experimental projects with community collaborators 
+ arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website. 
+ Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them. 
+ Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs . 
+ Which authors of this paper are endorsers? |
+ Disable MathJax ( What is MathJax? )
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 
+ 

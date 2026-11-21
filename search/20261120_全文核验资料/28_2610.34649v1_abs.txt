@@ -1,0 +1,120 @@
+ 
+ [2610.34649v1] RobotAgentBench: Towards Open-world Robot Autonomy 
+ Skip to main content 
+ Search 
+ Submit 
+ Donate 
+ Log in 
+ Search arXiv 
+ Press Enter to search · Advanced search 
+--> 
+ Computer Science > Robotics 
+ arXiv:2610.34649v1 (cs)
+ [Submitted on 26 Oct 2026] 
+ Title: RobotAgentBench: Towards Open-world Robot Autonomy 
+ Authors: Lingjun Mao , Jinglin Cao , Lukun He , Wenpeng Xu , Yuchen Yan , Hengyu Jin , Zijun Zhang , Jinzhou Tang , Songyao Jin , Ziche Liu , Yifei Shao , Junbo Huang , Fang Nan , Ruobing Han , Ziqiao Xi , Ziming Xu , Shuang Liang , Sibo Zhu , Wenyi Wu , Xinyue Wang , Yiming Huang , Xinkai Zou , Gao Zhu , Kun Zhou , Biwei Huang View a PDF of the paper titled RobotAgentBench: Towards Open-world Robot Autonomy, by Lingjun Mao and 24 other authors 
+ View PDF 
+ HTML (experimental) 
+ Abstract: Recent advances in vision-language-action (VLA) and world-action models (WAMs) have significantly improved robotic manipulation, yet deploying robots in the open world demands a higher level of autonomy beyond executing predefined tasks. Robot agents offer a promising paradigm for this transition, integrating task discovery, contextual reasoning, physical execution, and adaptive recovery into a closed interaction loop. However, existing benchmarks largely evaluate isolated capabilities, failing to capture the complexity of open-world robot autonomy. We introduce RobotAgentBench (RAB), a comprehensive benchmark for evaluating robot agents in realistic, open-world household environments. Through an agent-assisted, human-in-the-loop real-to-sim pipeline, RAB constructs 50 diverse household layouts with interactive objects and physically grounded tasks, encompassing 90 atomic tasks, 18 short-horizon tasks, 8 long-horizon tasks, and 4 open-ended scenarios. RAB provides a multi-level evaluation of robot agent capabilities: (1) task-level assessments systematically examine five complementary dimensions: task discovery, context reasoning, manipulation, failure recovery, and robustness; (2) scenario-level evaluation assesses how agents integrate these capabilities to autonomously fulfill high-level user needs. Furthermore, RAB enables systematic comparisons of standalone VLA/WAM models and diverse robot agent architectures under a unified planning-execution-verification framework. Extensive experiments reveal substantial gaps between manipulation and autonomy, demonstrate the advantages of agentic architectures and recursive self-improvement, and highlight the remaining challenges toward open-world robot autonomy.
+ Comments: 
+ Project page: this https URL 
+ Subjects: 
+ Robotics (cs.RO) ; Artificial Intelligence (cs.AI) 
+ Cite as: 
+ arXiv:2610.34649 [cs.RO] 
+ (or 
+ arXiv:2610.34649v1 [cs.RO] for this version)
+ https://doi.org/10.48550/arXiv.2610.34649 
+ Focus to learn more 
+ arXiv-issued DOI via DataCite 
+ Submission history From: Lingjun Mao [ view email ] [v1] 
+ Mon, 26 Oct 2026 00:26:30 UTC (20,092 KB) 
+ Full-text links: 
+ Access Paper: 
+View a PDF of the paper titled RobotAgentBench: Towards Open-world Robot Autonomy, by Lingjun Mao and 24 other authors View PDF HTML (experimental) TeX Source
+ view license 
+ Additional Features 
+ Audio Summary 
+ Current browse context: 
+ cs.RO 
+ < prev 
+   |   
+ next > 
+ new 
+ | 
+ recent 
+ | 2026-10 
+ Change to browse by:
+ cs 
+ cs.AI 
+ References & Citations 
+ SciX Google Scholar 
+ Semantic Scholar 
+ export BibTeX citation 
+ Loading... 
+ BibTeX formatted citation 
+ × 
+ loading... 
+ Data provided by: 
+ Bookmark 
+ Bibliographic Tools 
+ Bibliographic and Citation Tools 
+ Bibliographic Explorer Toggle 
+ Bibliographic Explorer ( What is the Explorer? ) 
+ Connected Papers Toggle 
+ Connected Papers ( What is Connected Papers? ) 
+ Litmaps Toggle 
+ Litmaps ( What is Litmaps? ) 
+ scite.ai Toggle 
+ scite Smart Citations ( What are Smart Citations? ) 
+ Code, Data, Media 
+ Code, Data and Media Associated with this Article 
+ alphaXiv Toggle 
+ alphaXiv ( What is alphaXiv? ) 
+ Links to Code Toggle 
+ CatalyzeX Code Finder for Papers ( What is CatalyzeX? ) 
+ DagsHub Toggle 
+ DagsHub ( What is DagsHub? ) 
+ GotitPub Toggle 
+ Gotit.pub ( What is GotitPub? ) 
+ Huggingface Toggle 
+ Hugging Face ( What is Huggingface? ) 
+ ScienceCast Toggle 
+ ScienceCast ( What is ScienceCast? ) 
+ Demos 
+ Demos 
+ Replicate Toggle 
+ Replicate ( What is Replicate? ) 
+ Spaces Toggle 
+ Hugging Face Spaces ( What is Spaces? ) 
+ Spaces Toggle 
+ TXYZ.AI ( What is TXYZ.AI? ) 
+ Related Papers 
+ Recommenders and Search Tools 
+ Link to Influence Flower 
+ Influence Flower ( What are Influence Flowers? ) 
+ Core recommender toggle 
+ CORE Recommender ( What is CORE? ) 
+ Author 
+ Venue 
+ Institution 
+ Topic 
+ About arXivLabs
+ arXivLabs: experimental projects with community collaborators 
+ arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website. 
+ Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them. 
+ Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs . 
+ Which authors of this paper are endorsers? |
+ Disable MathJax ( What is MathJax? )
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 
+ 

@@ -1,0 +1,128 @@
+ 
+ document.documentElement.classList.add('js'); [2403.09227] BEHAVIOR-1K: A Human-Centered, Embodied AI Benchmark with 1,000 Everyday Activities and Realistic Simulation 
+ Skip to main content 
+ Search
+ Submit 
+ Donate 
+ Log in 
+ Search arXiv 
+ Press Enter to search · Advanced search 
+--> 
+ Computer Science > Robotics 
+ arXiv:2403.09227 (cs)
+ [Submitted on 14 Mar 2024] 
+ Title: BEHAVIOR-1K: A Human-Centered, Embodied AI Benchmark with 1,000 Everyday Activities and Realistic Simulation 
+ Authors: Chengshu Li , Ruohan Zhang , Josiah Wong , Cem Gokmen , Sanjana Srivastava , Roberto Martín-Martín , Chen Wang , Gabrael Levine , Wensi Ai , Benjamin Martinez , Hang Yin , Michael Lingelbach , Minjune Hwang , Ayano Hiranaka , Sujay Garlanka , Arman Aydin , Sharon Lee , Jiankai Sun , Mona Anvari , Manasi Sharma , Dhruva Bansal , Samuel Hunter , Kyu-Young Kim , Alan Lou , Caleb R Matthews , Ivan Villa-Renteria , Jerry Huayang Tang , Claire Tang , Fei Xia , Yunzhu Li , Silvio Savarese , Hyowon Gweon , C. Karen Liu , Jiajun Wu , Li Fei-Fei View a PDF of the paper titled BEHAVIOR-1K: A Human-Centered, Embodied AI Benchmark with 1,000 Everyday Activities and Realistic Simulation, by Chengshu Li and 34 other authors 
+ View PDF 
+ HTML (experimental) 
+ Abstract: We present BEHAVIOR-1K, a comprehensive simulation benchmark for human-centered robotics. BEHAVIOR-1K includes two components, guided and motivated by the results of an extensive survey on "what do you want robots to do for you?". The first is the definition of 1,000 everyday activities, grounded in 50 scenes (houses, gardens, restaurants, offices, etc.) with more than 9,000 objects annotated with rich physical and semantic properties. The second is OMNIGIBSON, a novel simulation environment that supports these activities via realistic physics simulation and rendering of rigid bodies, deformable bodies, and liquids. Our experiments indicate that the activities in BEHAVIOR-1K are long-horizon and dependent on complex manipulation skills, both of which remain a challenge for even state-of-the-art robot learning solutions. To calibrate the simulation-to-reality gap of BEHAVIOR-1K, we provide an initial study on transferring solutions learned with a mobile manipulator in a simulated apartment to its real-world counterpart. We hope that BEHAVIOR-1K's human-grounded nature, diversity, and realism make it valuable for embodied AI and robot learning research. Project website: this https URL .
+ Comments: 
+ A preliminary version was published at 6th Conference on Robot Learning (CoRL 2022) 
+ Subjects: 
+ Robotics (cs.RO) ; Artificial Intelligence (cs.AI) 
+ Cite as: 
+ arXiv:2403.09227 [cs.RO] 
+ (or 
+ arXiv:2403.09227v1 [cs.RO] for this version)
+ https://doi.org/10.48550/arXiv.2403.09227 
+ Focus to learn more 
+ arXiv-issued DOI via DataCite 
+ Submission history From: Ruohan Zhang [ view email ] [v1] 
+ Thu, 14 Mar 2024 09:48:36 UTC (13,987 KB) 
+ Full-text links: 
+ Access Paper: 
+View a PDF of the paper titled BEHAVIOR-1K: A Human-Centered, Embodied AI Benchmark with 1,000 Everyday Activities and Realistic Simulation, by Chengshu Li and 34 other authors View PDF HTML (experimental) TeX Source
+ view license 
+ Current browse context: 
+ cs.RO 
+ < prev 
+   |   
+ next > 
+ new 
+ | 
+ recent 
+ | 2024-03 
+ Change to browse by:
+ cs 
+ cs.AI 
+ References & Citations 
+ NASA ADS Google Scholar 
+ Semantic Scholar 
+ export BibTeX citation 
+ Loading... 
+ BibTeX formatted citation 
+ × 
+ loading... 
+ Data provided by: 
+ Bookmark 
+ Bibliographic Tools 
+ Bibliographic and Citation Tools 
+ Bibliographic Explorer Toggle 
+ Bibliographic Explorer ( What is the Explorer? ) 
+ Connected Papers Toggle 
+ Connected Papers ( What is Connected Papers? ) 
+ Litmaps Toggle 
+ Litmaps ( What is Litmaps? ) 
+ scite.ai Toggle 
+ scite Smart Citations ( What are Smart Citations? ) 
+ Code, Data, Media 
+ Code, Data and Media Associated with this Article 
+ alphaXiv Toggle 
+ alphaXiv ( What is alphaXiv? ) 
+ Links to Code Toggle 
+ CatalyzeX Code Finder for Papers ( What is CatalyzeX? ) 
+ DagsHub Toggle 
+ DagsHub ( What is DagsHub? ) 
+ GotitPub Toggle 
+ Gotit.pub ( What is GotitPub? ) 
+ Huggingface Toggle 
+ Hugging Face ( What is Huggingface? ) 
+ ScienceCast Toggle 
+ ScienceCast ( What is ScienceCast? ) 
+ Demos 
+ Demos 
+ Replicate Toggle 
+ Replicate ( What is Replicate? ) 
+ Spaces Toggle 
+ Hugging Face Spaces ( What is Spaces? ) 
+ Spaces Toggle 
+ TXYZ.AI ( What is TXYZ.AI? ) 
+ Related Papers 
+ Recommenders and Search Tools 
+ Link to Influence Flower 
+ Influence Flower ( What are Influence Flowers? ) 
+ Core recommender toggle 
+ CORE Recommender ( What is CORE? ) 
+ Author 
+ Venue 
+ Institution 
+ Topic 
+ About arXivLabs
+ arXivLabs: experimental projects with community collaborators 
+ arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website. 
+ Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them. 
+ Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs . 
+ Which authors of this paper are endorsers? |
+ Disable MathJax ( What is MathJax? )
+ mathjaxToggle(); 
+ We gratefully acknowledge support from
+ our major funders ,
+ member institutions , ,
+ and all contributors.
+ About 
+ · 
+ Help 
+ · 
+ Contact 
+ · 
+ Subscribe 
+ · 
+ Copyright 
+ · 
+ Privacy 
+ · 
+ Accessibility 
+ · 
+ Operational Status (opens in new tab) 
+ Major funding support from 
+ 

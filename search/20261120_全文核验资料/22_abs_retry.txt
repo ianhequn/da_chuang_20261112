@@ -1,0 +1,123 @@
+ 
+ document.documentElement.classList.add('js'); [2609.07398] OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining 
+ Skip to main content 
+ Search 
+ Submit 
+ Donate 
+ Log in 
+ Search arXiv 
+ Press Enter to search · Advanced search 
+--> 
+ Computer Science > Robotics 
+ arXiv:2609.07398 (cs)
+ [Submitted on 7 Sep 2026] 
+ Title: OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining 
+ Authors: Yuran Wang , Siqiao Huang , Mingleyang Li , Chenhao Zhang , Jiaqi Liang , Weiyang Jin , Yue Chen , Xuemin Chi , Donghao Zhou , Qize Yu , Yu-Kai Wang , Yuhan Rui , Shenzhe Yao , Zhen Yuan , Zhenhao Shen , Kefei Zhu , Zijie Zhu , Ning Gao , Xiaowei Chi , Guanqi He , Shanghang Zhang , Hao Dong , Lin Shao , Hang Zhao View a PDF of the paper titled OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining, by Yuran Wang and 23 other authors 
+ View PDF 
+ Abstract: World-Action Models inherit world knowledge from video-generative priors, and channel it into executable control signals through embodied experience. Existing systems, however, are monolithic: the generative backbone, visual representation, architecture, information flow, inference procedure, and training data are tightly coupled, obscuring which design choices matter and why. We introduce OpenWAM, an open research stack that turns world-action pretraining into a controlled experimental program. OpenWAM-Infra factorizes the WAM design space into composable modules with unified training, inference, deployment, and evaluation. On this substrate, OpenWAM-Study examines three questions through controlled experiments: what to inherit, how world and action learning interact, and how their synergy scales; and distills three principles: upstream knowledge transfers through a sufficiently capable generative backbone and a compact, information-rich latent space; world-action synergy requires dedicated action capacity, explicit world-to-action information flow, and synchronized joint denoising; and embodied pretraining principally improves out-of-domain generalization, with one-stage co-training over egocentric and robot data integrating world coverage and action grounding. Composing these principles, we build OpenWAM-{\alpha}, an open WAM pretrained on roughly 6,400 hours of egocentric human and robot data and evaluated across simulation and real-world benchmarks. Across the eight simulation benchmarks and the real-robot experiments, which together span embodiments from single-arm and bimanual manipulation to dexterous hands, OpenWAM-{\alpha} delivers consistently excellent performance, sustaining its top-tier standing from simulation to the physical world. We release the full stack, including infrastructure, evaluation protocols, pretrained models, and data recipes, to facilitate future research.
+ Comments: 
+ Project Page: this https URL Code: this https URL Model & Data: this https URL 
+ Subjects: 
+ Robotics (cs.RO) 
+ Cite as: 
+ arXiv:2609.07398 [cs.RO] 
+ (or 
+ arXiv:2609.07398v1 [cs.RO] for this version)
+ https://doi.org/10.48550/arXiv.2609.07398 
+ Focus to learn more 
+ arXiv-issued DOI via DataCite 
+ Submission history From: Yuran Wang [ view email ] [v1] 
+ Mon, 7 Sep 2026 12:12:32 UTC (35,992 KB) 
+ Full-text links: 
+ Access Paper: 
+View a PDF of the paper titled OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining, by Yuran Wang and 23 other authors View PDF TeX Source
+ view license 
+ Additional Features 
+ Audio Summary 
+ Current browse context: 
+ cs.RO 
+ < prev 
+   |   
+ next > 
+ new 
+ | 
+ recent 
+ | 2026-09 
+ Change to browse by:
+ cs 
+ References & Citations 
+ SciX Google Scholar 
+ Semantic Scholar 
+ export BibTeX citation 
+ Loading... 
+ BibTeX formatted citation 
+ × 
+ loading... 
+ Data provided by: 
+ Bookmark 
+ Bibliographic Tools 
+ Bibliographic and Citation Tools 
+ Bibliographic Explorer Toggle 
+ Bibliographic Explorer ( What is the Explorer? ) 
+ Connected Papers Toggle 
+ Connected Papers ( What is Connected Papers? ) 
+ Litmaps Toggle 
+ Litmaps ( What is Litmaps? ) 
+ scite.ai Toggle 
+ scite Smart Citations ( What are Smart Citations? ) 
+ Code, Data, Media 
+ Code, Data and Media Associated with this Article 
+ alphaXiv Toggle 
+ alphaXiv ( What is alphaXiv? ) 
+ Links to Code Toggle 
+ CatalyzeX Code Finder for Papers ( What is CatalyzeX? ) 
+ DagsHub Toggle 
+ DagsHub ( What is DagsHub? ) 
+ GotitPub Toggle 
+ Gotit.pub ( What is GotitPub? ) 
+ Huggingface Toggle 
+ Hugging Face ( What is Huggingface? ) 
+ ScienceCast Toggle 
+ ScienceCast ( What is ScienceCast? ) 
+ Demos 
+ Demos 
+ Replicate Toggle 
+ Replicate ( What is Replicate? ) 
+ Spaces Toggle 
+ Hugging Face Spaces ( What is Spaces? ) 
+ Spaces Toggle 
+ TXYZ.AI ( What is TXYZ.AI? ) 
+ Related Papers 
+ Recommenders and Search Tools 
+ Link to Influence Flower 
+ Influence Flower ( What are Influence Flowers? ) 
+ Core recommender toggle 
+ CORE Recommender ( What is CORE? ) 
+ Author 
+ Venue 
+ Institution 
+ Topic 
+ About arXivLabs
+ arXivLabs: experimental projects with community collaborators 
+ arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website. 
+ Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them. 
+ Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs . 
+ Which authors of this paper are endorsers? |
+ Disable MathJax ( What is MathJax? )
+ mathjaxToggle(); 
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 
+ Major funding support from 
+ (opens in new tab) 
+ (opens in new tab) 
+ (opens in new tab) 
+ 

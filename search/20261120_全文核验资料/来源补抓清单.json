@@ -1,0 +1,256 @@
+[
+  {
+    "key": "11_abs",
+    "url": "https://arxiv.org/abs/2506.04217v2",
+    "metadata": {
+      "citation_title": [
+        "OWMM-Agent: Open World Mobile Manipulation With Multi-modal Agentic Data Synthesis"
+      ],
+      "citation_author": [
+        "Chen, Junting",
+        "Liang, Haotian",
+        "Du, Lingxiao",
+        "Wang, Weiyun",
+        "Hu, Mengkang",
+        "Mu, Yao",
+        "Wang, Wenhai",
+        "Dai, Jifeng",
+        "Luo, Ping",
+        "Shao, Wenqi",
+        "Shao, Lin"
+      ],
+      "citation_date": [
+        "2025/06/04"
+      ]
+    },
+    "length": 5308
+  },
+  {
+    "key": "11_html",
+    "url": "https://arxiv.org/html/2506.04217v2",
+    "metadata": {
+      "citation_title": [],
+      "citation_author": [],
+      "citation_date": []
+    },
+    "length": 73640
+  },
+  {
+    "key": "18_html",
+    "url": "https://arxiv.org/html/2501.04279v1",
+    "metadata": {
+      "citation_title": [],
+      "citation_author": [],
+      "citation_date": []
+    },
+    "length": 52042
+  },
+  {
+    "key": "19_html",
+    "url": "https://arxiv.org/html/2606.15476v3",
+    "metadata": {
+      "citation_title": [],
+      "citation_author": [],
+      "citation_date": []
+    },
+    "length": 120402
+  },
+  {
+    "key": "20_html",
+    "url": "https://arxiv.org/html/2610.00330v2",
+    "metadata": {
+      "citation_title": [],
+      "citation_author": [],
+      "citation_date": []
+    },
+    "length": 106360
+  },
+  {
+    "key": "21_abs",
+    "url": "https://arxiv.org/abs/2506.01844",
+    "metadata": {
+      "citation_title": [
+        "SmolVLA: A Vision-Language-Action Model for Affordable and Efficient Robotics"
+      ],
+      "citation_author": [
+        "Shukor, Mustafa",
+        "Aubakirova, Dana",
+        "Capuano, Francesco",
+        "Kooijmans, Pepijn",
+        "Palma, Steven",
+        "Zouitine, Adil",
+        "Aractingi, Michel",
+        "Pascal, Caroline",
+        "Russi, Martino",
+        "Marafioti, Andres",
+        "Alibert, Simon",
+        "Cord, Matthieu",
+        "Wolf, Thomas",
+        "Cadene, Remi"
+      ],
+      "citation_date": [
+        "2025/06/02"
+      ]
+    },
+    "length": 5468
+  },
+  {
+    "key": "21_html",
+    "url": "https://arxiv.org/html/2506.01844",
+    "metadata": {
+      "citation_title": [],
+      "citation_author": [],
+      "citation_date": []
+    },
+    "length": 109755
+  },
+  {
+    "key": "22_abs",
+    "url": "https://arxiv.org/abs/2609.07398",
+    "metadata": {
+      "citation_title": [
+        "OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining"
+      ],
+      "citation_author": [
+        "Wang, Yuran",
+        "Huang, Siqiao",
+        "Li, Mingleyang",
+        "Zhang, Chenhao",
+        "Liang, Jiaqi",
+        "Jin, Weiyang",
+        "Chen, Yue",
+        "Chi, Xuemin",
+        "Zhou, Donghao",
+        "Yu, Qize",
+        "Wang, Yu-Kai",
+        "Rui, Yuhan",
+        "Yao, Shenzhe",
+        "Yuan, Zhen",
+        "Shen, Zhenhao",
+        "Zhu, Kefei",
+        "Zhu, Zijie",
+        "Gao, Ning",
+        "Chi, Xiaowei",
+        "He, Guanqi",
+        "Zhang, Shanghang",
+        "Dong, Hao",
+        "Shao, Lin",
+        "Zhao, Hang"
+      ],
+      "citation_date": [
+        "2026/09/07"
+      ]
+    },
+    "length": 5989
+  },
+  {
+    "key": "22_html",
+    "url": "https://arxiv.org/html/2609.07398",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "key": "23_abs",
+    "url": "https://arxiv.org/abs/2609.23578v2",
+    "metadata": {
+      "citation_title": [
+        "AR-WAM: A Visual-Conditioned Agent-Ready World Action Model for Robotic Manipulation"
+      ],
+      "citation_author": [
+        "Jiang, Yicheng",
+        "Gan, Zesen",
+        "Wang, Xiaobo",
+        "He, Tianlun",
+        "Zhao, Chenxu",
+        "Wu, Minghui",
+        "Wang, Xinyue",
+        "Wang, Jiaxu",
+        "He, Junhao",
+        "Wang, Jianan",
+        "Shao, Qiming"
+      ],
+      "citation_date": [
+        "2026/09/20"
+      ]
+    },
+    "length": 5543
+  },
+  {
+    "key": "24_abs",
+    "url": "https://arxiv.org/abs/2403.09227",
+    "metadata": {
+      "citation_title": [
+        "BEHAVIOR-1K: A Human-Centered, Embodied AI Benchmark with 1,000 Everyday Activities and Realistic Simulation"
+      ],
+      "citation_author": [
+        "Li, Chengshu",
+        "Zhang, Ruohan",
+        "Wong, Josiah",
+        "Gokmen, Cem",
+        "Srivastava, Sanjana",
+        "Martín-Martín, Roberto",
+        "Wang, Chen",
+        "Levine, Gabrael",
+        "Ai, Wensi",
+        "Martinez, Benjamin",
+        "Yin, Hang",
+        "Lingelbach, Michael",
+        "Hwang, Minjune",
+        "Hiranaka, Ayano",
+        "Garlanka, Sujay",
+        "Aydin, Arman",
+        "Lee, Sharon",
+        "Sun, Jiankai",
+        "Anvari, Mona",
+        "Sharma, Manasi",
+        "Bansal, Dhruva",
+        "Hunter, Samuel",
+        "Kim, Kyu-Young",
+        "Lou, Alan",
+        "Matthews, Caleb R",
+        "Villa-Renteria, Ivan",
+        "Tang, Jerry Huayang",
+        "Tang, Claire",
+        "Xia, Fei",
+        "Li, Yunzhu",
+        "Savarese, Silvio",
+        "Gweon, Hyowon",
+        "Liu, C. Karen",
+        "Wu, Jiajun",
+        "Fei-Fei, Li"
+      ],
+      "citation_date": [
+        "2024/03/14"
+      ]
+    },
+    "length": 5595
+  },
+  {
+    "key": "25_abs",
+    "url": "https://arxiv.org/abs/2603.04356",
+    "metadata": {
+      "citation_title": [
+        "RoboCasa365: A Large-Scale Simulation Framework for Training and Benchmarking Generalist Robots"
+      ],
+      "citation_author": [
+        "Nasiriany, Soroush",
+        "Nasiriany, Sepehr",
+        "Maddukuri, Abhiram",
+        "Zhu, Yuke"
+      ],
+      "citation_date": [
+        "2026/03/04"
+      ]
+    },
+    "length": 5198
+  },
+  {
+    "key": "29_cvf_index",
+    "url": "https://openaccess.thecvf.com/CVPR2026?day=all",
+    "links": [
+      [
+        "/content/CVPR2026/html/Lin_Evo-1_Lightweight_Vision-Language-Action_Model_with_Preserved_Semantic_Alignment_CVPR_2026_paper.html",
+        "Evo-1: Lightweight Vision-Language-Action Model with Preserved Semantic Alignment"
+      ]
+    ]
+  }
+]

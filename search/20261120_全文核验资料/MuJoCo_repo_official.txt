@@ -1,0 +1,170 @@
+
+ GitHub - google-deepmind/mujoco: Multi-Joint dynamics with Contact. A general purpose physics simulator. · GitHub 
+ Skip to content 
+ Navigation Menu Sign in Products Platform GitHub Repository hosting, code review, and collaboration Copilot AI coding agent for tasks, projects, and automated work Build & Ship Actions CI/CD and automation Code Quality Quality analysis, fixes, and enforcement Codespaces Cloud development environments Secure Code Security Vulnerability detection and remediation Secret Protection Secret scanning and leak prevention All Features Developers Learn Documentation Training Certifications Build Build with Copilot Customize Copilot Integrations Explore Trending repos GitHub Sponsors Developer articles Changelog Changelog Your source for the latest features, improvements, and fixes across GitHub products, all in one place. Businesses By Stage Enterprises Team Startups Nonprofits By Industry Healthcare Financial services Manufacturing Government See all industries Evaluate GitHub Why GitHub Customer Stories Business insights Trust Center Add-ons GitHub Advanced Security Enterprise-grade code security Copilot for business Enterprise-grade AI features Premium Support Enterprise-grade 24/7 support Resources Learn & Connect Documentation Resource center Blog Events & webinars Community Forum Customer Stories Integrations Support Customer support Training GitHub Status Company About Partners Changelog GitHub Universe GitHub Universe The event for developers, by developers — talks, workshops, and what’s next for GitHub. Pricing Search / Sign in Sign up Appearance settings 
+ You signed in with another tab or window. Reload to refresh your session. 
+ You signed out in another tab or window. Reload to refresh your session. 
+ You switched accounts on another tab or window. Reload to refresh your session. 
+ Dismiss alert 
+ {{ message }} 
+ google-deepmind mujoco Repository navigation Code Issues 173  ( 173 ) Pull requests 250  ( 250 ) Discussions Actions Security and quality Insights More items 
+ mujoco Public Notifications You must be signed in to change notification settings Fork 2.2k  ( 2.2k ) Star 18.3k  ( 18.3k ) You must be signed in to star a repository About Multi-Joint dynamics with Contact. A general purpose physics simulator. mujoco.org Topics mujoco physics robotics Resources Readme Apache-2.0 license Contributing Contributing Security policy Security policy Activity Custom properties Stars 18.3k stars Watchers 144 watching Forks 2.2k forks Report repository main Branches Tags Go to file Code Open more actions menu Latest commit   History 6,695 Commits 6,695 Commits Folders and files Name Name Last commit message Last commit date .github .github     cmake cmake     dist dist     doc doc     include/ mujoco include/ mujoco     mjx mjx     model model     plugin plugin     python python     sample sample     simulate simulate     src src     studio studio     test test     unity unity     wasm wasm     .bazelrc .bazelrc     .bazelversion .bazelversion     .clang-format .clang-format     .gitignore .gitignore     .pre-commit-config.yaml .pre-commit-config.yaml     .readthedocs.yml .readthedocs.yml     BUILD.bazel BUILD.bazel     CMakeLists.txt CMakeLists.txt     CONTRIBUTING.md CONTRIBUTING.md     LICENSE LICENSE     MODULE.bazel MODULE.bazel     README.md README.md     REPO.bazel REPO.bazel     SECURITY.md SECURITY.md     STYLEGUIDE.md STYLEGUIDE.md     VERSIONING.md VERSIONING.md     banner.png banner.png     build_defs.bzl build_defs.bzl     mujoco.lds mujoco.lds     mujoco.unexported_symbols mujoco.unexported_symbols     mujoco_plugin.exported_symbols mujoco_plugin.exported_symbols     mujoco_plugin.lds mujoco_plugin.lds     View all files Repository files navigation README Contributing Apache-2.0 license Security More items 
+ MuJoCo stands for Mu lti- Jo int dynamics with Co ntact. It is a
+general purpose physics engine that aims to facilitate research and development
+in robotics, biomechanics, graphics and animation, machine learning, and other
+areas which demand fast and accurate simulation of articulated structures
+interacting with their environment. 
+ This repository is maintained by Google DeepMind . 
+ MuJoCo has a C API and is intended for researchers and developers. The runtime
+simulation module is tuned to maximize performance and operates on low-level
+data structures that are preallocated by the built-in XML compiler. The library
+includes interactive visualization in native desktop windows and web browsers.
+MuJoCo further exposes a large number of utility functions for computing
+physics-related quantities. 
+ We also provide Python bindings and a plug-in for the Unity game engine. 
+ Documentation 
+ MuJoCo's documentation can be found at mujoco.readthedocs.io . Upcoming
+features due for the next release can be found in the changelog in the
+"latest" branch. 
+ Getting Started 
+ Try MuJoCo in your browser. 
+Visit mujoco.org to explore MuJoCo on desktop or mobile
+with nothing to install, or open live.mujoco.org to
+inspect and drag and drop your own models in the WebAssembly version of the
+ MuJoCo Studio app (slower than native C, since it runs in WebAssembly). 
+ Run a viewer on your machine. 
+Follow the Getting Started guide in the documentation to download a prebuilt
+release and run the MuJoCo Studio app or the classic simulate viewer (shown
+in this video ) on your machine. 
+ Explore our online IPython notebooks. 
+If you are a Python user, you might want to start with our tutorial notebooks
+running on Google Colab: 
+ The introductory tutorial teaches MuJoCo basics:
+ The Model Editing tutorial shows how to create and edit models procedurally:
+ The rollout tutorial shows how to use the multithreaded rollout module:
+ The LQR tutorial synthesizes a linear-quadratic controller, balancing a
+humanoid on one leg:
+ The least-squares tutorial explains how to use the Python-based nonlinear
+least-squares solver:
+ Train and deploy robot policies. 
+Visit MuJoCo Playground and the
+ reaf-sim documentation for GPU-accelerated RL
+training, teleoperation, system identification, and sim-to-real deployment in
+PyTorch. For JAX workflows, see
+ MuJoCo XLA (MJX) and the MJX
+environments in Playground's
+ rss2025 
+directory. 
+ Installation 
+ Prebuilt binaries 
+ Versioned releases are available as precompiled binaries from the GitHub
+ releases page , built for Linux (x86-64 and AArch64), Windows (x86-64 only),
+and macOS (universal). This is the recommended way to use the software. 
+ Building from source 
+ Users who wish to build MuJoCo from source should consult the build from
+source section of the documentation. However, note that the commit at
+the tip of the main branch may be unstable. 
+ Python (>= 3.11) 
+ The native Python bindings, which come pre-packaged with a copy of MuJoCo, can
+be installed from PyPI via: 
+ pip install mujoco 
+ Note that Pre-built Linux wheels target manylinux2014 , see
+ here for compatible distributions. For more
+information such as building the bindings from source, see the Python bindings 
+section of the documentation. 
+ Versioning 
+ We aim to release MuJoCo in the first week of each month. Our versioning
+standards changed to modified Semantic Versioning in 3.5.0,
+see versioning for details. 
+ Contributing 
+ We welcome community engagement: questions, requests for help, bug reports and
+feature requests. To read more about bug reports, feature requests and more
+ambitious contributions, please see our contributors guide 
+and style guide . 
+ Asking Questions 
+ Questions and requests for help are welcome as a GitHub
+ "Asking for Help" Discussion 
+and should focus on a specific problem or question. 
+ Bug reports and feature requests 
+ GitHub Issues are reserved
+for bug reports, feature requests and other development-related subjects. 
+ Related software 
+ MuJoCo is the backbone for numerous robotics and machine learning packages.
+Below we list first-party frameworks, bindings, and converters. 
+ Robotics and RL 
+ MuJoCo Playground 
+( GitHub ): Sim-to-real
+robot workflows (RL, teleoperation, system ID, and VLM-guided manipulation)
+built on MuJoCo, MuJoCo Warp ,
+and reaf-sim in PyTorch (with
+JAX/ MJX environments in
+ rss2025 ). 
+ reaf-sim 
+( GitHub ): PyTorch environment
+authoring library that decouples hardware and sensor I/O from task logic for
+sim-to-real transfer. 
+ MuJoCo Menagerie :
+Curated collection of high-quality robot models for MuJoCo. 
+ Bindings 
+ These packages give users of various languages access to MuJoCo functionality: 
+ First-party bindings: 
+ Python bindings 
+ dm_control , Google
+DeepMind's related environment stack, includes
+ PyMJCF ,
+a module for procedural manipulation of MuJoCo models. 
+ JavaScript bindings and WebAssembly support (inspired stillonearth and zalo 's community projects; mjswan extends these with real-time policy control, interactive force
+application, and more). 
+ C# bindings and Unity plug-in 
+ Third-party bindings: 
+ MATLAB Simulink : Simulink Blockset for MuJoCo Simulator 
+by Manoj Velmurugan . 
+ Swift : swift-mujoco 
+ Java : mujoco-java 
+ Julia : MuJoCo.jl 
+ Rust : MuJoCo-rs 
+ Converters 
+ OpenSim : MyoConverter converts
+OpenSim models to MJCF. 
+ SDFormat : gz-mujoco is a
+two-way SDFormat <-> MJCF conversion tool. 
+ OBJ : obj2mjcf 
+a script for converting composite OBJ files into a loadable MJCF model. 
+ onshape : Onshape to Robot 
+Converts onshape CAD assemblies to MJCF. 
+ Citation 
+ If you use MuJoCo for published research, please cite: 
+ @inproceedings{todorov2012mujoco,
+ title={MuJoCo: A physics engine for model-based control},
+ author={Todorov, Emanuel and Erez, Tom and Tassa, Yuval},
+ booktitle={2012 IEEE/RSJ International Conference on Intelligent Robots and Systems},
+ pages={5026--5033},
+ year={2012},
+ organization={IEEE},
+ doi={10.1109/IROS.2012.6386109}
+}
+ License and Disclaimer 
+ Copyright 2021 DeepMind Technologies Limited. 
+ Box collision code ( engine_collision_box.c )
+is Copyright 2016 Svetoslav Kolev. 
+ ReStructuredText documents, images, and videos in the doc directory are made
+available under the terms of the Creative Commons Attribution 4.0 (CC BY 4.0)
+license. You may obtain a copy of the License at
+ https://creativecommons.org/licenses/by/4.0/legalcode . 
+ Source code is licensed under the Apache License, Version 2.0. You may obtain a
+copy of the License at https://www.apache.org/licenses/LICENSE-2.0 . 
+ This is not an officially supported Google product. 
+ About Multi-Joint dynamics with Contact. A general purpose physics simulator. mujoco.org Topics mujoco physics robotics Resources Readme Apache-2.0 license Contributing Contributing Security policy Security policy Activity Custom properties Stars 18.3k stars Watchers 144 watching Forks 2.2k forks Report repository Releases Used by Contributors Languages 
+ Footer 
+ © 2026 GitHub, Inc.
+ Footer navigation 
+ Terms 
+ Privacy 
+ Security 
+ Status 
+ Community 
+ Docs 
+ Contact 
+ Manage cookies
+ Do not share my personal information
+ You can’t perform that action at this time.

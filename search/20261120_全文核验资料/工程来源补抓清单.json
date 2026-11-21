@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Nav2_rolling",
+    "url": "https://docs.nav2.org/rolling/",
+    "length": 14825,
+    "evidence": "If you need professional services related to Nav2, please contact Open Navigation at info@opennav.org .\nNav2 is the professionally-supported successor of the ROS Navigation Stack deploying the same kinds of technology powering Autonomous Vehicles brought down, optimized, and reworked for mobile and surface robotics.\nNot only can it move from Point A to Point B, but it can have intermediary poses, and represent other types of tasks like object following, complete coverage navigation, and more."
+  },
+  {
+    "name": "FastAPI_home",
+    "url": "https://fastapi.tiangolo.com/",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "name": "MuJoCo_repo",
+    "url": "https://github.com/google-deepmind/mujoco",
+    "length": 11014,
+    "evidence": "GitHub - google-deepmind/mujoco: Multi-Joint dynamics with Contact. A general purpose physics simulator. · GitHub\nNavigation Menu Sign in Products Platform GitHub Repository hosting, code review, and collaboration Copilot AI coding agent for tasks, projects, and automated work Build & Ship Actions CI/CD and automation Code Quality Quality analysis, fixes, and enforcement Codespaces Cloud development environments Secure Code Security Vulnerability detection and remediation Secret Protection Secret scanning and leak prevention All Features Developers Learn Documentation Training Certifications Build Build with Copilot Customize Copilot Integrations Explore Trending repos GitHub Sponsors Developer articles Changelog Changelog Your source for the latest features, improvements, and fixes across GitHub products, all in one place. Businesses By Stage Enterprises Team Startups Nonprofits By Industry Healthcare Financial services Manufacturing Government See all industries Evaluate GitHub Why GitHub Customer Stories Business insights Trust Center Add-ons GitHub Advanced Security Enterprise-grade code security Copilot for business Enterprise-grade AI features Premium Support Enterprise-grade 24/7 support Resources Learn & Connect Documentation Resource center Blog Events & webinars Community Forum Customer Stories Integrations Support Customer support Training GitHub Status Company About Partners Changelog GitHub Universe GitHub Universe The event for developers, by developers — talks, workshops, and what’s next for GitHub. Pricing Search / Sign in Sign up Appearance settings\ngoogle-deepmind mujoco Repository navigation Code Issues 173  ( 173 ) Pull requests 250  ( 250 ) Discussions Actions Security and quality Insights More items"
+  },
+  {
+    "name": "LeRobot_smolvla",
+    "url": "https://huggingface.co/docs/lerobot/smolvla",
+    "error": "<urlopen error timed out>"
+  }
+]

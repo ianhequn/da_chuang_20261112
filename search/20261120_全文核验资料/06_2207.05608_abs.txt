@@ -1,0 +1,127 @@
+ 
+ [2207.05608] Inner Monologue: Embodied Reasoning through Planning with Language Models 
+ Skip to main content 
+ Search 
+ Submit 
+ Donate 
+ Log in 
+ Search arXiv 
+ Press Enter to search · Advanced search 
+--> 
+ Computer Science > Robotics 
+ arXiv:2207.05608 (cs)
+ [Submitted on 12 Jul 2022] 
+ Title: Inner Monologue: Embodied Reasoning through Planning with Language Models 
+ Authors: Wenlong Huang , Fei Xia , Ted Xiao , Harris Chan , Jacky Liang , Pete Florence , Andy Zeng , Jonathan Tompson , Igor Mordatch , Yevgen Chebotar , Pierre Sermanet , Noah Brown , Tomas Jackson , Linda Luu , Sergey Levine , Karol Hausman , Brian Ichter View a PDF of the paper titled Inner Monologue: Embodied Reasoning through Planning with Language Models, by Wenlong Huang and 16 other authors 
+ View PDF 
+ HTML (experimental) 
+ Abstract: Recent works have shown how the reasoning capabilities of Large Language Models (LLMs) can be applied to domains beyond natural language processing, such as planning and interaction for robots. These embodied problems require an agent to understand many semantic aspects of the world: the repertoire of skills available, how these skills influence the world, and how changes to the world map back to the language. LLMs planning in embodied environments need to consider not just what skills to do, but also how and when to do them - answers that change over time in response to the agent's own choices. In this work, we investigate to what extent LLMs used in such embodied contexts can reason over sources of feedback provided through natural language, without any additional training. We propose that by leveraging environment feedback, LLMs are able to form an inner monologue that allows them to more richly process and plan in robotic control scenarios. We investigate a variety of sources of feedback, such as success detection, scene description, and human interaction. We find that closed-loop language feedback significantly improves high-level instruction completion on three domains, including simulated and real table top rearrangement tasks and long-horizon mobile manipulation tasks in a kitchen environment in the real world.
+ Comments: 
+ Project website: this https URL 
+ Subjects: 
+ Robotics (cs.RO) ; Artificial Intelligence (cs.AI); Computation and Language (cs.CL); Computer Vision and Pattern Recognition (cs.CV); Machine Learning (cs.LG) 
+ Cite as: 
+ arXiv:2207.05608 [cs.RO] 
+ (or 
+ arXiv:2207.05608v1 [cs.RO] for this version)
+ https://doi.org/10.48550/arXiv.2207.05608 
+ Focus to learn more 
+ arXiv-issued DOI via DataCite 
+ Submission history From: Brian Ichter [ view email ] [v1] 
+ Tue, 12 Jul 2022 15:20:48 UTC (47,542 KB) 
+ Full-text links: 
+ Access Paper: 
+View a PDF of the paper titled Inner Monologue: Embodied Reasoning through Planning with Language Models, by Wenlong Huang and 16 other authors View PDF HTML (experimental) TeX Source
+ view license 
+ Additional Features 
+ Audio Summary 
+ Current browse context: 
+ cs.RO 
+ < prev 
+   |   
+ next > 
+ new 
+ | 
+ recent 
+ | 2022-07 
+ Change to browse by:
+ cs 
+ cs.AI 
+ cs.CL 
+ cs.CV 
+ cs.LG 
+ References & Citations 
+ SciX Google Scholar 
+ Semantic Scholar 
+ export BibTeX citation 
+ Loading... 
+ BibTeX formatted citation 
+ × 
+ loading... 
+ Data provided by: 
+ Bookmark 
+ Bibliographic Tools 
+ Bibliographic and Citation Tools 
+ Bibliographic Explorer Toggle 
+ Bibliographic Explorer ( What is the Explorer? ) 
+ Connected Papers Toggle 
+ Connected Papers ( What is Connected Papers? ) 
+ Litmaps Toggle 
+ Litmaps ( What is Litmaps? ) 
+ scite.ai Toggle 
+ scite Smart Citations ( What are Smart Citations? ) 
+ Code, Data, Media 
+ Code, Data and Media Associated with this Article 
+ alphaXiv Toggle 
+ alphaXiv ( What is alphaXiv? ) 
+ Links to Code Toggle 
+ CatalyzeX Code Finder for Papers ( What is CatalyzeX? ) 
+ DagsHub Toggle 
+ DagsHub ( What is DagsHub? ) 
+ GotitPub Toggle 
+ Gotit.pub ( What is GotitPub? ) 
+ Huggingface Toggle 
+ Hugging Face ( What is Huggingface? ) 
+ ScienceCast Toggle 
+ ScienceCast ( What is ScienceCast? ) 
+ Demos 
+ Demos 
+ Replicate Toggle 
+ Replicate ( What is Replicate? ) 
+ Spaces Toggle 
+ Hugging Face Spaces ( What is Spaces? ) 
+ Spaces Toggle 
+ TXYZ.AI ( What is TXYZ.AI? ) 
+ Related Papers 
+ Recommenders and Search Tools 
+ Link to Influence Flower 
+ Influence Flower ( What are Influence Flowers? ) 
+ Core recommender toggle 
+ CORE Recommender ( What is CORE? ) 
+ Author 
+ Venue 
+ Institution 
+ Topic 
+ About arXivLabs
+ arXivLabs: experimental projects with community collaborators 
+ arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website. 
+ Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them. 
+ Have an idea for a project that will add value for arXiv's community? Learn more about arXivLabs . 
+ Which authors of this paper are endorsers? |
+ Disable MathJax ( What is MathJax? )
+ We gratefully acknowledge support from our major funders ,
+ member institutions , ,
+ and all contributors.
+ About · 
+ Help · 
+ Contact · 
+ Subscribe · 
+ Copyright · 
+ Privacy · 
+ Accessibility · 
+ Operational Status (opens in new tab) 
+ Major funding support from 
+ (opens in new tab) 
+ (opens in new tab) 
+ (opens in new tab) 
+ 
